@@ -72,7 +72,7 @@ export const redis = Redis.fromEnv();
 
 ## Route Handlers (src/app/api/tour/*/route.ts)
 
-### 7개 엔드포인트
+### 9개 엔드포인트 (제안서 정합 합집합)
 
 | Route | TourAPI 엔드포인트 | 쿼리 파라미터 | 캐시 |
 |-------|-----------------|--------------|------|
@@ -83,6 +83,24 @@ export const redis = Redis.fromEnv();
 | `/api/tour/detail` | detailCommon1 + detailIntro1 | contentId, contentTypeId? | 6h |
 | `/api/tour/images` | detailImage1 | contentId | 24h |
 | `/api/tour/pet` | detailPetTour1 | contentId | 6h |
+| `/api/tour/lodging` ⭐ | areaBasedList1(contentTypeId=32) | areaCode, ecoCert?, petOk?, transitAccess? | 6h |
+| `/api/tour/sync` ⭐ | areaBasedSyncList1 | modifiedTime?, areaCode? | 동기화 cron 트리거 |
+
+⭐ 표시는 greentrip_proposal.md 3.1장에서 명시한 항목(숙박정보·동기화 목록)을 별도 Route로 분리.
+
+### 숙박 필터링(`/api/tour/lodging`) 작업 메모
+
+- 기본: `areaBasedList1` with `contentTypeId=32`
+- 친환경 인증(`ecoCert=Y`): TourAPI 자체에 직접 플래그가 없으므로, overview 텍스트의 키워드("친환경", "그린키", "에코") 매칭으로 1차 필터링. Phase 4+에서 외부 인증 DB와 결합.
+- 반려동물(`petOk=Y`): `detailPetTour1`을 lodging 결과의 contentId별로 호출하여 합필터링. 성능을 위해 캐시 활용 의무.
+- 대중교통 접근(`transitAccess=Y`): `detailCommon1`의 infocenter/overview 텍스트에서 "역에서 N분", "버스 정류장" 키워드 추출. 접근성 점수와 동일 로직.
+
+### 동기화 목록(`/api/tour/sync`) 작업 메모
+
+- TourAPI `areaBasedSyncList1` 엔드포인트로 변경/추가/삭제된 contentId 목록을 수집
+- DB에 캐시된 관광지 레코드와 비교하여 변경분만 갱신
+- Vercel Cron 또는 GitHub Actions로 일 1회 실행 (제안서 3.1 No.10 "데이터 최신성 유지" 책임 이행)
+- 동기화 실행 로그를 별도 테이블에 기록 → 공모전 심사 시 "데이터 최신성" 증빙
 
 ### Route 템플릿
 

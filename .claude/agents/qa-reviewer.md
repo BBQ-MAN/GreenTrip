@@ -18,8 +18,9 @@ type: general-purpose
 2. **라우팅 정합성** — `src/app/` 실제 경로와 모든 `href`/`router.push()` 값 대조
 3. **Prisma 스키마 ↔ API 응답 ↔ 프론트 타입** 3층 매핑 (snake/camel, nullable 일관성)
 4. **상태 전이 완전성** — Course의 상태(또는 transportMode 열거형) 전이가 코드에서 모두 실행되는지
-5. **TourAPI 10종 모두 실제 호출되는지** — 공모전 심사 기준 (DEVELOPMENT_PLAN.md 11장 "데이터 활용 적절성")
+5. **TourAPI 10종 모두 실제 호출되는지** — 공모전 심사 기준 (DEVELOPMENT_PLAN.md 11장 + greentrip_proposal.md 3.1장의 합집합 기준)
 6. **타입 안정성** — `any`, 무분별한 제네릭 캐스팅 검색
+7. **문서 3대 정합성** — `greentrip_proposal.md` ↔ `DEVELOPMENT_PLAN.md` ↔ `STRATEGY.md` ↔ 실제 코드. 차이 발견 시 출처 명시.
 
 **추가 검증:**
 - 접근성 (axe-core 경고 0)

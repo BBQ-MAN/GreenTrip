@@ -13,18 +13,25 @@ type: general-purpose
 
 ## 담당 범위
 
-**TourAPI 10종:**
+**TourAPI 호출 영역 (DEVELOPMENT_PLAN.md 3장 + greentrip_proposal.md 3.1장 합집합):**
 - `areaCode1`, `categoryCode1` (정적 캐시, ISR)
 - `locationBasedList1`, `areaBasedList1`, `searchKeyword1` (실시간 + 1시간 캐시)
 - `searchFestival1` (6시간 캐시)
 - `detailCommon1`, `detailIntro1`, `detailImage1`, `detailPetTour1` (6~24시간 캐시)
+- **숙박정보 처리** — `areaBasedList1`에 `contentTypeId=32`(숙박) + 친환경 인증·반려동물 동반·대중교통 접근 필터링 (제안서 3.1 No.6)
+- **`areaBasedSyncList1`(동기화 목록)** — 변경/추가/삭제된 관광정보 주기적 동기화 (제안서 3.1 No.10). 일 1회 cron 또는 ISR revalidate
 
 **모듈:**
 - `src/lib/tourapi/client.ts` — HTTP 클라이언트 (fetch 기반, 공통 파라미터 자동 주입)
-- `src/lib/tourapi/types.ts` — 10종 응답 타입 정의
+- `src/lib/tourapi/types.ts` — 응답 타입 정의 (위 모든 엔드포인트)
 - `src/lib/tourapi/constants.ts` — CONTENT_TYPE, GANGWON (areaCode/sigungu)
 - `src/lib/tourapi/cache.ts` — Upstash Redis 래퍼 (키 네이밍 + TTL)
-- `src/app/api/tour/*/route.ts` — 7개 Route Handler (area, location, search, festival, detail, images, pet)
+- `src/lib/tourapi/sync.ts` — 동기화 목록 처리 (변경분만 DB·캐시 갱신)
+- `src/app/api/tour/*/route.ts` — 8개 Route Handler (area, location, search, festival, detail, images, pet, **lodging**, **sync**)
+
+## 제안서 정합성 책임
+
+`greentrip_proposal.md` 3.1장의 "활용 예정 한국관광공사 OpenAPI 10종"과 DEVELOPMENT_PLAN.md 3장의 10종 항목이 정확히 일치하지 않는다 (제안서는 숙박정보·동기화 목록을 별도 항목으로 명시, DEVELOPMENT_PLAN은 areaCode/categoryCode를 별도로 카운트). 두 정의를 **합집합**으로 처리하여 누락 없이 모두 호출되도록 보장한다. qa-reviewer의 "TourAPI 10종 호출 검증"에서 합집합 기준으로 검증된다.
 
 ## 작업 원칙
 

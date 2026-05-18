@@ -127,15 +127,36 @@ GreenTrip(저탄소 여행 플래너) 에이전트 팀을 조율하여 DEVELOPME
 | 6~7 | 축제 API + 필터 + UI 토글 | tourapi-integrator, domain-logic, ui-builder |
 | 8~9 | 반려동물 API + 필터 + UI | tourapi-integrator, domain-logic, ui-builder |
 | 10~11 | CarbonReport DB, 인증서 이미지(og), Recharts, 공유 | ui-builder, domain-logic |
-| 12~13 | NextAuth, 마이페이지, ThemeCourse 시드, /explore, 접근성 | architect, ui-builder, qa |
+| 12~13 | NextAuth, 마이페이지, ThemeCourse 시드, /explore, 접근성, **숙박 필터링(`/api/tour/lodging`)** | architect, tourapi-integrator, ui-builder, qa |
 
 ### Phase 3 (Week 14~17)
 
 | Week | 주요 작업 | 주 담당 |
 |------|----------|--------|
-| 14 | next-pwa, manifest, 이미지 최적화, Lighthouse 90+ | architect, ui-builder, qa |
-| 15 | Vercel 배포, Sentry, Analytics, Rate Limit | architect, qa |
-| 16~17 | QA 전수 검증, 버그 수정, 콘텐츠 보강, 데모 준비 | qa-reviewer 주도 |
+| 14 | next-pwa, manifest, 이미지 최적화, Lighthouse 90+, **TourAPI 동기화 cron(`/api/tour/sync`)** | architect, tourapi-integrator, ui-builder, qa |
+| 15 | Vercel 배포, Sentry, Analytics, Rate Limit, **TourAPI 호출 통계 대시보드(심사 대응)** | architect, qa |
+| 16~17 | QA 전수 검증, 버그 수정, 콘텐츠 보강, 데모 준비, **3대 문서 정합성 검증** | qa-reviewer 주도 |
+
+### Phase 4+ 확장 (제안서 4장 단계별 로드맵 정합)
+
+`STRATEGY.md`의 로드맵 v2와 정합. 본격 실행 전 product-strategist의 우선순위 표(`_workspace/benchmark/04_mvp_plus_priority.md`) 재확인.
+
+| Phase | 주요 작업 | 주 담당 |
+|-------|---------|--------|
+| Phase 4 (2026.11~2027.01) — 게이미피케이션·커뮤니티 | 누적 절감 리더보드(`/leaderboard`), 챌린지(`/challenge`), 커뮤니티 후기(`/community`), 탄소 절감 포인트 적립 시스템 | architect(스키마), domain-logic(포인트 산정), ui-builder, qa |
+| Phase 4 (병행) — 전국 확장 | 강원도 외 1개 지역(제주 또는 경상) 추가, ThemeCourse 콘텐츠 확장 | tourapi-integrator(지역코드), ui-builder |
+| Phase 5 (2027.02~04) — B2G·B2B | 지자체 대시보드(ESG 리포트), 탄소 포인트 ↔ 지역화폐 교환 PoC, 친환경 숙소 제휴 5개 | architect, domain-logic, qa |
+| Phase 6 (2027.05+) — 지속 | 전국 17개 시도, 모바일 앱(React Native 또는 Flutter), 관광빅데이터(방문자 수) 연동 분산 관광 | 전체 |
+
+## 제안서 변경 트리거
+
+`greentrip_proposal.md`가 변경되면 (예: 1차 심사 후 수정안 제출) 다음 영역의 영향 분석을 자동으로 수행:
+1. 2장 "주요 기능" 변경 → ui-builder + domain-logic 영향
+2. 3.1장 OpenAPI 10종 변경 → tourapi-integrator + qa(체크리스트) 영향
+3. 4장 발전 로드맵 변경 → STRATEGY.md 로드맵 v2 갱신 트리거 (`greentrip-benchmark` 스킬로 재실행)
+4. 4장 기술 스택 변경 → architect 영향. Python 백엔드처럼 전체 아키텍처 영향 시 사용자에게 확인.
+
+오케스트레이터는 사용자가 "제안서가 바뀌었는데 코드에 영향이 있나?" 같은 질문을 하면 위 매트릭스로 응답한다.
 
 ## 데이터 흐름
 

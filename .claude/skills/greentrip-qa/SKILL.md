@@ -52,7 +52,7 @@ description: GreenTrip 통합 정합성 검증 스킬. API 응답↔프론트 �
 - [ ] `any`, 무분별한 제네릭 캐스팅(`as unknown as T`) 검색 0건
 - [ ] `@ts-ignore`, `@ts-expect-error` 주석 0건
 
-### E. TourAPI 10종 사용 여부 (공모전 필수)
+### E. TourAPI 10종 사용 여부 (공모전 필수, DEVELOPMENT_PLAN + 제안서 합집합)
 - [ ] areaCode1 호출 확인 (`/api/tour/area`)
 - [ ] categoryCode1 호출 확인
 - [ ] locationBasedList1 호출 확인 (`/api/tour/location`)
@@ -63,6 +63,16 @@ description: GreenTrip 통합 정합성 검증 스킬. API 응답↔프론트 �
 - [ ] detailIntro1 호출 확인
 - [ ] detailImage1 호출 확인 (`/api/tour/images`)
 - [ ] detailPetTour1 호출 확인 (`/api/tour/pet`, Week 8~9)
+- [ ] **숙박정보 처리** — `areaBasedList1` with `contentTypeId=32` + 친환경/반려동물/대중교통 필터 (`/api/tour/lodging`, 제안서 3.1 No.6)
+- [ ] **`areaBasedSyncList1` 동기화 목록** — 일 1회 cron 실행, 동기화 로그 테이블에 기록 (`/api/tour/sync`, 제안서 3.1 No.10)
+
+### H. 문서 3대 정합성 검증
+- [ ] `greentrip_proposal.md` 2장 "기획 서비스 주요 기능" 5개와 실제 구현된 기능이 일치
+- [ ] 제안서 3.1장의 10종 OpenAPI와 실제 호출 코드 매핑 (위 E 체크리스트의 합집합 통과 여부)
+- [ ] 제안서 4장 "단계별 발전 로드맵" 3단계와 `STRATEGY.md` 로드맵 v2가 충돌하지 않음
+- [ ] 제안서 1장 "75% 관광교통 탄소", "83% 지속가능 의향" 등 정량 주장이 `_workspace/benchmark/04_evidence_ledger.md`에 출처와 함께 기록됨
+- [ ] 제안서 4장 "기대효과" 4개 항목이 `STRATEGY.md`의 KPI로 1:1 매핑됨 (Evidence Ledger 참조)
+- [ ] 제안서 4장 "기술 스택"과 DEVELOPMENT_PLAN.md 2장 기술 스택 불일치 사항이 명시적으로 해소됨 (예: Python 백엔드 vs TS 단일 스택 결정)
 
 ### F. 접근성 & 성능 (Phase 3)
 - [ ] axe-core 경고 0 (또는 의도적 무시 사유 명시)
