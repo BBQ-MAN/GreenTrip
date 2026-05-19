@@ -1,0 +1,112 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* -----------------------------------------------------------------------------
+   Pretendard Variable — Web Font (CDN, SIL OFL 1.1)
+   Phase 1: CDN 사용. Phase 3에서 self-host (public/fonts/) 전환 검토.
+   ----------------------------------------------------------------------------- */
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css');
+
+/* -----------------------------------------------------------------------------
+   shadcn/ui CSS variables — GreenTrip tokens mapped to HSL
+   Reference: _workspace/benchmark/03_design_proposal.md §6.3
+   ----------------------------------------------------------------------------- */
+@layer base {
+  :root {
+    /* Light mode */
+    --background: 90 30% 97%; /* surface.base  #F8FAF7 */
+    --foreground: 160 33% 9%; /* text.primary  #0F1F1A */
+
+    --card: 0 0% 100%; /* surface.card  #FFFFFF */
+    --card-foreground: 160 33% 9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 160 33% 9%;
+
+    --primary: 154 86% 30%; /* brand.primary #0B8C5C */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 191 82% 31%; /* brand.secondary #0E7490 */
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 90 8% 96%; /* surface.subtle ~#F3F4F2 */
+    --muted-foreground: 220 9% 46%; /* text.secondary #4B5563 */
+
+    --accent: 38 92% 50%; /* brand.accent #F59E0B */
+    --accent-foreground: 160 33% 9%;
+
+    --destructive: 0 73% 50%; /* semantic.danger #DC2626 */
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 13% 91%; /* surface.border #E5E7EB */
+    --input: 220 13% 91%;
+    --ring: 154 86% 30%; /* brand.primary */
+
+    --radius: 0.875rem; /* radius.lg 14px */
+  }
+
+  .dark {
+    /* Dark mode — deep moss */
+    --background: 156 26% 4%; /* surface.base dark #0A0F0D */
+    --foreground: 105 14% 96%; /* text.primary dark #F5F7F4 */
+
+    --card: 156 22% 8%; /* surface.card dark #0F1714 */
+    --card-foreground: 105 14% 96%;
+
+    --popover: 156 22% 12%;
+    --popover-foreground: 105 14% 96%;
+
+    --primary: 158 64% 52%; /* brand.primary dark #34D399 */
+    --primary-foreground: 160 33% 9%;
+
+    --secondary: 187 77% 49%; /* brand.secondary dark #22D3EE */
+    --secondary-foreground: 160 33% 9%;
+
+    --muted: 165 16% 14%;
+    --muted-foreground: 220 9% 65%;
+
+    --accent: 43 96% 58%; /* accent dark #FBBF24 */
+    --accent-foreground: 160 33% 9%;
+
+    --destructive: 0 91% 71%; /* danger dark #F87171 */
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 165 16% 19%; /* surface.border dark #2A3833 */
+    --input: 165 16% 19%;
+    --ring: 158 64% 52%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: 'rlig' 1, 'calt' 1;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+/* -----------------------------------------------------------------------------
+   Number Treatment — tabular-nums for CarbonNumber components
+   ----------------------------------------------------------------------------- */
+@layer utilities {
+  .numeric {
+    font-variant-numeric: tabular-nums lining-nums;
+    letter-spacing: -0.02em;
+  }
+
+  /* prefers-reduced-motion 대응 */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}

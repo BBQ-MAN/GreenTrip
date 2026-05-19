@@ -1,0 +1,104 @@
+// GreenTrip — Prisma Schema
+// 참조: DEVELOPMENT_PLAN.md §6
+// 5개 모델: User, Course, Waypoint, CarbonReport, ThemeCourse
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ---------------------------------------------------------------------------
+// User — 소셜 로그인(카카오/네이버/구글) 사용자
+// ---------------------------------------------------------------------------
+model User {
+  id            String         @id @default(cuid())
+  name          String?
+  email         String?        @unique
+  image         String?
+  provider      String? // kakao, naver, google
+  courses       Course[]
+  reports       CarbonReport[]
+  totalSavedCO2 Float          @default(0) // 누적 탄소 절감량 (g)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+// ---------------------------------------------------------------------------
+// Course — 생성된 코스 (이동수단별 3안 중 사용자가 선택한 것)
+// ---------------------------------------------------------------------------
+model Course {
+  id              String         @id @default(cuid())
+  userId          String?
+  user            User?          @relation(fields: [userId], references: [id])
+  title           String // "강릉 저탄소 1일 코스"
+  region          String         @default("강원도")
+  areaCode        Int // TourAPI 지역코드
+  transportMode   String // car, express_bus, city_bus, train_ktx, train_itx, bicycle, walking
+  totalDistanceKm Float
+  totalCarbonG    Float // 해당 이동수단 기준 CO₂ (g)
+  baselineCarbonG Float // 자가용 기준 CO₂ (g, 비교용)
+  savedCarbonG    Float // 절감량 (g)
+  duration        String? // "1일", "2일1박"
+  includeFestival Boolean        @default(false)
+  includePet      Boolean        @default(false)
+  waypoints       Waypoint[]
+  reports         CarbonReport[]
+  isPublic        Boolean        @default(false)
+  createdAt       DateTime       @default(now())
+}
+
+// ---------------------------------------------------------------------------
+// Waypoint — 코스 내 관광지 (순서 보존, Course 삭제 시 Cascade)
+// ---------------------------------------------------------------------------
+model Waypoint {
+  id           String  @id @default(cuid())
+  courseId     String
+  course       Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  order        Int // 방문 순서 (0-based)
+  contentId    String // TourAPI contentId
+  title        String
+  address      String?
+  lat          Float // TourAPI mapy
+  lng          Float // TourAPI mapx
+  imageUrl     String? // firstimage
+  contentType  Int // contentTypeId
+  stayMinutes  Int     @default(60) // 예상 체류시간 (분)
+  distToNext   Float? // 다음 지점까지 거리 (km)
+  carbonToNext Float? // 다음 지점까지 탄소 (g)
+}
+
+// ---------------------------------------------------------------------------
+// CarbonReport — 탄소 절감 인증서
+// ---------------------------------------------------------------------------
+model CarbonReport {
+  id            String   @id @default(cuid())
+  userId        String?
+  user          User?    @relation(fields: [userId], references: [id])
+  courseId      String
+  course        Course   @relation(fields: [courseId], references: [id])
+  savedCarbonG  Float // 절감량 (g)
+  savedTreeEq   Float // 나무 환산 (1그루 = 약 22 kg CO₂/년)
+  shareImageUrl String? // 인증서 이미지 URL
+  createdAt     DateTime @default(now())
+}
+
+// ---------------------------------------------------------------------------
+// ThemeCourse — 큐레이션 테마 코스 (관리자 등록)
+// ---------------------------------------------------------------------------
+model ThemeCourse {
+  id          String   @id @default(cuid())
+  title       String // "설악에서 동해까지 무탄소 3일 코스"
+  description String
+  region      String
+  transport   String // 추천 이동수단
+  difficulty  String   @default("보통") // 쉬움/보통/어려움
+  imageUrl    String?
+  spotIds     String[] // contentId 배열 (Postgres TEXT[])
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+}
