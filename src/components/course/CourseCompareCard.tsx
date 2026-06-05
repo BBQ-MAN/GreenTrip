@@ -20,8 +20,10 @@ interface CourseCompareCardProps {
   baselineCO2g: number;
   /** 추천안 ⭐ 배지 표시 여부 */
   isRecommended: boolean;
-  /** "이 코스 선택" 클릭 시 (Week 5 /course/[id] 라우팅 전 임시 콜백) */
+  /** "이 코스 선택" 클릭 시 — Week 5: 부모(PlanResultClient)가 POST /api/course + router.push 수행 */
   onSelect?: () => void;
+  /** 저장 진행 중 — 버튼 비활성화 + 라벨 변경 (Week 5 PlanResultClient.handleSelect 진행 상태) */
+  isPending?: boolean;
   /** 카드 자리에 표시할 카테고리 (null 케이스에서도 헤더 유지) */
   fallbackCategory?: CourseCategory;
   className?: string;
@@ -52,6 +54,7 @@ export function CourseCompareCard({
   baselineCO2g,
   isRecommended,
   onSelect,
+  isPending = false,
   fallbackCategory = 'active',
   className,
 }: CourseCompareCardProps) {
@@ -188,16 +191,18 @@ export function CourseCompareCard({
         방문 · {option.segments.length}구간
       </p>
 
-      {/* CTA — "이 코스 선택" */}
+      {/* CTA — "이 코스 선택" → 부모가 DB 저장 후 /course/[id] 라우팅 */}
       <div className="mt-auto pt-2">
         {onSelect ? (
           <Button
             type="button"
             onClick={onSelect}
+            disabled={isPending}
+            aria-busy={isPending}
             variant={isRecommended ? 'default' : 'outline'}
             className="w-full"
           >
-            이 코스 선택
+            {isPending ? '저장 중…' : '이 코스 선택'}
           </Button>
         ) : (
           <Button asChild variant={isRecommended ? 'default' : 'outline'} className="w-full">
