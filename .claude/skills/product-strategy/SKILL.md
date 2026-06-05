@@ -51,7 +51,7 @@ description: GreenTrip 제품 전략 도출 스킬. 경쟁/IA/디자인 분석 �
 3. **`greentrip_proposal.md`** (프로젝트 루트) — 공모전 1차 심사 제출 제안서. **STRATEGY는 이 제안서와 반드시 정합**되어야 한다:
    - 제안서 1장(기획배경): 75% 관광교통 탄소, 83% 지속가능 의향, 4억 회 등 정량 주장 — Evidence Ledger로 검증
    - 제안서 2-4장(차별성·강원도 특화·기대효과): 시그니처 후보 검증 기준
-   - 제안서 3장(데이터 활용): 10종 TourAPI 명세를 DEVELOPMENT_PLAN.md와 교차 비교
+   - 제안서 3장(데이터 활용): 제안서 10종 TourAPI 명세(불변) ↔ DEVELOPMENT_PLAN.md v1.6 갱신 14종(KorService2 13종 + 두루누비) 교차 비교
    - 제안서 4장(발전 방향): 로드맵 v2의 1·2·3단계 정합 의무
 
 세 문서가 어긋나면 product-strategist가 STRATEGY.md 부록에 차이를 명시하고 사용자에게 보고.
@@ -111,7 +111,7 @@ DEVELOPMENT_PLAN.md 11장의 4개 평가 영역(기획력·완성도·데이터 
 제안서 4장의 기대효과 4개 항목을 측정 가능한 KPI로 환원:
 - 관광 탄소 감축 실천 도구 → 월간 누적 절감 CO₂(kg), 1인당 코스 사용률
 - 지역 관광 활성화 → 강원도 시군구별 코스 생성 수, 비강원 사용자 비율
-- 데이터 생태계 확장 → TourAPI 10종 호출량, 호출 통계 대시보드 노출
+- 데이터 생태계 확장 → TourAPI 14종 호출량(KorService2 13종 + 두루누비), 호출 통계 대시보드 노출
 - 정책 연계 확장성 → B2G 파트너 수, 지역화폐 PoC, ESG 리포트 발급 수
 
 ### 10) Evidence Ledger (`04_evidence_ledger.md`) — 신규

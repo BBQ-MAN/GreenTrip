@@ -15,10 +15,12 @@
 ### 1.2 핵심 가치
 
 - **"같은 여행지, 다른 이동 방식"** — 목적지가 아닌 이동 방식의 환경 영향을 가시화
-- 한국관광공사 OpenAPI **10종** 통합 활용
+- 한국관광공사 OpenAPI **14종** 통합 활용 (KorService2 13종 + 두루누비 1종, 19종 중 약 74%)
 - **강원도 지역 특화** (1차 런칭 지역)
 
 ### 1.3 공모전 타임라인
+
+> 정확 일자: 2026-05-20 운영사무국 온라인 설명회 기준 (`_workspace/seminar/2026_seminar_findings.md` §A)
 
 | 시기 | 마일스톤 | 비고 |
 |------|---------|------|
@@ -26,8 +28,11 @@
 | 2026.05~06 | Phase 1: 핵심 기능 개발 | TourAPI 연동 + 탄소 계산 |
 | 2026.07~08 | Phase 2: 선택 기능 + 테스트 | 축제/반려동물/리포트 |
 | 2026.09 | Phase 3: 상용 런칭 | PWA 웹 정식 출시 |
-| 2026.10 | 1차 심사 (기능심사) | 완성 서비스 필수 |
-| 2026.10 | 최종심사 (PT) | 상위 5팀 발표 |
+| **2026-09-21 16:00** | **서비스 개발 마감 + 1차 심사 자료 제출 마감** | 한국관광 컨텐츠 랩 제출 |
+| 2026.10 (중순) | 1차 심사 (기능심사) | 운영사무국 진행 |
+| **2026-10-21 (수)** | **1차 합격자 발표** | 개별 안내 |
+| **2026-10-28 (수)** | **최종 발표 심사 (PT, 오프라인)** | 상위 5팀, 대상·최우수상 결정 |
+| **2026-11-05 (목)** | **시상식** | 대상 1팀(통합 부문) 1,000만원 + 최우수 5팀 + 우수 10팀 |
 
 ---
 
@@ -70,7 +75,8 @@ CI/CD:      GitHub Actions → Vercel 자동 배포
 ### 2.4 외부 API
 
 ```
-[필수] 한국관광공사 TourAPI (국문관광정보 서비스) — 10종
+[필수] 한국관광공사 TourAPI (국문관광정보 서비스 KorService2) — 13종 활성
+[필수] 한국관광공사 두루누비 정보 서비스 (별도 신청) — 1종
 [필수] Kakao Maps API — 지도 표시, 경로, 거리 계산
 [선택] 공공데이터포털 대중교통 API — 버스/철도 노선 정보
 [선택] 기상청 단기예보 API — 날씨 연동
@@ -80,118 +86,234 @@ CI/CD:      GitHub Actions → Vercel 자동 배포
 
 ## 3. 한국관광공사 TourAPI 연동 명세
 
+> ⚠ **2026-06-05 v1.6 KorService1 → KorService2 일괄 마이그레이션**
+> 출처(1차): 사용자 활용신청서 — 15개 endpoint(모두 `*2` 접미사) HTTP 200 실측 확인.
+> KorService1은 deprecated. 본 프로젝트는 KorService2 단일 사용.
+> 활용 종수: **KorService2 활성 13종 + 두루누비 1종 = 총 14종 (한국관광공사 오픈 API 19종 중 약 74%)**.
+> 미사용 2종(areaCode2·categoryCode2)은 신청은 됐으나 활용신청서에 "미사용 (삭제예정)" 명시 → 호출 코드 0건. 정식 대체는 ldongCode2·lclsSystmCode2.
+
 ### 3.1 기본 설정
 
 ```
-Base URL: https://apis.data.go.kr/B551011/KorService1
+Base URL: https://apis.data.go.kr/B551011/KorService2
+일일 트래픽 한도: 1,000건/endpoint (개발 계정 기준, 운영 계정 100,000건)
+
 공통 파라미터:
   - serviceKey: {환경변수 TOUR_API_KEY}
   - MobileOS: ETC
-  - MobileApp: GreenTrip
+  - MobileApp: GreenTrip   # ← 운영계정 승인요건 (OpenAPI 자료 p9)
   - _type: json
 ```
 
-### 3.2 활용 API 10종 상세
+### 3.2 활용 API 명세 — 활성 13종 + 두루누비 1종 + 미사용 2종
 
-#### API-1: 지역코드 조회 (`areaCode1`)
+> 번호는 사용자 활용신청서 NO와 별개로 도메인 그룹별 재정렬. 신청서 NO는 각 항목에 병기.
 
-```
-용도: 강원도(areaCode=32) 및 시군구 코드 매핑 테이블 구축
-엔드포인트: /areaCode1
-파라미터: numOfRows, pageNo, areaCode(상위지역)
-호출 시점: 서버 빌드 시 정적 캐싱 (ISR)
-캐시: 24시간
-```
+#### 위치/지역 그룹
 
-#### API-2: 서비스분류코드 조회 (`categoryCode1`)
+#### API-1: 위치기반 관광정보 조회 (`locationBasedList2`) — 신청서 NO.1
 
 ```
-용도: 콘텐츠 타입별 대/중/소분류 코드 → 테마 코스 자동 태깅
-엔드포인트: /categoryCode1
-파라미터: contentTypeId, cat1, cat2, cat3
-호출 시점: 서버 빌드 시 정적 캐싱
-캐시: 24시간
-```
-
-#### API-3: 위치기반 관광정보 조회 (`locationBasedList1`)
-
-```
-용도: 사용자 위치/선택 좌표 기준 반경 내 관광지 탐색
-      관광지 간 GPS 좌표(mapx, mapy) 기반 이동거리 계산 → 탄소 배출량 산정
-엔드포인트: /locationBasedList1
+용도: 사용자 위치/선택 좌표 기준 반경 내 관광지 탐색.
+      관광지 간 GPS 좌표(mapx, mapy) 기반 이동거리 계산 → 탄소 배출량 산정.
+엔드포인트: /locationBasedList2
 파라미터: mapX, mapY, radius, contentTypeId, arrange
 호출 시점: 사용자 요청 시 실시간
 캐시: 1시간 (위치+반경 조합 키)
+일일 한도: 1,000건
 ```
 
-#### API-4: 지역기반 관광정보 조회 (`areaBasedList1`)
+#### API-2: 지역기반 관광정보 조회 (`areaBasedList2`) — 신청서 NO.13
 
 ```
-용도: 강원도 등 특화 지역의 관광지를 지역코드 기반으로 필터링
-엔드포인트: /areaBasedList1
-파라미터: areaCode, sigunguCode, contentTypeId, cat1~3, arrange
+용도: 강원도 등 특화 지역의 관광지를 지역코드 기반으로 필터링.
+엔드포인트: /areaBasedList2
+파라미터: areaCode, sigunguCode, contentTypeId, cat1~3, lclsSystm1~3, arrange
 호출 시점: 코스 생성 시
 캐시: 1시간
+일일 한도: 1,000건
 ```
 
-#### API-5: 키워드 검색 (`searchKeyword1`)
+#### API-3: 관광정보 동기화 목록 (`areaBasedSyncList2`) — 신청서 NO.9
 
 ```
-용도: "생태", "둘레길", "자전거", "도보" 등 저탄소 관련 키워드 검색
-엔드포인트: /searchKeyword1
-파라미터: keyword, contentTypeId, areaCode, arrange
+용도: 변경/추가/삭제된 contentId 목록을 일 1회 cron으로 수집 →
+      DB 캐시 갱신 (제안서 §3.1 "데이터 최신성 유지").
+엔드포인트: /areaBasedSyncList2
+파라미터: modifiedTime?, areaCode?, sigunguCode?, contentTypeId?
+호출 시점: Vercel Cron 일 1회
+캐시: 동기화 cron 트리거 (별도 캐시 없음)
+일일 한도: 1,000건
+```
+
+#### 검색 그룹
+
+#### API-4: 키워드 검색 (`searchKeyword2`) — 신청서 NO.2
+
+```
+용도: "생태", "둘레길", "자전거", "도보" 등 저탄소 관련 키워드 검색.
+엔드포인트: /searchKeyword2
+파라미터: keyword, contentTypeId, areaCode, arrange, lclsSystm1~3
 호출 시점: 사용자 검색 시 실시간
 캐시: 30분
+일일 한도: 1,000건
 ```
 
-#### API-6: 행사정보 조회 (`searchFestival1`)
+#### API-5: 행사정보 조회 (`searchFestival2`) — 신청서 NO.3
 
 ```
-용도: [선택 옵션] 여행 기간 내 진행 중/예정 축제·행사 자동 탐색
-엔드포인트: /searchFestival1
+용도: [선택 옵션] 여행 기간 내 진행 중/예정 축제·행사 자동 탐색.
+엔드포인트: /searchFestival2
 파라미터: eventStartDate, eventEndDate, areaCode, arrange
 호출 시점: 축제 옵션 ON 시
 캐시: 6시간
+일일 한도: 1,000건
 ```
 
-#### API-7: 공통정보 조회 (`detailCommon1`)
+#### API-6: 숙박정보 조회 (`searchStay2`) — ⭐ KorService2 신규 · 신청서 NO.4
 
 ```
-용도: 관광지별 제목, 주소, 개요, 대중교통 안내, 주차 정보 파싱
-엔드포인트: /detailCommon1
+용도: 숙박 전용 검색. areaBasedList2(contentTypeId=32)보다 숙박 도메인 필드에
+      최적화. 친환경/반려동물/대중교통 접근 필터링과 결합.
+엔드포인트: /searchStay2
+파라미터: areaCode, sigunguCode, arrange (+ 클라이언트 필터: ecoCert/petOk/transitAccess)
+호출 시점: 숙박 옵션 ON 시
+캐시: 6시간
+일일 한도: 1,000건
+```
+
+#### 상세 그룹
+
+#### API-7: 공통정보 조회 (`detailCommon2`) — 신청서 NO.5
+
+```
+용도: 관광지별 제목, 주소, 개요, 대중교통 안내, 주차 정보 파싱.
+엔드포인트: /detailCommon2
 파라미터: contentId, defaultYN, firstImageYN, addrinfoYN, overviewYN
 호출 시점: 관광지 상세 페이지
 캐시: 6시간
+일일 한도: 1,000건
 ```
 
-#### API-8: 소개정보 조회 (`detailIntro1`)
+#### API-8: 소개정보 조회 (`detailIntro2`) — 신청서 NO.6
 
 ```
-용도: 운영시간, 휴무일, 요금, 장애인 편의시설 정보 → 접근성 점수 산정
-엔드포인트: /detailIntro1
+용도: 운영시간, 휴무일, 요금, 장애인 편의시설 정보 → 접근성 점수 산정.
+엔드포인트: /detailIntro2
 파라미터: contentId, contentTypeId
 호출 시점: 관광지 상세 페이지
 캐시: 6시간
+일일 한도: 1,000건
 ```
 
-#### API-9: 이미지정보 조회 (`detailImage1`)
+#### API-9: 반복정보 조회 (`detailInfo2`) — ⭐ KorService2 신규 · 신청서 NO.7
 
 ```
-용도: 코스 미리보기 갤러리, 탄소 절감 인증서 내 관광지 대표 이미지
-엔드포인트: /detailImage1
+용도: 관광지 부대시설·여행코스(25) 구간·숙박(32) 객실 등 contentType별 가변 반복 필드.
+      여행코스 구간 정보가 두루누비와 보완 — 코스 큐레이션 정확도 향상.
+엔드포인트: /detailInfo2
+파라미터: contentId, contentTypeId
+호출 시점: 코스 상세·여행코스 콘텐츠 렌더링 시
+캐시: 24시간 (정적에 가까움)
+일일 한도: 1,000건
+```
+
+#### API-10: 이미지정보 조회 (`detailImage2`) — 신청서 NO.8
+
+```
+용도: 코스 미리보기 갤러리, 탄소 절감 인증서 내 관광지 대표 이미지.
+엔드포인트: /detailImage2
 파라미터: contentId, imageYN(Y)
 호출 시점: 코스 결과 렌더링 시
 캐시: 24시간
+일일 한도: 1,000건
 ```
 
-#### API-10: 반려동물 동반여행 (`detailPetTour1`)
+#### API-11: 반려동물 동반여행 (`detailPetTour2`) — 신청서 NO.11
 
 ```
-용도: [선택 옵션] 반려동물 동반 가능 여부 필터링
-엔드포인트: /detailPetTour1
+용도: [선택 옵션] 반려동물 동반 가능 여부 필터링.
+엔드포인트: /detailPetTour2
 파라미터: contentId
 호출 시점: 반려동물 모드 ON 시
 캐시: 6시간
+일일 한도: 1,000건
+```
+
+#### 코드 그룹 (정식 대체)
+
+#### API-12: 법정동코드 조회 (`ldongCode2`) — ⭐ KorService2 신규 · 신청서 NO.14
+
+```
+용도: areaCode2의 정식 대체. 행안부 법정동 체계로 시·군·구·읍·면·동까지 정확 식별.
+      강원 18개 시군구 → 읍/면/동 수준 확장 가능 (Phase 4+ 콘텐츠 보강).
+엔드포인트: /ldongCode2
+파라미터: lDongRegnCd?, lDongSignguCd?
+호출 시점: 초기 1회 (정적 캐시) + 신규 행정구역 개편 시 재호출
+캐시: 24시간 ~ ISR
+일일 한도: 1,000건
+대체 관계: areaCode2 (미사용·삭제예정) → ldongCode2
+```
+
+#### API-13: 분류체계 코드 조회 (`lclsSystmCode2`) — ⭐ KorService2 신규 · 신청서 NO.15
+
+```
+용도: categoryCode2의 정식 대체. 한국관광공사 신규 분류체계(lclsSystm1/2/3).
+      cat1/cat2/cat3 legacy 체계와 병행. 테마 코스 자동 태깅.
+엔드포인트: /lclsSystmCode2
+파라미터: lclsSystm1?, lclsSystm2?
+호출 시점: 초기 1회 (정적 캐시)
+캐시: 24시간 ~ ISR
+일일 한도: 1,000건
+대체 관계: categoryCode2 (미사용·삭제예정) → lclsSystmCode2
+```
+
+#### 별도 트랙
+
+#### API-14: 두루누비 정보 (코리아둘레길) — ⭐ 강원 저탄소 인프라 직결 (2026-05-28 추가)
+
+```
+용도: 코리아둘레길 284개 코스의 GPX 트랙 + 주변 관광정보 활용.
+      DMZ 평화의 길·해파랑길(동해안)·강원 둘레길 등 저탄소(도보·자전거) 코스를
+      GreenTrip의 자전거/도보 코스(C안) 및 강원 테마 코스에 직접 연동.
+      GPX 트랙으로 Haversine 추정보다 정확한 실제 경로 거리 산출 가능.
+서비스명: 한국관광공사_두루누비 정보 서비스_GW (공공데이터포털 데이터 15101974)
+Base URL: https://apis.data.go.kr/B551011/Durunubi  (KorService2와 별도 경로, 별도 신청 필요)
+오퍼레이션: courseList(코스 목록), routeList(길 목록)
+파라미터: numOfRows, pageNo, MobileOS, MobileApp, _type, brdDiv(코스/구간), routeIdx 등
+호출 시점: 강원 테마 코스 큐레이션 + 자전거/도보 코스 생성 시
+캐시: 24시간 (코스 데이터는 정적에 가까움)
+근거: 두루누비 코스 = 저탄소 이동수단(도보·자전거) 전용 → GreenTrip 핵심 가치와 정합.
+      강원 RTO 특별상 어필 + 발전성(데이터 활용 다양성) 강화.
+신청 상태: 사용자 활용신청서(2026-06-05)에는 미포함. 별도 신청 필요.
+```
+
+#### 미사용 (삭제예정) — 신청은 됐으나 호출 금지
+
+#### 미사용-1: 지역코드 조회 (`areaCode2`) — 신청서 NO.10 "미사용 (삭제예정)"
+
+```
+⚠ 사용자 활용신청서에 "미사용 (삭제예정-법정동/분류체계 코드로 대체)" 명시.
+   호출 코드 추가 금지. 정식 대체: ldongCode2 (API-12).
+   QA(greentrip-qa §E)가 grep으로 호출 0건 검증.
+
+대체 전략 (구현 완료):
+- 강원도 시군구 매핑: src/lib/tourapi/constants.ts의 GANGWON 정적 상수
+- 콘텐츠별 시군구 정보: areaBasedList2 응답의 sigungucode 필드 직접 활용
+- 법정동 수준 정밀화 필요 시: ldongCode2 (API-12) 호출
+```
+
+#### 미사용-2: 서비스분류코드 조회 (`categoryCode2`) — 신청서 NO.12 "미사용 (삭제예정)"
+
+```
+⚠ 사용자 활용신청서에 "미사용 (삭제예정-법정동/분류체계 코드로 대체)" 명시.
+   호출 코드 추가 금지. 정식 대체: lclsSystmCode2 (API-13).
+   QA(greentrip-qa §E)가 grep으로 호출 0건 검증.
+
+대체 전략:
+- 콘텐츠별 카테고리: areaBasedList2 / locationBasedList2 응답의
+  cat1 / cat2 / cat3 또는 lclsSystm1/2/3 필드 직접 활용
+- 분류 트리 필요 시: lclsSystmCode2 (API-13) 호출
 ```
 
 ### 3.3 콘텐츠 타입 ID 참조
@@ -281,10 +403,10 @@ function calculateRouteCarbonEmission(
 
 ```typescript
 // 1단계: 후보 관광지 풀 구성
-//   - areaBasedList1 (지역) + categoryCode1 (테마 필터)
+//   - areaBasedList2 (지역) + lclsSystmCode2 (테마 필터, categoryCode2 정식 대체)
 //   - 사용자 선호 콘텐츠 타입 적용
-//   - [옵션] searchFestival1로 축제 추가
-//   - [옵션] detailPetTour1로 반려동물 불가 제외
+//   - [옵션] searchFestival2로 축제 추가
+//   - [옵션] detailPetTour2로 반려동물 불가 제외
 
 // 2단계: Nearest Neighbor 초기 경로 생성
 function nearestNeighborRoute(spots: Spot[], start: Spot): Spot[] {
@@ -335,7 +457,7 @@ function twoOptImprove(route: Spot[]): Spot[] {
 ### 4.3 접근성 점수 산정
 
 ```typescript
-// detailCommon1 + detailIntro1 데이터 파싱
+// detailCommon2 + detailIntro2 데이터 파싱
 interface AccessibilityScore {
   publicTransport: number;  // 0~100: 대중교통 접근성
   parking: number;          // 0~100: 주차 편의성
@@ -635,9 +757,9 @@ model ThemeCourse {
 - 관심 테마: 자연 / 문화 / 레포츠 / 음식 (다중선택, 분류체계코드 연동)
 
 [Step 2: 옵션 토글]
-☐ 축제·행사 포함하기 → searchFestival1 연동
-☐ 반려동물과 함께 → detailPetTour1 필터
-☐ 무장애 코스 우선 → detailIntro1 접근성 필터
+☐ 축제·행사 포함하기 → searchFestival2 연동
+☐ 반려동물과 함께 → detailPetTour2 필터
+☐ 무장애 코스 우선 → detailIntro2 접근성 필터
 
 [Step 3: 코스 생성]
 - "코스 만들기" 버튼 → API 호출 → 로딩 → /plan/result 이동
@@ -676,8 +798,8 @@ model ThemeCourse {
 
 [타임라인 뷰]
 - 방문 순서별 관광지 카드
-  - 이미지 (detailImage1)
-  - 제목, 주소, 간략 소개 (detailCommon1)
+  - 이미지 (detailImage2)
+  - 제목, 주소, 간략 소개 (detailCommon2)
   - 예상 체류시간
   - 다음 지점까지: 거리 + CO₂ + 이동수단 아이콘
   - [축제 뱃지] 해당 기간 축제 있을 시
@@ -956,9 +1078,10 @@ cp docs/DEVELOPMENT_PLAN.md CLAUDE.md
     [ ] 에러 핸들링 (API 장애 시 graceful degradation)
 
 [ ] 데이터 활용 적절성 (20점)
-    [ ] TourAPI 10종 모두 실제 호출되는지 확인
+    [ ] TourAPI 14종(KorService2 13종 + 두루누비) 실제 호출되는지 확인 — 19종 중 약 74%
+    [ ] 미사용 2종(areaCode2·categoryCode2) 호출 0건 검증 (Grep)
     [ ] API 호출 로그 / 통계 대시보드 (심사용)
-    [ ] 데이터 최신성 유지 (동기화 목록 반영)
+    [ ] 데이터 최신성 유지 (areaBasedSyncList2 일 1회 cron)
 
 [ ] 서비스 발전성 (20점)
     [ ] B2G 연계 가능성 (탄소중립 정책)

@@ -10,7 +10,7 @@
 ## Executive Summary (1 page)
 
 **한 문장 포지셔닝:**
-> 같은 여행지, 다른 이동방식 — TourAPI 10종 위에 **이동수단 3안 비교**와 **영구 URL 인증서**를 얹은, 비로그인 100% 한국형 저탄소 여행 플래너.
+> 같은 여행지, 다른 이동방식 — TourAPI 14종(KorService2 13종 + 두루누비, 19종 중 약 74%) 위에 **이동수단 3안 비교**와 **영구 URL 인증서**를 얹은, 비로그인 100% 한국형 저탄소 여행 플래너.
 
 **시장 갭:** 18개 벤치마크 4사분면에서 "한국 × 친환경 × 코스 자동 생성" 우상단 사분면이 비어 있다. 트리플(코스만), Joro/Wren(탄소만), Byway(유럽 한정)이 각각 부분 솔루션. GreenTrip은 3차원 결합으로 유일.
 
@@ -26,7 +26,7 @@
 **로드맵:**
 | Phase | 시기 | 핵심 |
 |-------|------|------|
-| 1·2·3 (런칭) | 2026.05~09 | 강원도 PWA + 시그니처 3개 + TourAPI 10종 |
+| 1·2·3 (런칭) | 2026.05~09 | 강원도 PWA + 시그니처 3개 + TourAPI 14종 (KorService2 13종 + 두루누비) |
 | 4 (확장) | 2026.11~2027.01 | 리더보드·챌린지·제주 확장 |
 | 5 (사업화) | 2027.02~04 | B2G 대시보드·ESG·전국 5~6개 시도·지역화폐 PoC |
 | 6 (지속) | 2027.05+ | 모바일 앱·다국어·탄소 크레딧·전국 완성 |
@@ -36,7 +36,7 @@
 |------|------|-------------------|
 | 기획력 | 30 | 시장 갭 + 관점 전환(어디→어떻게) + 8개 정책 부합 |
 | 완성도 | 30 | 시그니처 3개 라이브 데모 + WCAG AA + PWA |
-| 데이터 활용 | 20 | TourAPI 10종 100% 호출 + 통계 대시보드 + `/about/sustainability` |
+| 데이터 활용 | 20 | TourAPI 14종 (KorService2 13종 + 두루누비, 19종 중 74%) 호출 + 통계 대시보드 + `/about/sustainability` |
 | 발전성 | 20 | 4-Phase 로드맵 + B2G LOI 3건 + 카테고리 표준 어휘 선점 |
 
 **Trade-off (안 할 것):** 항공권·해외여행, 풀-패키지 OTA, 호텔 인증(Phase 5까지 유예), 카본 오프셋 결제, 통근 멀티모달, 카테고리 평면 나열, 광역시 동시 지원, 앱 강제, 로그인 강요.
@@ -54,7 +54,7 @@
 ```
 For       2030 MZ 국내 여행자 (환경 가치 의식, 막막함)
 Who       강원도 여행 시 탄소 줄이고 자랑하고 싶으나 한국 도구 부재
-GreenTrip is  TourAPI 10종 기반 비로그인 100% 저탄소 코스 플래너 PWA
+GreenTrip is  TourAPI 14종(KorService2 13종 + 두루누비) 기반 비로그인 100% 저탄소 코스 플래너 PWA
 That      자가용·대중교통·자전거 3안의 CO₂·시간·비용 동시 비교 + 영구 인증서
 Unlike    트리플(탄소 X), Joro(한국 X), Byway(한국 X), 대한민국구석구석(정부 톤)
 Our product   "어디를 갈까" → "어떻게 갈까"로 결정 축 전환
@@ -80,7 +80,7 @@ Our product   "어디를 갈까" → "어떻게 갈까"로 결정 축 전환
 
 | | 내부 (Internal) | 외부 (External) |
 |---|----------------|-----------------|
-| **긍정** | **S1** TourAPI 10종 100%, **S2** 3안 비교 시그니처, **S3** 강원도 18시군구 깊이, **S4** 비로그인 100%, **S5** TS 단일 스택 효율 | **O1** 83% 지속가능 의향, **O2** 관광 탄소 75%, **O3** 공모전 B2G 채널, **O4** 빈 사분면 선점, **O5** 강원관광재단 협업 잠재 |
+| **긍정** | **S1** TourAPI 14종 (KorService2 13종 + 두루누비, 74%), **S2** 3안 비교 시그니처, **S3** 강원도 18시군구 깊이, **S4** 비로그인 100%, **S5** TS 단일 스택 효율 | **O1** 83% 지속가능 의향, **O2** 관광 탄소 75%, **O3** 공모전 B2G 채널, **O4** 빈 사분면 선점, **O5** 강원관광재단 협업 잠재 |
 | **부정** | **W1** 브랜드 0, **W2** 강원 한정, **W3** TourAPI 품질 변동, **W4** 분리 백엔드 어필 부재, **W5** 네이티브 앱 없음 | **T1** 빅테크(Google Maps), **T2** 트리플·카카오·네이버 추가 진입, **T3** TourAPI 정책 변경, **T4** 카본 오프셋 회의론 확산, **T5** 공공 데이터 상업화 충돌 |
 
 **핵심 결론 3개:**
@@ -128,7 +128,7 @@ Our product   "어디를 갈까" → "어떻게 갈까"로 결정 축 전환
 |------|------|------|------|
 | 이동수단 3안 비교 카드 (P0-1) | 1.0 | W4 | 시그니처 1 |
 | Carbon Scale 4단계 + Before/After (P0-2) | 1.0 | W3~4 | 시그니처 3 |
-| TourAPI 10종 100% (P0-3) | 0.6 | W2 | 데이터 활용 20점 |
+| TourAPI 14종 (P0-3, v1.6 KorService2 13종 + 두루누비) | 0.6 | W2 | 데이터 활용 20점 |
 | 영구 URL 인증서 (P0-4) | 0.32 | W10~11 | 시그니처 2 |
 | 비로그인 100% 깔때기 (P0-5) | 2.0 | W12 | NextAuth callbackUrl |
 | 카카오맵 3안 경로 (P0-6) | 0.9 | W5 | RouteOverlay |
@@ -181,7 +181,7 @@ RN 앱 / 탄소 크레딧 / AI 슬라이더 / 공개 인증 피드 / 다국어 /
 
 ```
 Phase 1·2·3 (런칭, 2026.05~09)
-  목표: 강원 PWA 런칭 + 시그니처 3개 + TourAPI 10종 + 1차 심사 통과
+  목표: 강원 PWA 런칭 + 시그니처 3개 + TourAPI 14종 (KorService2 13종 + 두루누비) + 1차 심사 통과
   KR: 누적 사용자 1,000 / 월간 절감 1,000 kg / 인증서 공유율 15% / Lighthouse 90+
 
 Phase 4 (확장, 2026.11~2027.01)
@@ -219,7 +219,7 @@ Counter:    1인당 코스 사용률 (여행 완료 OR 인증서 OR 30일 재방
 
 ### 보조 지표 9종
 
-가입·활성화(누적 사용자, 월간 코스 생성, 비강원 비율) / 시그니처 도달률(3안 도달률, 인증서 발급률, 공유율) / 데이터 활용(TourAPI 10종 호출, 캐시 적중률) / 신뢰·성능(Lighthouse, WCAG, Sentry, p95).
+가입·활성화(누적 사용자, 월간 코스 생성, 비강원 비율) / 시그니처 도달률(3안 도달률, 인증서 발급률, 공유율) / 데이터 활용(TourAPI 14종 호출, 캐시 적중률) / 신뢰·성능(Lighthouse, WCAG, Sentry, p95).
 
 ### Phase별 OKR
 
@@ -241,7 +241,7 @@ Counter:    1인당 코스 사용률 (여행 완료 OR 인증서 OR 30일 재방
 |-----------|-------------------|---------|
 | **기획력 (30)** | 시장 갭 + "어디→어떻게" + MZ 가치 + Trade-off 명시 | Evidence Ledger E1·E2·E3 보강 |
 | **완성도 (30)** | 시그니처 3개 라이브 데모 + PWA + Lighthouse + WCAG | 모바일 실 디바이스 QA + 시드 코스 캐시 워밍 |
-| **데이터 활용 (20)** | TourAPI 10종 + 통계 대시보드(P0-11) + `/about/sustainability`(P0-10) | 동기화 목록 API 실제 사용 코드 |
+| **데이터 활용 (20)** | TourAPI 14종 (KorService2 13종 + 두루누비, 19종 중 74%) + 통계 대시보드(P0-11) + `/about/sustainability`(P0-10) | 동기화 목록 API(areaBasedSyncList2) 실제 사용 코드 |
 | **발전성 (20)** | Phase 4·5·6 로드맵 + 정책 매핑 8개 + B2G LOI | 강원관광재단 협업 LOI 진척 |
 | **가점 (+2~4)** | 강원도 특화 +2 | Start-up NEST 등록 검토 +2 |
 
@@ -284,7 +284,7 @@ Counter:    1인당 코스 사용률 (여행 완료 OR 인증서 OR 30일 재방
 | P4 | 지역화폐 제도 | 탄소 포인트 ↔ 지역화폐 PoC | 교환액 / 참여 시군구 | 5 |
 | P5 | 강원특별자치도 + 관광 정책 | 18개 시군구 전체 + 강원더풀 협업 | 시군구별 분포 / 강원 LOI | 1~5 |
 | P6 | K-ESG 가이드라인 | ESG 리포트 자동 생성 | ESG 발급 건수 | 5 |
-| P7 | 관광진흥 5개년 기본계획 | TourAPI 10종 + 분산 관광 + 다국어 | TourAPI 호출량 / 비강원 비율 | 1~6 |
+| P7 | 관광진흥 5개년 기본계획 | TourAPI 14종 (KorService2 13종 + 두루누비) + 분산 관광 + 다국어 | TourAPI 호출량 / 비강원 비율 | 1~6 |
 | P8 | 지속가능 교통물류 발전 계획 | 대중교통·자전거 우선 추천 | 대중교통/자전거 선택률 | 4~6 |
 
 **B2G 최우선 파트너:** 강원특별자치도청 + 강원관광재단 (P1·P5).
@@ -299,7 +299,7 @@ Counter:    1인당 코스 사용률 (여행 완료 OR 인증서 OR 30일 재방
 |---------------|----------|--------|
 | A. 관광 탄소 감축 실천 도구 | 월간 절감 누적 CO₂ (North Star) | 1인당 사용률, 3안 도달률, 인증서 발급률, 공유율 |
 | B. 지역 관광 활성화 | 강원도 18개 시군구 코스 분포 | 비강원 비율, 체류기간, 대중교통/자전거 선택률 |
-| C. 데이터 생태계 확장 | TourAPI 10종 주간 호출 적중률 100% | 월 호출량, 캐시 적중률, 대시보드 PV |
+| C. 데이터 생태계 확장 | TourAPI 14종 (KorService2 13종 + 두루누비) 주간 호출 적중률 100% | 월 호출량, 캐시 적중률, 대시보드 PV |
 | D. 정책 연계 확장성 | B2G 파트너 LOI 누적 (Phase 5 종료 3건+) | 지역화폐 PoC 사용자, ESG 발급, 8개 정책 활동 |
 
 ---
@@ -331,11 +331,30 @@ Counter:    1인당 코스 사용률 (여행 완료 OR 인증서 OR 30일 재방
 
 ---
 
-## 부록 D — Evidence Ledger (v1.2 — 잔여 처리·제안서 정정 적용 2026-05-18)
+## 부록 D — Evidence Ledger (v1.6 — KorService2 마이그레이션 2026-06-05)
 
-상세: `_workspace/benchmark/04_evidence_ledger.md` (v1.2)
+상세: `_workspace/benchmark/04_evidence_ledger.md` (v1.6) + `_workspace/seminar/2026_seminar_findings.md` + `_workspace/tourapi_migration_v1.6.md`
 
-**총 24개 정량 주장 추적표.**
+**총 31개 정량 주장 추적표 (v1.3 기준 E25~E31 신규 7건 추가, v1.6 E22·E29 갱신).**
+
+### v1.6 갱신 (2026-06-05 사용자 활용신청서 1차 출처)
+
+| ID | 변경 | 신뢰도 |
+|----|------|------|
+| **E22** | Base URL `KorService1` → **`KorService2`** (사용자 신청서 15개 endpoint HTTP 200 실측) | [Verified v1.6] High (신청서 1차) |
+| **E29** | "19종 중 10종 활용" → **"19종 중 14종 활용 (약 74%)"** = KorService2 활성 13종 + 두루누비 1종. 신규 endpoint 5종(searchStay2·detailInfo2·ldongCode2·lclsSystmCode2 + 두루누비) 추가. 미사용 2종(areaCode2·categoryCode2)은 신청서 "미사용 (삭제예정)" 명시 → 호출 0건 + 정식 대체로 사전 마이그레이션. | [Verified v1.6] High |
+
+### v1.3 추가 (2026-05-20 운영사무국 설명회 출처)
+
+| ID | 주장 | 신뢰도 |
+|----|------|------|
+| **E25** | 한국관광공사 보유 관광 데이터 **약 791만건** (v1.4 PDF 원본 정정 — 791건→791만건) | [Verified] High (PDF p2) |
+| **E26** | 국문 정보 **50,956건**, 다국어 8종 (주요 4종 ~15,000건, 소수어 2,000~3,100건), 국내 유일 | [Verified] High (PDF p5·p7) |
+| **E27** | TourAPI 시작 2011년 → 현재 4.0 버전 | [Verified] High |
+| **E28** | TourAPI 활용 서비스 중 웹 점유 약 46.2% (안드로이드 역전) | [Verified] High — PWA 선택 정합 근거 |
+| **E29** | 한국관광공사 오픈 API 총 19종 (공모전 대상). E20 v1.3 정정 근거. | [Verified] High |
+| **E30** | 호출 한도: 개발 1,000건/일, 운영 100,000건/일 | [Verified] High — 캐싱 전략 필수 |
+| **E31** | 인증키 유효기간 2년 (연장 시 키 유지) | [Verified] High — 2028년 5월 이전 연장 |
 
 ### v1.2 신뢰도 매트릭스 (잔여 처리·제안서 정정 적용 2026-05-18)
 
@@ -380,7 +399,7 @@ competitor-researcher v2 검증 결과 잔여 3건 모두 처리:
 
 ### 확보 완료 항목 (High 신뢰도, 변경 없음)
 
-E13~E20 (Byway·마이리얼트립·Citymapper·AllTrails·Too Good To Go·Google Maps·공모전 상금·TourAPI 10종) + E22·E23 (TourAPI Base URL·강원 area code) + E5·E6·E8·E9·E10·E11·E12 (v1.1 신규 [Verified] High 7건) + E3·E7 (v1.2 격상·채택).
+E13~E20 (Byway·마이리얼트립·Citymapper·AllTrails·Too Good To Go·Google Maps·공모전 상금·TourAPI 활용 종수) + E22·E23 (TourAPI Base URL·강원 area code) + E5·E6·E8·E9·E10·E11·E12 (v1.1 신규 [Verified] High 7건) + E3·E7 (v1.2 격상·채택). **v1.6 갱신: E20 활용 종수 재평가(이전 10종 → 14종, KorService2 13종 + 두루누비), E22 Base URL = KorService2, E29 신규(19종 중 14종 = 74%) 추가.**
 
 ---
 
@@ -403,17 +422,25 @@ E13~E20 (Byway·마이리얼트립·Citymapper·AllTrails·Too Good To Go·Googl
 | 2026-05-18 | v1.0 | 초기 STRATEGY.md 발행 | 벤치마크 Phase A 3명 분석 결과 합성. P0~P3 + 8개 정책 + 24개 Evidence + 시그니처 3개. |
 | 2026-05-18 | **v1.1** | **Evidence Ledger 출처 보강** — competitor-researcher 12건 검증 결과 반영. [Verified] High 7건(E5·E6·E8·E9·E10·E11·E12) / [Replaced] 4건(E1·E2·E3·E24 수치·표현 정정) / [Still Unverified] 1건(E7). 부록 D·SWOT O1/O2·정책 매핑 P1~P8·심사 매핑 §1.1·제안서 정정 권고(`04_proposal_corrections.md`) 동시 갱신. | 공모전 심사 대응 사실 정확성 확보 |
 | 2026-05-18 | **v1.2** | **Evidence Ledger 보강 + 제안서 정정 적용** — competitor-researcher v2 잔여 3건 처리. E1·E2 옵션 A 채택([Verified Adjusted Option A] ⊙, 한국 한정 분리 통계 구조적 부존재·비공개 명시). E7 「제4차 관광개발기본계획 (2022~2031) — 공존·혁신·평화의 K-관광」 정식 채택([Replaced + Verified] ⚙✓). E3 [Verified] High 격상. 잔여 [unverified] 0건. `greentrip_proposal.md` v1.1 본문 정정 5건(C1~C5) 적용 완료. 부록 A P3 정책명, 부록 D 신뢰도 매트릭스·정책 매핑 표·제안서 정정 적용 결과 동시 갱신. | 잔여 정량 주장 정합성 종결 + 제안서 본문 정정 일괄 적용 |
+| 2026-05-21 | **v1.3** | **2026 세미나 분석 반영** — 2026-05-20 운영사무국 온라인 설명회(`_workspace/seminar/2026_seminar_findings.md`) 분석 통합. 부록 D Evidence Ledger E25~E31 신규 7건(보유 데이터 791건·국문 5만건·다국어 8종·API 4.0·웹 점유 46.2%·총 19종·호출 한도·키 2년) + E20 재평가(19종 중 10종, areaCode1·categoryCode1 2026 폐기 대응 명시). 정확 일정 4건 추가(09-21 마감 / 10-21 합격 / 10-28 PT / 11-05 시상). 시상금 정보 추가(대상 1,000만원 통합). 위치기반 사업자 등록 필수 명시. DEVELOPMENT_PLAN §1.3 + §3.2(폐기 API), 04_judge_mapping, 04_evidence_ledger, greentrip-qa, CLAUDE.md, _workspace/legal/lbs_registration_tracker.md(신규) 동시 갱신. | 예비합격자 대상 운영사무국 설명회 핵심 정보 정합 |
+| 2026-05-28 | **v1.4** | **PDF 원본 교차검증** — 설명회 PDF 2종(OpenAPI 45p·OT 23p) 정독. **E25 중대 정정 791건→791만건**(녹취 1만배 오류). E26 정밀화(국문 50,956건). 시상 완전판(장려상 15팀×50만+최우수 300만/우수 100만 확정). **강원 RTO 특별상**(본상+특별상 이중 수상, GreenTrip 직접 타겟). 운영계정 1차 심사 전 신청 필수(인증키 정보 제출→위치기반 등록 임계경로). MobileApp=GreenTrip 승인요건. `findings §P`, 04_evidence_ledger v1.4, 04_judge_mapping, greentrip-qa, lbs_tracker, CLAUDE.md 동시 갱신. | PDF 원본 정독 누락·오류 보정 |
+| 2026-05-28 | **v1.5** | **두루누비 API 도입 + 강원관광재단 협업 P0 격상** — 두루누비(API-11, 코리아둘레길) 도입: 강원 자전거길·둘레길·DMZ GPX를 자전거/도보 코스 + 강원 테마에 연동. 활용 11종(19종 중 58%). P0-7 시드 소스 + P1-11 본격 통합. 강원관광재단 협업을 발전성 어필 → **강원 RTO 특별상 자체 심사 직접 영향**으로 P0 격상. DEVELOPMENT_PLAN §3.2 API-11, tourapi-integrator/integration, greentrip-qa, 04_mvp_plus_priority, 04_judge_mapping(데이터 활용 11종·발전성 강원 RTO), CLAUDE.md 동시 갱신. | 사용자 결정(두루누비 도입 + 강원 협업 상향) |
+| 2026-06-05 | **v1.6** | **KorService1 → KorService2 일괄 마이그레이션** — 사용자 활용신청서(15개 endpoint HTTP 200 실측) 1차 출처. Base URL `KorService2` 단일. 활용 종수 11종 → **14종** (KorService2 활성 13종 + 두루누비, 19종 중 약 74%). 신규 endpoint 5종(searchStay2·detailInfo2·ldongCode2·lclsSystmCode2 + 두루누비) 통합. 미사용 2종(areaCode2·categoryCode2) "신청 됐으나 호출 0건" + 정식 대체(ldongCode2·lclsSystmCode2)로 사전 마이그레이션. DEVELOPMENT_PLAN §3, tourapi-integrator/integration, greentrip-qa §E(체크리스트 14종 + 미사용 0건 Grep), 04_evidence_ledger v1.6(E22·E29), 04_judge_mapping §1.3(14종·74%), 부록 D, `src/lib/tourapi/constants.ts`, `src/types/tour.ts`, `.env.example`, `CLAUDE.md` 동시 갱신. 산출물: `_workspace/tourapi_migration_v1.6.md`. | 사용자 결정 + 15개 endpoint HTTP 200 실측 확인 (KorService1 deprecated) |
 
 ---
 
 ## 부록 G — 다음 단계 권고
 
 1. **✅ Evidence Ledger 종결 (v1.2 2026-05-18):** 잔여 [unverified] 0건. E1·E2 옵션 A 채택, E7 「제4차 관광개발기본계획」 정식 채택, E3 [Verified] High 격상. `greentrip_proposal.md` v1.1 본문 5개 위치 정정 적용 완료. **사용자 후속 의사결정 1건**: 공모전 사무국에 v1.1 제안서 수정안 제출 가능 여부 문의. 불가 시 PT·`/about/sustainability`·STRATEGY에 v1.1 표현 사용 (PT 발표자 v1.1 의무).
-2. **강원관광재단 협업 진척 (Phase 1~3):** 발전성 점수 직결. Phase 3 종료 전 협업 의향 1건 확보 시도.
-3. **Start-up NEST 등록 검토 (Phase 1):** 가점 +2 확보 가능성 점검. 미등록 시 등록 절차 검토.
-4. **`/about/sustainability` 페이지 콘텐츠 작성 (Phase 3 W14):** 탄소 계수 출처 + TourAPI 활용 + WCAG 검증 + Evidence Ledger 일부 공개. 심사 데이터 활용·발전성 직접 어필.
-5. **PT 슬라이드 사전 작성 (Phase 3 W16~17):** 본 STRATEGY §7 PT 구성을 슬라이드 10장으로. 데모 비디오 백업 준비.
+2. **🔴 위치기반 사업자 등록 즉시 신청 (v1.3 신규 P0):** 2026 기준 강화로 GPS 좌표를 서버에 전송하는 GreenTrip은 등록 필수. 등록 수 주 ~ 1-2개월 소요. Phase 3 W15 운영 계정 신청 시점에 등록증 없으면 반려 가능. 진행 추적: `_workspace/legal/lbs_registration_tracker.md`.
+3. **🔴 강원관광재단 협업 — P0 격상 (v1.5):** ① 발전성 점수 + ② **강원 RTO 특별상 자체 심사 직접 영향**(OT p14, 본상과 독립 수상 트랙) + ③ 두루누비 강원 코스 큐레이션 자문의 3중 효과. Phase 1(6월)부터 접촉 시작 → Phase 3 종료(9월) 전 협업 의향서 1건 확보. 채널: 강원관광재단 공식 + 운영사무국(gongmo@stunning.kr) RTO 연결. 7~8월 공모전 컨설팅에서 RTO 연계 분야 신청.
+4. **Start-up NEST 등록 검토 (Phase 1):** 가점 +2 확보 가능성 점검. 미등록 시 등록 절차 검토.
+5. **`/about/sustainability` 페이지 콘텐츠 작성 (Phase 3 W14):** 콘텐츠 초안 작성 완료 (`_workspace/content/about_sustainability.md`, 8개 섹션). 탄소 계수 출처 + TourAPI 활용 + WCAG 검증 + Evidence Ledger v1.3 일부 공개. 심사 데이터 활용·발전성 직접 어필.
+6. **PT 슬라이드 사전 작성 (Phase 3 W16~17):** 본 STRATEGY §7 PT 구성을 슬라이드 10장으로. 데모 비디오 백업 준비. 2026-10-28 오프라인 발표 심사 대비.
+7. **✅ TourAPI 키 활성화 확인 (v1.6 완료, 2026-06-05):** 사용자 활용신청서 + 15개 endpoint(KorService2) HTTP 200 실측 검증 완료. 키 활성화 이슈 해소.
+8. **TourAPI KorService2 마이그레이션 (v1.6 신규):** 사용자 활용신청서 1차 출처 기반 KorService1 → KorService2 일괄 마이그레이션 완료. 활용 종수 11종 → **14종 (KorService2 활성 13종 + 두루누비)** = 19종 중 약 74%. 신규 endpoint 5종(searchStay2·detailInfo2·ldongCode2·lclsSystmCode2 + 두루누비) 통합. 미사용 2종(areaCode2·categoryCode2)은 정식 대체(ldongCode2·lclsSystmCode2)로 사전 마이그레이션. 어필 표현 = "19종 중 14종 활용(74%) — KorService2 신규 endpoint 5종 + 두루누비 통합, 미사용 2종 정식 대체로 폐기 영향 0".
+9. **두루누비(코리아둘레길) API 도입 (v1.5 신규):** 강원 자전거길(동해안 242km)·둘레길·DMZ 평화의 길의 GPX 트랙을 자전거/도보 코스(C안) + 강원 ThemeCourse에 직접 연동. **강원 RTO 특별상 어필 + 데이터 활용 다양성 + 발전성** 3중 효과. P0-7(시드 데이터 소스) + P1-11(본격 통합). ⚠ 사용자 활용신청서 미포함 → 별도 신청 필요.
 
 ---
 
-**End of GreenTrip Strategy v1.0**
+**End of GreenTrip Strategy v1.6 (2026-06-05)**

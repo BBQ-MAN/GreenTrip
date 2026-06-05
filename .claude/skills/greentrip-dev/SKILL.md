@@ -16,7 +16,7 @@ GreenTrip(저탄소 여행 플래너) 에이전트 팀을 조율하여 DEVELOPME
 | 팀원 | 에이전트 타입 | 역할 | 스킬 | 출력 위치 |
 |------|-------------|------|------|----------|
 | architect | general-purpose | 구조·Prisma·타입·환경 | nextjs-architect | src/types/, prisma/, next.config 등 |
-| tourapi-integrator | general-purpose | TourAPI 10종·캐싱·Routes | tourapi-integration | src/lib/tourapi/, src/app/api/tour/ |
+| tourapi-integrator | general-purpose | TourAPI 14종 (KorService2 13종 + 두루누비)·캐싱·Routes | tourapi-integration | src/lib/tourapi/, src/app/api/tour/ |
 | domain-logic | general-purpose | 탄소·거리·코스 최적화 | carbon-course-engine | src/lib/carbon/, src/lib/course/, src/lib/map/distance.ts |
 | ui-builder | general-purpose | 페이지·컴포넌트·훅 | nextjs-ui-builder | src/app/, src/components/, src/hooks/ |
 | map-integrator | general-purpose | Kakao Maps SDK | kakao-maps-integration | src/lib/map/kakao.ts, src/components/map/ |
@@ -152,7 +152,7 @@ GreenTrip(저탄소 여행 플래너) 에이전트 팀을 조율하여 DEVELOPME
 
 `greentrip_proposal.md`가 변경되면 (예: 1차 심사 후 수정안 제출) 다음 영역의 영향 분석을 자동으로 수행:
 1. 2장 "주요 기능" 변경 → ui-builder + domain-logic 영향
-2. 3.1장 OpenAPI 10종 변경 → tourapi-integrator + qa(체크리스트) 영향
+2. 3.1장 OpenAPI 명세(제안서 10종 / v1.6 후 KorService2 13종 + 두루누비 = 14종) 변경 → tourapi-integrator + qa(체크리스트) 영향
 3. 4장 발전 로드맵 변경 → STRATEGY.md 로드맵 v2 갱신 트리거 (`greentrip-benchmark` 스킬로 재실행)
 4. 4장 기술 스택 변경 → architect 영향. Python 백엔드처럼 전체 아키텍처 영향 시 사용자에게 확인.
 

@@ -37,7 +37,7 @@ export interface CarbonSaving {
 }
 
 /**
- * 접근성 점수 — detailCommon1 / detailIntro1 파싱 결과
+ * 접근성 점수 — detailCommon2 / detailIntro2 파싱 결과 (v1.6 KorService2)
  */
 export interface AccessibilityScore {
   publicTransport: number; // 0~100: 대중교통 접근성

@@ -1,6 +1,6 @@
 ---
 name: greentrip-qa
-description: GreenTrip 통합 정합성 검증 스킬. API 응답↔프론트 훅 shape 교차 비교, 라우팅 정합성, Prisma↔API↔UI 3층 매핑, 타입 안정성, TourAPI 10종 사용 여부, 접근성, Lighthouse. qa-reviewer 에이전트가 각 모듈 완성 직후 incremental QA로 사용.
+description: GreenTrip 통합 정합성 검증 스킬. API 응답↔프론트 훅 shape 교차 비교, 라우팅 정합성, Prisma↔API↔UI 3층 매핑, 타입 안정성, TourAPI 14종(KorService2 13종 + 두루누비) 사용 여부 + 미사용 2종 호출 0건, 접근성, Lighthouse. qa-reviewer 에이전트가 각 모듈 완성 직후 incremental QA로 사용.
 ---
 
 # GreenTrip QA — 통합 정합성 검증
@@ -27,8 +27,8 @@ description: GreenTrip 통합 정합성 검증 스킬. API 응답↔프론트 �
 ## 통합 정합성 체크리스트
 
 ### A. API ↔ 프론트엔드 교차 검증
-- [ ] `/api/tour/*` 7개 Route의 응답 shape과 `useTourAPI.ts` 훅의 제네릭 T 일치
-- [ ] 공통 shape `{ items, totalCount, pageNo, numOfRows }`을 모든 TourAPI Route가 준수
+- [ ] `/api/tour/*` 10개 Route(area·location·search·festival·detail·images·pet·lodging·sync·durunubi)의 응답 shape과 `useTourAPI.ts` 훅의 제네릭 T 일치
+- [ ] 공통 shape `{ items, totalCount, pageNo, numOfRows }`을 모든 TourAPI Route가 준수 (KorService2 unwrap 일관성)
 - [ ] `/api/course/generate` 응답 shape과 CourseCompareCard props 일치
 - [ ] `/api/carbon/calculate` 응답과 CarbonGauge props 일치
 - [ ] `/api/report/generate` 응답과 CertificateCard props 일치
@@ -52,27 +52,53 @@ description: GreenTrip 통합 정합성 검증 스킬. API 응답↔프론트 �
 - [ ] `any`, 무분별한 제네릭 캐스팅(`as unknown as T`) 검색 0건
 - [ ] `@ts-ignore`, `@ts-expect-error` 주석 0건
 
-### E. TourAPI 10종 사용 여부 (공모전 필수, DEVELOPMENT_PLAN + 제안서 합집합)
-- [ ] areaCode1 호출 확인 (`/api/tour/area`)
-- [ ] categoryCode1 호출 확인
-- [ ] locationBasedList1 호출 확인 (`/api/tour/location`)
-- [ ] areaBasedList1 호출 확인 (`/api/tour/search`)
-- [ ] searchKeyword1 호출 확인
-- [ ] searchFestival1 호출 확인 (`/api/tour/festival`, Week 6~7)
-- [ ] detailCommon1 호출 확인 (`/api/tour/detail`)
-- [ ] detailIntro1 호출 확인
-- [ ] detailImage1 호출 확인 (`/api/tour/images`)
-- [ ] detailPetTour1 호출 확인 (`/api/tour/pet`, Week 8~9)
-- [ ] **숙박정보 처리** — `areaBasedList1` with `contentTypeId=32` + 친환경/반려동물/대중교통 필터 (`/api/tour/lodging`, 제안서 3.1 No.6)
-- [ ] **`areaBasedSyncList1` 동기화 목록** — 일 1회 cron 실행, 동기화 로그 테이블에 기록 (`/api/tour/sync`, 제안서 3.1 No.10)
+### E. TourAPI 14종 사용 여부 (v1.6 KorService2 마이그레이션, 공모전 필수)
+
+> **v1.6 (2026-06-05 사용자 활용신청서 1차 출처)**: 한국관광공사 오픈 API 총 **19종** 중 GreenTrip **14종** 활용 (약 74%).
+> = KorService2 활성 13종 + 두루누비 1종.
+> 미사용 2종 (`areaCode2`·`categoryCode2`)은 신청서에 "미사용 (삭제예정)" 명시 — 호출 코드 0건. 정식 대체: `ldongCode2`·`lclsSystmCode2`.
+
+**기본 인프라:**
+- [ ] **TOUR_API_BASE = `https://apis.data.go.kr/B551011/KorService2`** 확인 (`src/lib/tourapi/constants.ts`). KorService1 잔존 0건.
+- [ ] **MobileApp 파라미터 = `GreenTrip` 고정** (`COMMON_PARAMS`) — 운영계정 승인요건 (OpenAPI 자료 p9). 임의 값·`AppTest` placeholder 0건.
+- [ ] **KorService1 잔존 0건** — Grep `KorService1|areaCode1|categoryCode1|locationBasedList1|areaBasedList1|searchKeyword1|searchFestival1|detailCommon1|detailIntro1|detailImage1|detailPetTour1|areaBasedSyncList1` src/ → 0건
+
+**활성 13종 (KorService2):**
+- [ ] locationBasedList2 호출 확인 (`/api/tour/location`)
+- [ ] areaBasedList2 호출 확인 (`/api/tour/area`)
+- [ ] areaBasedSyncList2 호출 확인 (`/api/tour/sync`, 일 1회 cron, 제안서 3.1 No.10)
+- [ ] searchKeyword2 호출 확인 (`/api/tour/search`)
+- [ ] searchFestival2 호출 확인 (`/api/tour/festival`, Week 6~7)
+- [ ] **searchStay2 호출 확인** ⭐신규 — 숙박 전용 (`/api/tour/lodging`, Week 12~13)
+- [ ] detailCommon2 호출 확인 (`/api/tour/detail`)
+- [ ] detailIntro2 호출 확인 (`/api/tour/detail`)
+- [ ] **detailInfo2 호출 확인** ⭐신규 — 반복정보 (`/api/tour/detail`, 여행코스 구간·객실 등)
+- [ ] detailImage2 호출 확인 (`/api/tour/images`)
+- [ ] detailPetTour2 호출 확인 (`/api/tour/pet`, Week 8~9)
+- [ ] **ldongCode2 호출 확인** ⭐신규 — areaCode 정식 대체 (`/api/tour/area`, 법정동 정밀화)
+- [ ] **lclsSystmCode2 호출 확인** ⭐신규 — categoryCode 정식 대체 (`/api/tour/search`, 분류체계)
+
+**별도 트랙 1종:**
+- [ ] **두루누비 정보** — 별도 Base URL `Durunubi/courseList`·`routeList` 호출 확인 (`/api/tour/durunubi`, DEVELOPMENT_PLAN §3.2 API-14). 강원 코스 필터링 + GPX 트랙 활용. ⭐ 강원 RTO 특별상 어필 데이터. 별도 신청 필요.
+
+**미사용 2종 — 호출 0건 의무:**
+- [ ] ⚠ **areaCode2 호출 0건** — Grep `"areaCode2"` src/app/api src/lib/tourapi → 호출 코드(`callTourAPI('areaCode2', ...)`) 0건. 상수 정의(`TOUR_API_DEPRECATED`)·주석 언급은 허용.
+- [ ] ⚠ **categoryCode2 호출 0건** — Grep `"categoryCode2"` src/app/api src/lib/tourapi → 호출 코드 0건.
+
+**호출 통계 대시보드:**
+- [ ] **호출 통계 대시보드** — 운영 계정 100,000건/일 한도 추적 (E30, P0-11). 미사용 2종에 호출 0건을 그래프로 검증.
 
 ### H. 문서 3대 정합성 검증
 - [ ] `greentrip_proposal.md` 2장 "기획 서비스 주요 기능" 5개와 실제 구현된 기능이 일치
-- [ ] 제안서 3.1장의 10종 OpenAPI와 실제 호출 코드 매핑 (위 E 체크리스트의 합집합 통과 여부)
+- [ ] 제안서 3.1장의 10종 OpenAPI 명세(불변) ↔ v1.6 KorService2 마이그레이션 후 활용 14종(KorService2 13종 + 두루누비) 차이 인지 + 실제 호출 코드 매핑 (위 E 체크리스트의 합집합 통과 여부). 미사용 2종(areaCode2·categoryCode2) 호출 0건.
 - [ ] 제안서 4장 "단계별 발전 로드맵" 3단계와 `STRATEGY.md` 로드맵 v2가 충돌하지 않음
 - [ ] 제안서 1장 "75% 관광교통 탄소", "83% 지속가능 의향" 등 정량 주장이 `_workspace/benchmark/04_evidence_ledger.md`에 출처와 함께 기록됨
 - [ ] 제안서 4장 "기대효과" 4개 항목이 `STRATEGY.md`의 KPI로 1:1 매핑됨 (Evidence Ledger 참조)
 - [ ] 제안서 4장 "기술 스택"과 DEVELOPMENT_PLAN.md 2장 기술 스택 불일치 사항이 명시적으로 해소됨 (예: Python 백엔드 vs TS 단일 스택 결정)
+- [ ] **MobileApp 파라미터 = `GreenTrip` 고정** (`src/lib/tourapi/constants.ts` COMMON_PARAMS) — 운영계정 승인요건 (OpenAPI 자료 p9). 임의 값·`AppTest` 등 placeholder 잔존 0건. (§E와 중복 보장)
+- [ ] **KorService2 단일 Base URL** — `src/lib/tourapi/constants.ts`의 `TOUR_API_BASE`가 KorService2. KorService1 잔존 0건. (§E와 중복 보장)
+- [ ] **미사용 2종(areaCode2·categoryCode2) 호출 0건** — Grep으로 실제 HTTP 호출 코드 검증. (§E와 중복 보장)
+- [ ] **운영계정 1차 심사 전 신청 의무 인지** — Phase 3 W15 운영계정 신청 → 인증키 정보가 1차 심사 제출 항목(OT p12). 위치기반 등록증 전제 (`_workspace/legal/lbs_registration_tracker.md`).
 
 ### F. 접근성 & 성능 (Phase 3)
 - [ ] axe-core 경고 0 (또는 의도적 무시 사유 명시)
@@ -112,12 +138,32 @@ Grep ": any" src/
 Grep "@ts-ignore" src/
 ```
 
-### 4. TourAPI 호출 검증
+### 4. TourAPI 호출 검증 (v1.6 KorService2)
+
+**활성 13종 매치 확인:**
 ```
-Grep "areaCode1|categoryCode1|locationBasedList1|areaBasedList1|searchKeyword1" src/
-Grep "searchFestival1|detailCommon1|detailIntro1|detailImage1|detailPetTour1" src/
+Grep "locationBasedList2|areaBasedList2|areaBasedSyncList2|searchKeyword2|searchFestival2" src/
+Grep "searchStay2|detailCommon2|detailIntro2|detailInfo2|detailImage2|detailPetTour2" src/
+Grep "ldongCode2|lclsSystmCode2" src/
 ```
-10종 모두 매치되는지 확인.
+13종 모두 매치되는지 확인.
+
+**두루누비 1종:**
+```
+Grep "courseList|routeList|Durunubi" src/
+```
+
+**미사용 2종 호출 0건 (Blocker):**
+```
+Grep "callTourAPI\(['\"]areaCode2['\"]|callTourAPI\(['\"]categoryCode2['\"]" src/
+```
+0건이어야 함.
+
+**KorService1 잔존 0건 (Blocker):**
+```
+Grep "KorService1|areaCode1|categoryCode1|locationBasedList1|areaBasedList1|searchKeyword1|searchFestival1|detailCommon1|detailIntro1|detailImage1|detailPetTour1|areaBasedSyncList1" src/
+```
+0건이어야 함.
 
 ## 리포트 포맷
 
@@ -144,7 +190,7 @@ Grep "searchFestival1|detailCommon1|detailIntro1|detailImage1|detailPetTour1" sr
 ## 미검증 항목
 - {이유와 함께 명시}
 
-## TourAPI 10종 커버리지
+## TourAPI 14종 커버리지 (v1.6 KorService2 13종 + 두루누비)
 {체크리스트 결과}
 ```
 

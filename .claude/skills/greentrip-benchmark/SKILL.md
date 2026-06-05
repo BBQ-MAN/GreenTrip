@@ -42,7 +42,7 @@ GreenTrip의 시장 지형을 파악하고 제품이 나아갈 방향을 도출�
    - `DEVELOPMENT_PLAN.md` 1장(개요), 4장(알고리즘), 7장(페이지 명세), 11장(심사 기준)
    - **`greentrip_proposal.md`** (프로젝트 루트) — 공모전 1차 심사 제출 제안서. 정량 주장·정책 인용·기대효과 4개 항목·발전 로드맵 3단계를 Phase A/B에서 검증·정합 대상으로 사용
    - `CLAUDE.md` — 현재 하네스 변경 이력
-4. 세 문서가 어긋나는 항목(예: 제안서의 "Python 백엔드" vs DEVELOPMENT_PLAN의 "TS 단일 스택", 또는 10종 OpenAPI 항목 차이)을 미리 식별하여 Phase B의 product-strategist에게 입력으로 전달
+4. 세 문서가 어긋나는 항목(예: 제안서의 "Python 백엔드" vs DEVELOPMENT_PLAN의 "TS 단일 스택", 또는 제안서 10종 OpenAPI ↔ v1.6 후 14종 차이)을 미리 식별하여 Phase B의 product-strategist에게 입력으로 전달
 
 ### Phase A: 병렬 리서치 (서브 에이전트 모드)
 
