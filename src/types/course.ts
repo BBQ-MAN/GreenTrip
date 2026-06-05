@@ -77,15 +77,22 @@ export interface CourseCompareResult {
 
 /**
  * 코스 생성 요청 페이로드 (/api/course/generate)
+ * Route Zod (src/app/api/course/generate/route.ts) 와 1:1 정합.
  */
 export interface GenerateCourseRequest {
   areaCode: number;
   sigunguCode?: number;
-  themes?: string[]; // cat1/cat2/cat3 codes
-  duration: '당일' | '1박2일' | '2박3일';
+  /** TourAPI contentTypeId 배열 (12=관광지, 14=문화시설, 28=레포츠 등) */
+  contentTypeIds?: number[];
+  themes?: string[]; // cat1/cat2/cat3 codes (Phase 2 lclsSystmCode2 매핑)
+  duration?: '당일' | '1박2일' | '2박3일';
   includeFestival?: boolean;
   includePet?: boolean;
+  accessibilityMin?: number;
+  startContentId?: string;
   startLat?: number;
   startLng?: number;
   maxSpots?: number;
+  activeMode?: 'bicycle' | 'walking';
+  transitMode?: 'express_bus' | 'city_bus' | 'train_itx' | 'train_ktx';
 }

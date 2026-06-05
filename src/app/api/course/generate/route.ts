@@ -22,8 +22,8 @@ const RequestSchema = z.object({
   startContentId: z.string().optional(),
   startLat: z.number().min(-90).max(90).optional(),
   startLng: z.number().min(-180).max(180).optional(),
-  // DEVELOPMENT_PLAN §7.2 + types/course.ts GenerateCourseRequest.duration과 1:1 정합
-  duration: z.enum(['당일', '1박2일', '2박3일']).optional(),
+  // DEVELOPMENT_PLAN §7.2 + types/course.ts GenerateCourseRequest.duration과 1:1 정합 (required, Week 4 QA Medium 정정)
+  duration: z.enum(['당일', '1박2일', '2박3일']),
   includeFestival: z.boolean().optional(),
   includePet: z.boolean().optional(),
   accessibilityMin: z.number().min(0).max(100).optional(),
