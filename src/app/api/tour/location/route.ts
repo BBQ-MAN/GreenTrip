@@ -3,6 +3,8 @@
 //
 // 쿼리: mapX(경도), mapY(위도), radius(미터, 기본 5000), contentTypeId?, numOfRows?, pageNo?, arrange?
 import { NextRequest, NextResponse } from 'next/server';
+
+export const dynamic = 'force-dynamic';
 import { callTourAPI, TourAPIError } from '@/lib/tourapi/client';
 import {
   getCached,

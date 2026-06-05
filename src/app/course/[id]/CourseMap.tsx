@@ -39,9 +39,19 @@ interface CourseMapProps {
   waypoints: CourseMapWaypoint[];
   category: CourseCategory;
   center: { lat: number; lng: number };
+  /**
+   * 반려동물 동반 코스 여부 (Week 8~9).
+   * true이면 모든 SpotMarker InfoWindow에 "🐾 반려동물 동반" 리본 표시.
+   */
+  includePet?: boolean;
 }
 
-export function CourseMap({ waypoints, category, center }: CourseMapProps) {
+export function CourseMap({
+  waypoints,
+  category,
+  center,
+  includePet = false,
+}: CourseMapProps) {
   return (
     <KakaoMap
       center={center}
@@ -67,6 +77,7 @@ export function CourseMap({ waypoints, category, center }: CourseMapProps) {
           imageUrl={wp.imageUrl ?? undefined}
           contentId={wp.contentId}
           contentTypeId={wp.contentType}
+          isPetFriendly={includePet}
         />
       ))}
     </KakaoMap>

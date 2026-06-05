@@ -9,7 +9,6 @@ export {
 } from './client';
 
 export {
-  redis,
   TOUR_CACHE_TTL,
   tourCacheKey,
   getCached,

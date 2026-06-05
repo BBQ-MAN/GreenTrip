@@ -13,6 +13,7 @@ import { CONTENT_TYPE } from '@/lib/tourapi/constants';
 import { TransportBadge, CATEGORY_LABEL } from './TransportBadge';
 import { CarbonGauge } from './CarbonGauge';
 import { FestivalBadge } from './FestivalBadge';
+import { PetBadge } from '@/components/spot/PetBadge';
 import { cn } from '@/lib/utils';
 
 interface CourseCompareCardProps {
@@ -28,6 +29,11 @@ interface CourseCompareCardProps {
   isPending?: boolean;
   /** 카드 자리에 표시할 카테고리 (null 케이스에서도 헤더 유지) */
   fallbackCategory?: CourseCategory;
+  /**
+   * 반려동물 동반 코스 여부 (Week 8~9).
+   * true이면 헤더에 미니 PetBadge 표시 (waypoints는 includePet 필터를 이미 통과).
+   */
+  includePet?: boolean;
   className?: string;
 }
 
@@ -58,6 +64,7 @@ export function CourseCompareCard({
   onSelect,
   isPending = false,
   fallbackCategory = 'active',
+  includePet = false,
   className,
 }: CourseCompareCardProps) {
   // ===== option === null: 단거리 코스 부족 =====
@@ -128,13 +135,14 @@ export function CourseCompareCard({
         </span>
       ) : null}
 
-      {/* 헤더 — 카테고리 라벨 + (축제 미니 뱃지) + 이동수단 배지 */}
+      {/* 헤더 — 카테고리 라벨 + (축제·반려동물 미니 뱃지) + 이동수단 배지 */}
       <header className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-caption font-semibold text-muted-foreground">
             {CATEGORY_LABEL[cat]}
           </span>
           {hasFestival ? <FestivalBadge size="sm" /> : null}
+          {includePet ? <PetBadge size="sm" /> : null}
         </div>
         <TransportBadge mode={option.mode} category={cat} size="sm" />
       </header>

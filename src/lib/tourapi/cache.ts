@@ -9,10 +9,17 @@ import { Redis } from '@upstash/redis';
 import { createHash } from 'node:crypto';
 
 /**
- * Upstash Redis 클라이언트 (싱글톤).
- * 환경변수 `UPSTASH_REDIS_REST_URL`·`UPSTASH_REDIS_REST_TOKEN`에서 자동 설정.
+ * Upstash Redis 클라이언트 (lazy singleton).
+ *
+ * Vercel 빌드 시 page data collection 단계에서 모듈을 import할 때
+ * `Redis.fromEnv()`를 즉시 호출하면 환경변수가 없는 환경에서 throw → 빌드 실패.
+ * lazy 초기화로 실제 호출 시점(런타임)까지 미룬다.
  */
-export const redis = Redis.fromEnv();
+let _redis: Redis | undefined;
+function getRedis(): Redis {
+  if (!_redis) _redis = Redis.fromEnv();
+  return _redis;
+}
 
 /**
  * endpoint별 캐시 TTL (초). v1.6 KorService2 기준.
@@ -77,7 +84,7 @@ export function tourCacheKey(
  */
 export async function getCached<T>(key: string): Promise<T | null> {
   try {
-    const value = await redis.get<T>(key);
+    const value = await getRedis().get<T>(key);
     return value ?? null;
   } catch {
     return null;
@@ -96,7 +103,7 @@ export async function setCached<T>(
 ): Promise<void> {
   if (ttlSec <= 0) return;
   try {
-    await redis.set(key, value, { ex: ttlSec });
+    await getRedis().set(key, value, { ex: ttlSec });
   } catch {
     // 캐시 실패는 정상 흐름을 막지 않음 (외부 API 응답은 이미 받음)
   }
@@ -107,7 +114,7 @@ export async function setCached<T>(
  */
 export async function delCached(key: string): Promise<void> {
   try {
-    await redis.del(key);
+    await getRedis().del(key);
   } catch {
     // 무시
   }
@@ -122,9 +129,10 @@ export async function incrStat(endpoint: string): Promise<void> {
   const date = new Date().toISOString().slice(0, 10); // YYYY-MM-DD (UTC)
   const key = `tour:stats:${endpoint}:${date}`;
   try {
-    await redis.incr(key);
+    const r = getRedis();
+    await r.incr(key);
     // 30일 후 자동 만료 (대시보드는 최근 30일만 표시)
-    await redis.expire(key, 86400 * 30);
+    await r.expire(key, 86400 * 30);
   } catch {
     // 무시
   }

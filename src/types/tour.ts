@@ -108,6 +108,14 @@ export interface SpotItem {
   createdtime?: string;
   modifiedtime?: string;
   dist?: number; // locationBasedList2 의 경우 거리(m)
+  /**
+   * 반려동물 동반 가능 여부 — KorService2 detailIntro2의 정식 필드.
+   * areaBasedList2 응답에는 실측상 미포함(2026-06-05 v1.6 확인). 단,
+   *  - 후속 API 갱신·확장 응답 시 자동 활용을 위한 forward-compatible 선언
+   *  - excludeNonPetFriendly 1차 필터의 타입 안정성 보장
+   * 값 예: "가능", "불가능", "Y", "N" (공급자별 표기 변동)
+   */
+  chkpet?: string;
 }
 
 /**
@@ -126,14 +134,28 @@ export type StayItem = SpotItem;
 
 /**
  * 반려동물 동반여행 정보 (detailPetTour2)
+ *
+ * KorService2 실측 응답(2026-06-05) 필드 전부 반영:
+ *  - acmpyTypeCd: 동반 유형 (예: "전구역 동반가능", "일부구역 동반가능")
+ *  - acmpyPsblCpam: 동반 가능 동물 (예: "전 견종 동반 가능")
+ *  - acmpyNeedMtr: 동반 시 필요 사항 (예: "목줄 착용")
+ *  - relaAcdntRiskMtr: 사고 위험 사항
+ *  - etcAcmpyInfo: 기타 동반 정보 (예: 입마개·배변봉투 안내)
+ *  - relaPosesFclty / relaFrnshPrdlst / relaPurcPrdlst / relaRntlPrdlst: 관련 시설·물품
+ *  - petInfo: 일부 contentType의 요약 텍스트 (구버전 호환 유지)
  */
 export interface PetInfo {
   contentid: string;
   petInfo?: string;
-  acmpyTypeCd?: string; // 동반 가능 동물 유형 코드
-  acmpyPsblCpam?: string; // 동반 가능 동물 (구체)
-  acmpyNeedMtr?: string; // 동반 시 필요 사항
-  relaAcdntRiskMtr?: string; // 관련 사고 위험 사항
+  acmpyTypeCd?: string;
+  acmpyPsblCpam?: string;
+  acmpyNeedMtr?: string;
+  relaAcdntRiskMtr?: string;
+  etcAcmpyInfo?: string;
+  relaPosesFclty?: string;
+  relaFrnshPrdlst?: string;
+  relaPurcPrdlst?: string;
+  relaRntlPrdlst?: string;
 }
 
 /**

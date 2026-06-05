@@ -341,10 +341,10 @@ export function CourseOptionForm({ onSubmitted }: CourseOptionFormProps) {
                 />
                 <div className="flex-1">
                   <p className="text-body-md font-medium text-foreground">
-                    반려동물 동반 가능 우선
+                    🐾 반려동물 동반 가능 우선
                   </p>
                   <p className="text-caption text-muted-foreground">
-                    detailPetTour2 응답이 있는 관광지를 가중치 부여합니다.
+                    반려동물 동반 가능한 곳만 추천 (chkpet=가능 우선 + detailPetTour2 폴백)
                   </p>
                 </div>
               </label>

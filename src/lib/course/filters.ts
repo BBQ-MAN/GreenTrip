@@ -1,5 +1,5 @@
 // 축제·반려동물·접근성 필터
-// 참조: DEVELOPMENT_PLAN.md §4.3 (접근성 점수) + §8 Phase 2 Week 6~7 (축제 연동)
+// 참조: DEVELOPMENT_PLAN.md §4.3 (접근성 점수) + §8 Phase 2 Week 6~7 (축제 연동) + Week 8~9 (반려동물)
 //
 // Week 3 본격 구현:
 //   - calculateAccessibility (overview·infocenter 키워드 매칭, 보수적)
@@ -7,8 +7,11 @@
 // Week 6~7 본격 (v2.0):
 //   - rangeOverlaps · durationToDateRange · isFestival
 //   - mergeFestivals (FestivalItem → CourseWaypoint 변환 + 중복 제거 + 축제 우선 배치)
-// Week 8~9 본격:
-//   - excludeNonPetFriendly (시그니처만)
+// Week 8~9 본격 (v2.1):
+//   - PetFriendlySpot (SpotItem + isPetFriendly 메타) · isPetFriendly · isPetFriendlyChkValue
+//   - excludeNonPetFriendly (동기 1차 chkpet 필터)
+//   - filterPetFriendly (1차 chkpet + 2차 detailPetTour2 폴백, concurrency 제한)
+//   - excludeNonPetFriendlyWaypoints (Map 기반 레거시 시그니처 유지)
 import type { CourseWaypoint } from '@/types/course';
 import type {
   AccessibilityScore,
@@ -16,9 +19,11 @@ import type {
 import type {
   SpotDetailCommon,
   SpotDetailIntro,
+  SpotItem,
   FestivalItem,
   PetInfo,
 } from '@/types/tour';
+import { callTourAPI } from '@/lib/tourapi/client';
 import { spotToWaypoint, hasValidCoord } from './generator';
 import { CONTENT_TYPE } from '@/lib/tourapi/constants';
 
@@ -258,17 +263,190 @@ export function mergeFestivals(
   return [...novelFestivals, ...spots];
 }
 
+// =============================================================================
+// Week 8~9: 반려동물 동반 필터 (input 명세 §A-1 본격 구현)
+//
+// 도메인 차이 (vs Week 6~7 축제):
+//   - 축제는 contentTypeId=15로 spot 자체 식별 → mergeFestivals (합치기)
+//   - 반려동물은 detailPetTour2 별도 호출 필요 → filterPetFriendly (걸러내기)
+//
+// 검증된 가정 (2026-06-05 실측):
+//   - areaBasedList2 응답에 chkpet 미포함 → 1차 필터(excludeNonPetFriendly)는 forward-compatible
+//     인슈어런스이며, 현재 KorService2 본 응답에선 통과 0건이 정상.
+//   - detailPetTour2는 전국 9,985건 (pageable) → 2차 폴백이 실제 필터링 주체.
+//   - detailPetTour2 응답 shape = TourAPIResponse<PetInfo> (items 배열).
+// =============================================================================
+
 /**
- * 반려동물 불가 spot 제거 — Week 8~9 본격 구현. 시그니처만 제공.
+ * pet-friendly 메타가 부착된 SpotItem.
  *
- * petInfoMap은 detailPetTour2 응답을 contentId로 키 매핑.
- * acmpyPsblCpam에 동반 불가 정보가 있으면 제외.
+ * isPetFriendly 식별자 부착으로 다운스트림(generator·UI)이 type predicate로
+ * 안전하게 분기 가능. petInfo는 2차 detailPetTour2 폴백에서 채워질 수 있음(선택).
  */
-export function excludeNonPetFriendly(
+export type PetFriendlySpot = SpotItem & {
+  isPetFriendly: true;
+  petInfo?: PetInfo;
+};
+
+/**
+ * chkpet 문자열 값을 "동반 가능" 여부로 정규화.
+ *
+ * 통과 (true):  "가능", "동반가능", "Y", "y" (공백 트림 후 정확 일치)
+ * 차단 (false): 빈 문자열, "불가능", "N", "n", undefined, 비문자열
+ *
+ * 명시적 화이트리스트 — 모호한 값("일부", "조건부")은 차단(보수적).
+ * 순수 함수, I/O 없음.
+ */
+export function isPetFriendlyChkValue(v: unknown): boolean {
+  if (typeof v !== 'string') return false;
+  const t = v.trim();
+  return t === '가능' || t === '동반가능' || t === 'Y' || t === 'y';
+}
+
+/**
+ * 타입 가드: SpotItem 또는 PetFriendlySpot 중 후자만 통과.
+ *
+ * Server/Client 양측 안전: 'in' 연산자 + boolean 타입 확인으로 prototype 오염 방어.
+ */
+export function isPetFriendly(
+  spot: SpotItem | PetFriendlySpot,
+): spot is PetFriendlySpot {
+  return (
+    'isPetFriendly' in spot &&
+    (spot as PetFriendlySpot).isPetFriendly === true
+  );
+}
+
+/**
+ * 동기 1차 필터 — chkpet 필드만으로 분류.
+ *
+ * areaBasedList2 응답에 chkpet이 실재할 경우(향후 KorService2 응답 확장 시) 1차 필터로 활용.
+ * 현재 KorService2 v1.6 응답에서는 chkpet 미포함이므로 항상 빈 배열 반환 (정상).
+ *
+ * 순수 함수. I/O 없음. 단위 테스트 가능.
+ */
+export function excludeNonPetFriendly(spots: SpotItem[]): PetFriendlySpot[] {
+  return spots
+    .filter((s) => isPetFriendlyChkValue(s.chkpet))
+    .map((s) => ({ ...s, isPetFriendly: true as const }));
+}
+
+/**
+ * 동시성 제한 풀 (외부 의존성 없는 p-limit 무의존 대체).
+ *
+ * - items의 인덱스를 atomic하게 분배하여 N개 worker가 병렬 진행.
+ * - 결과는 입력 순서 보존 (results[my] = await fn(items[my])).
+ * - concurrency가 items 길이보다 크면 worker 수를 items 길이로 클램프.
+ */
+async function runWithConcurrency<T, R>(
+  items: T[],
+  concurrency: number,
+  fn: (item: T) => Promise<R>,
+): Promise<R[]> {
+  if (items.length === 0) return [];
+  const results: R[] = new Array(items.length);
+  let idx = 0;
+  async function worker(): Promise<void> {
+    while (idx < items.length) {
+      const my = idx++;
+      results[my] = await fn(items[my]);
+    }
+  }
+  const workerCount = Math.min(Math.max(1, concurrency), items.length);
+  await Promise.all(Array.from({ length: workerCount }, worker));
+  return results;
+}
+
+/**
+ * 비동기 2차 필터 — detailPetTour2 폴백 호출.
+ *
+ * 단계:
+ *   1) excludeNonPetFriendly로 1차 chkpet 통과자 추출
+ *   2) 1차 미통과 spot 중 head(maxFallback) 만 detailPetTour2 병렬 호출 (concurrency 제한)
+ *   3) 응답에 PetInfo (acmpyTypeCd 또는 petInfo 보유) 있으면 통과 처리
+ *
+ * 비용 관리:
+ *   - concurrency 기본 5 (Single-flight + Redis 캐시는 callTourAPI/Route Handler가 처리)
+ *   - maxFallback 기본 20 (전체 풀 50개 중 20개만 폴백 호출)
+ *   - 호출 실패는 silently swallow (개별 spot 누락만 발생, 전체 풀 보존)
+ *
+ * 결정성 보장:
+ *   - 입력 순서 보존 (1차 통과자 → 2차 통과자)
+ *   - 동일 contentid 중복은 1차 통과 우선 (Set으로 차단)
+ */
+export async function filterPetFriendly(
+  spots: SpotItem[],
+  options?: { concurrency?: number; maxFallback?: number },
+): Promise<PetFriendlySpot[]> {
+  const concurrency = options?.concurrency ?? 5;
+  const maxFallback = options?.maxFallback ?? 20;
+
+  // 1차 — chkpet 통과자
+  const passed = excludeNonPetFriendly(spots);
+  const passedIds = new Set(passed.map((s) => s.contentid));
+
+  // 2차 폴백 후보 — 1차 미통과 + maxFallback 상한
+  const candidates = spots
+    .filter((s) => !passedIds.has(s.contentid))
+    .slice(0, maxFallback);
+
+  if (candidates.length === 0) return passed;
+
+  const fallbackResults = await runWithConcurrency(
+    candidates,
+    concurrency,
+    async (s): Promise<PetFriendlySpot | null> => {
+      try {
+        const res = await callTourAPI<PetInfo>('detailPetTour2', {
+          contentId: s.contentid,
+        });
+        const item = res.items[0];
+        // 동반 정보 1건 이상 + 의미 있는 필드 보유 시 통과
+        if (
+          item &&
+          ((typeof item.acmpyTypeCd === 'string' && item.acmpyTypeCd.length > 0) ||
+            (typeof item.petInfo === 'string' && item.petInfo.length > 0) ||
+            (typeof item.acmpyPsblCpam === 'string' &&
+              item.acmpyPsblCpam.length > 0))
+        ) {
+          return {
+            ...s,
+            isPetFriendly: true as const,
+            petInfo: item,
+          };
+        }
+      } catch {
+        // detailPetTour2 호출 실패는 개별 spot 누락으로만 처리 (전체 실패 X)
+      }
+      return null;
+    },
+  );
+
+  const fallbackPassed = fallbackResults.filter(
+    (x): x is PetFriendlySpot => x !== null,
+  );
+
+  return [...passed, ...fallbackPassed];
+}
+
+/**
+ * 레거시 시그니처 유지 — Map<contentId, PetInfo> 기반 CourseWaypoint 필터.
+ *
+ * filterByAccessibility와 동일 패턴 (이미 조회된 detail map 기반 in-memory 필터).
+ * 새 코드는 filterPetFriendly(SpotItem[])을 사용 권장.
+ */
+export function excludeNonPetFriendlyWaypoints(
   spots: CourseWaypoint[],
   petInfoMap: Map<string, PetInfo>,
 ): CourseWaypoint[] {
-  // TODO Week 8~9: petInfoMap[contentId] 검사 후 제외
-  void petInfoMap;
-  return spots;
+  if (petInfoMap.size === 0) return spots;
+  return spots.filter((s) => {
+    const info = petInfoMap.get(s.contentId);
+    if (!info) return true; // 정보 없으면 보수적으로 유지
+    // acmpyPsblCpam에 "불가" 명시 시 차단
+    if (typeof info.acmpyPsblCpam === 'string' && /불가|금지|x/i.test(info.acmpyPsblCpam)) {
+      return false;
+    }
+    return true;
+  });
 }

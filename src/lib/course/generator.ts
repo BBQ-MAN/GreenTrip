@@ -10,7 +10,7 @@ import { callTourAPI } from '@/lib/tourapi/client';
 import type { SpotItem, FestivalItem } from '@/types/tour';
 import type { CourseWaypoint } from '@/types/course';
 import { haversineKm } from '@/lib/map/distance';
-import { mergeFestivals, type DateRange } from './filters';
+import { mergeFestivals, filterPetFriendly, type DateRange } from './filters';
 
 /**
  * SpotItem → CourseWaypoint 매핑.
@@ -63,6 +63,19 @@ export interface BuildPoolParams {
   festivalDateRange?: DateRange;
   /** 축제 endpoint 최대 결과 수 (기본 30). */
   festivalNumOfRows?: number;
+  // Week 8~9: 반려동물 동반 필터
+  /**
+   * true일 때 풀을 pet-friendly spot만 남도록 필터링.
+   * 1차: chkpet 필드 (현재 KorService2 areaBasedList2 응답엔 미포함)
+   * 2차: detailPetTour2 폴백 호출 (concurrency·maxFallback 제한)
+   *
+   * 축제(contentTypeId=15)는 본 필터에서 면제 — includeFestival과 동시 활성 시 축제는 무조건 통과.
+   */
+  includePet?: boolean;
+  /** detailPetTour2 동시 호출 수 상한 (기본 5). */
+  petConcurrency?: number;
+  /** detailPetTour2 폴백 호출 대상 spot 수 상한 (기본 20). */
+  petMaxFallback?: number;
 }
 
 /**
@@ -103,21 +116,36 @@ export async function buildCandidatePool(
     ),
   );
 
-  // dedupe by contentid + 좌표 유효성 필터
+  // 1) SpotItem 단계 — contentid dedupe + 좌표 유효성 필터 (CourseWaypoint 매핑 전)
+  // Week 8~9: 반려동물 필터는 SpotItem 컨텍스트(chkpet·PetInfo 보유)에서 수행해야 정확.
   const seen = new Set<string>();
-  const pool: CourseWaypoint[] = [];
+  let spotItems: SpotItem[] = [];
   for (const res of responses) {
     for (const item of res.items) {
       if (seen.has(item.contentid)) continue;
       seen.add(item.contentid);
-      const wp = spotToWaypoint(item);
-      if (!hasValidCoord(wp)) continue;
-      pool.push(wp);
+      // 좌표는 SpotItem.mapx/mapy로 미리 검증 (CourseWaypoint 변환 후 hasValidCoord와 동일 의미)
+      if (!hasValidCoord({ lat: item.mapy, lng: item.mapx })) continue;
+      spotItems.push(item);
     }
   }
 
-  // Week 6~7: 축제 통합 (DEVELOPMENT_PLAN §8)
-  // includeFestival=true이고 dateRange 유효 시 searchFestival2 호출 후 mergeFestivals.
+  // 2) Week 8~9: includePet=true 시 반려동물 필터
+  //    - filterPetFriendly: 1차 chkpet + 2차 detailPetTour2 폴백
+  //    - 트레이드오프: detailPetTour2 N+1 호출 비용 → concurrency·maxFallback로 제한
+  if (params.includePet) {
+    spotItems = await filterPetFriendly(spotItems, {
+      concurrency: params.petConcurrency,
+      maxFallback: params.petMaxFallback,
+    });
+  }
+
+  // 3) SpotItem → CourseWaypoint 매핑
+  const pool: CourseWaypoint[] = spotItems.map(spotToWaypoint);
+
+  // 4) Week 6~7: 축제 통합 (DEVELOPMENT_PLAN §8)
+  //    - includeFestival=true이고 dateRange 유효 시 searchFestival2 호출 후 mergeFestivals.
+  //    - 축제는 includePet 필터를 면제 (사용자가 명시 요청한 목적지이므로 무조건 통합).
   if (params.includeFestival && params.festivalDateRange) {
     const range = params.festivalDateRange;
     const festResp = await callTourAPI<FestivalItem>('searchFestival2', {

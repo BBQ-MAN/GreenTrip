@@ -3,6 +3,8 @@
 //
 // 쿼리: eventStartDate(필수, YYYYMMDD), eventEndDate?, areaCode?, sigunguCode?, numOfRows?, pageNo?, arrange?
 import { NextRequest, NextResponse } from 'next/server';
+
+export const dynamic = 'force-dynamic';
 import { callTourAPI, TourAPIError } from '@/lib/tourapi/client';
 import {
   getCached,

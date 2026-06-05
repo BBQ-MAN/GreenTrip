@@ -9,6 +9,8 @@ import { syncRecentChanges } from '@/lib/tourapi/sync';
 import { TourAPIError } from '@/lib/tourapi/client';
 import { incrStat } from '@/lib/tourapi/cache';
 
+export const dynamic = 'force-dynamic';
+
 const ENDPOINT = 'areaBasedSyncList2';
 
 export async function GET(req: NextRequest) {

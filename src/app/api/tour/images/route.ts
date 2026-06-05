@@ -4,6 +4,8 @@
 // 쿼리: contentId(필수), imageYN?(기본 Y), numOfRows?, pageNo?
 //   - KorService2는 `subImageYN` 파라미터 미지원 (INVALID_REQUEST_PARAMETER_ERROR) → 호출 안 함
 import { NextRequest, NextResponse } from 'next/server';
+
+export const dynamic = 'force-dynamic';
 import { callTourAPI, TourAPIError } from '@/lib/tourapi/client';
 import {
   getCached,

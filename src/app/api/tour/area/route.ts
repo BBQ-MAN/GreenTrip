@@ -10,6 +10,8 @@
 // 모드 3 (강원 시군구 정적 매핑, mode=sigungu) — TourAPI 호출 없음:
 //   GANGWON.sigungu 상수 반환.
 import { NextRequest, NextResponse } from 'next/server';
+
+export const dynamic = 'force-dynamic';
 import { callTourAPI, TourAPIError } from '@/lib/tourapi/client';
 import {
   getCached,

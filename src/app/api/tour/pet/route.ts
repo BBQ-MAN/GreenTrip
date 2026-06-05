@@ -4,6 +4,8 @@
 // 쿼리: contentId(필수), contentTypeId?
 //   - contentId 없이도 호출 가능(전체 반려동반 가능 목록) → KorService2에서 contentId 옵션
 import { NextRequest, NextResponse } from 'next/server';
+
+export const dynamic = 'force-dynamic';
 import { callTourAPI, TourAPIError } from '@/lib/tourapi/client';
 import {
   getCached,

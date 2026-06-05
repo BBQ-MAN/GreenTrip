@@ -9,6 +9,8 @@
 // 쿼리 (keyword 모드):
 //   keyword(필수), areaCode?, contentTypeId?, lDongRegnCd?, lDongSignguCd?, lclsSystm1~3?, numOfRows?, pageNo?, arrange?
 import { NextRequest, NextResponse } from 'next/server';
+
+export const dynamic = 'force-dynamic';
 import { callTourAPI, TourAPIError } from '@/lib/tourapi/client';
 import {
   getCached,

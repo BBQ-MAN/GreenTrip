@@ -22,6 +22,8 @@ import { prisma } from '@/lib/db';
 import { MODE_LABEL } from '@/components/course/TransportBadge';
 import type { TransportMode } from '@/types/course';
 
+export const dynamic = 'force-dynamic';
+
 const TransportModeSchema = z.enum([
   'car',
   'express_bus',

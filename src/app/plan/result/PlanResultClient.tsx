@@ -17,6 +17,7 @@ import { LoadingSkeleton } from '@/components/common/LoadingSkeleton';
 import { CourseCompareCard } from '@/components/course/CourseCompareCard';
 import { BeforeAfterCompare } from '@/components/course/BeforeAfterCompare';
 import { FestivalBadge } from '@/components/course/FestivalBadge';
+import { PetBadge } from '@/components/spot/PetBadge';
 import { RouteOverlay } from '@/components/map/RouteOverlay';
 import { SpotMarker } from '@/components/map/SpotMarker';
 import { useCourseStore } from '@/stores/courseStore';
@@ -177,6 +178,15 @@ export function PlanResultClient() {
             </span>
           </div>
         ) : null}
+        {/* 반려동물 ON 요청 시 mini 헤더 (Week 8~9) — 축제와 동시 표시 가능 */}
+        {lastRequest.includePet ? (
+          <div className="inline-flex items-center gap-2">
+            <PetBadge size="sm" />
+            <span className="text-body-sm text-muted-foreground">
+              펫프렌들리 장소만 선별했습니다.
+            </span>
+          </div>
+        ) : null}
       </header>
 
       {/* Before/After 강조 (선택된 추천안 vs 자가용) */}
@@ -219,6 +229,7 @@ export function PlanResultClient() {
           baselineCO2g={baselineCO2g}
           isRecommended={recommended === 'car'}
           isPending={pendingCategory === 'car'}
+          includePet={lastRequest.includePet === true}
           onSelect={() => handleSelect('car')}
         />
         <CourseCompareCard
@@ -226,6 +237,7 @@ export function PlanResultClient() {
           baselineCO2g={baselineCO2g}
           isRecommended={recommended === 'transit'}
           isPending={pendingCategory === 'transit'}
+          includePet={lastRequest.includePet === true}
           onSelect={() => handleSelect('transit')}
         />
         <CourseCompareCard
@@ -234,6 +246,7 @@ export function PlanResultClient() {
           isRecommended={recommended === 'active'}
           isPending={pendingCategory === 'active'}
           fallbackCategory="active"
+          includePet={lastRequest.includePet === true}
           onSelect={active ? () => handleSelect('active') : undefined}
         />
       </section>
@@ -297,6 +310,7 @@ export function PlanResultClient() {
               imageUrl={wp.imageUrl}
               contentId={wp.contentId}
               contentTypeId={wp.contentType}
+              isPetFriendly={lastRequest.includePet === true}
             />
           ))}
         </KakaoMap>

@@ -19,12 +19,19 @@ import { cn } from '@/lib/utils';
 import { CONTENT_TYPE } from '@/lib/tourapi/constants';
 import { TransportBadge, MODE_LABEL } from './TransportBadge';
 import { FestivalBadge } from './FestivalBadge';
+import { PetBadge } from '@/components/spot/PetBadge';
 
 interface TimelineViewProps {
   /** Prisma Waypoint 배열 (order ASC 정렬되어 있어야 함) */
   waypoints: Waypoint[];
   /** 전체 코스 이동수단 — 카드 사이 connector 라벨에 사용 */
   transportMode: TransportMode;
+  /**
+   * 반려동물 동반 코스 여부 (Week 8~9).
+   * true이면 모든 waypoint 카드에 pet-friendly 시각 강조 + PetBadge.
+   * (waypoint 자체에 isPetFriendly 미보존 → course.includePet boolean으로 일괄 분기)
+   */
+  includePet?: boolean;
   className?: string;
 }
 
@@ -47,6 +54,7 @@ function formatKm(km: number | null | undefined): string {
 export function TimelineView({
   waypoints,
   transportMode,
+  includePet = false,
   className,
 }: TimelineViewProps) {
   if (waypoints.length === 0) {
@@ -67,19 +75,23 @@ export function TimelineView({
         const isLast = index === waypoints.length - 1;
         const hasConnector = !isLast && wp.distToNext != null;
         const isFestival = wp.contentType === CONTENT_TYPE.축제공연행사;
+        // course.includePet=true이면 모든 waypoint가 pet-friendly 필터 통과 풀에서 선택됨.
+        // → 모든 카드에 동일 시각 강조 (waypoint별 개별 메타 미보존).
+        const showPetEmphasis = includePet;
 
         return (
           <li
             key={wp.id}
             role="listitem"
             className="relative flex flex-col"
-            aria-label={`${index + 1}번째 방문지${isFestival ? ' (축제 행사)' : ''}: ${wp.title}`}
+            aria-label={`${index + 1}번째 방문지${isFestival ? ' (축제 행사)' : ''}${showPetEmphasis ? ' (반려동물 동반 가능)' : ''}: ${wp.title}`}
           >
-            {/* 카드 — 축제는 festival.surface 배경 + ring 강조 */}
+            {/* 카드 — 축제/반려동물 surface + ring 강조. 동시 가능 시 축제 우선 + 반려동물은 PetBadge로 표현. */}
             <article
               className={cn(
                 'relative flex gap-3 rounded-lg border bg-card p-4 shadow-sm md:gap-4 md:p-5',
                 isFestival && 'bg-festival-surface/40 ring-1 ring-festival/30',
+                !isFestival && showPetEmphasis && 'bg-pet-surface/40 ring-1 ring-pet/30',
               )}
             >
               {/* 순서 라벨 */}
@@ -132,9 +144,10 @@ export function TimelineView({
                   </p>
                   {/* 축제 강조 — 카드 내 마지막 line에 FestivalBadge.
                       Waypoint는 eventStart/End를 보유하지 않으므로 라벨만 표시. */}
-                  {isFestival ? (
-                    <div className="mt-1">
-                      <FestivalBadge size="sm" />
+                  {isFestival || showPetEmphasis ? (
+                    <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                      {isFestival ? <FestivalBadge size="sm" /> : null}
+                      {showPetEmphasis ? <PetBadge size="sm" /> : null}
                     </div>
                   ) : null}
                 </div>

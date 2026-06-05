@@ -15,13 +15,19 @@ import {
   Tag,
   Navigation,
 } from 'lucide-react';
-import type { SpotDetailCommon, SpotDetailIntro } from '@/types/tour';
+import type { SpotDetailCommon, SpotDetailIntro, PetInfo } from '@/types/tour';
 import { CONTENT_TYPE_LABEL, categoryLabel } from '@/lib/tourapi/categories';
 import { CONTENT_TYPE } from '@/lib/tourapi/constants';
 import { FestivalBadge } from '@/components/course/FestivalBadge';
+import { PetBadge } from '@/components/spot/PetBadge';
+import { isPetFriendlyChkValue } from '@/lib/course/filters';
 
 interface SpotDetailProps {
-  spot: SpotDetailCommon & SpotDetailIntro;
+  /**
+   * detailCommon2 + detailIntro2 + (선택) detailPetTour2 병합 객체.
+   * petInfo 필드는 KorService2 detailPetTour2 응답 (Week 8~9 부착).
+   */
+  spot: SpotDetailCommon & SpotDetailIntro & { petInfo?: PetInfo };
 }
 
 /**
@@ -141,6 +147,12 @@ export function SpotDetail({ spot }: SpotDetailProps) {
     typeof spot.usetimefestival === 'string' ? spot.usetimefestival : undefined;
   const playtime = typeof spot.playtime === 'string' ? spot.playtime : undefined;
 
+  // 반려동물 식별 (Week 8~9) — chkpet="가능"/Y 또는 petInfo 객체 보유 시.
+  // 헤더 뱃지는 두 신호 중 하나라도 있으면 노출. 본문 Section은 petInfo 객체가 있어야 노출.
+  const pet = spot.petInfo;
+  const hasPetInfo = Boolean(pet && Object.keys(pet).length > 1);
+  const isPetFriendly = isPetFriendlyChkValue(spot.chkpet) || hasPetInfo;
+
   const hasOperatingInfo = Boolean(
     spot.usetime || spot.restdate || spot.parking || spot.opendate
   );
@@ -186,6 +198,10 @@ export function SpotDetail({ spot }: SpotDetailProps) {
               eventEndDate={eventEnd}
               size="md"
             />
+          ) : null}
+          {/* 반려동물 동반 시각 강조 — 축제 뱃지 옆에 병렬 배치 */}
+          {isPetFriendly ? (
+            <PetBadge petInfo={pet?.petInfo} size="md" />
           ) : null}
         </div>
         <h1 className="text-display-md text-foreground md:text-display-lg">
@@ -250,6 +266,84 @@ export function SpotDetail({ spot }: SpotDetailProps) {
                 icon={<Tag className="h-4 w-4" />}
                 label="주최"
                 value={sponsor1}
+              />
+            ) : null}
+          </dl>
+        </Section>
+      ) : null}
+
+      {/* 반려동물 정보 (Week 8~9, detailPetTour2 응답 보유 시) */}
+      {hasPetInfo && pet ? (
+        <Section title="🐾 반려동물 정보">
+          <dl className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            {pet.acmpyTypeCd ? (
+              <InfoRow
+                icon={<PawPrint className="h-4 w-4" />}
+                label="동반 유형"
+                value={<span className="whitespace-pre-line">{pet.acmpyTypeCd}</span>}
+              />
+            ) : null}
+            {pet.acmpyPsblCpam ? (
+              <InfoRow
+                icon={<PawPrint className="h-4 w-4" />}
+                label="동반 가능 동물"
+                value={<span className="whitespace-pre-line">{pet.acmpyPsblCpam}</span>}
+              />
+            ) : null}
+            {pet.acmpyNeedMtr ? (
+              <InfoRow
+                icon={<PawPrint className="h-4 w-4" />}
+                label="필요 사항"
+                value={<span className="whitespace-pre-line">{pet.acmpyNeedMtr}</span>}
+              />
+            ) : null}
+            {pet.relaAcdntRiskMtr ? (
+              <InfoRow
+                icon={<PawPrint className="h-4 w-4" />}
+                label="사고 위험 사항"
+                value={<span className="whitespace-pre-line">{pet.relaAcdntRiskMtr}</span>}
+              />
+            ) : null}
+            {pet.etcAcmpyInfo ? (
+              <InfoRow
+                icon={<PawPrint className="h-4 w-4" />}
+                label="기타 동반 정보"
+                value={<span className="whitespace-pre-line">{pet.etcAcmpyInfo}</span>}
+              />
+            ) : null}
+            {pet.relaPosesFclty ? (
+              <InfoRow
+                icon={<PawPrint className="h-4 w-4" />}
+                label="관련 시설"
+                value={<span className="whitespace-pre-line">{pet.relaPosesFclty}</span>}
+              />
+            ) : null}
+            {pet.relaFrnshPrdlst ? (
+              <InfoRow
+                icon={<PawPrint className="h-4 w-4" />}
+                label="비치 물품"
+                value={<span className="whitespace-pre-line">{pet.relaFrnshPrdlst}</span>}
+              />
+            ) : null}
+            {pet.relaPurcPrdlst ? (
+              <InfoRow
+                icon={<PawPrint className="h-4 w-4" />}
+                label="구매 가능 물품"
+                value={<span className="whitespace-pre-line">{pet.relaPurcPrdlst}</span>}
+              />
+            ) : null}
+            {pet.relaRntlPrdlst ? (
+              <InfoRow
+                icon={<PawPrint className="h-4 w-4" />}
+                label="대여 가능 물품"
+                value={<span className="whitespace-pre-line">{pet.relaRntlPrdlst}</span>}
+              />
+            ) : null}
+            {pet.petInfo ? (
+              <InfoRow
+                icon={<PawPrint className="h-4 w-4" />}
+                label="요약"
+                value={<span className="whitespace-pre-line">{pet.petInfo}</span>}
               />
             ) : null}
           </dl>

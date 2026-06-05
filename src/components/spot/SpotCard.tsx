@@ -8,9 +8,16 @@ import { cn } from '@/lib/utils';
 import { CONTENT_TYPE_LABEL } from '@/lib/tourapi/categories';
 import { CONTENT_TYPE } from '@/lib/tourapi/constants';
 import { FestivalBadge } from '@/components/course/FestivalBadge';
+import { PetBadge } from '@/components/spot/PetBadge';
+import {
+  isPetFriendly as isPetFriendlySpot,
+  isPetFriendlyChkValue,
+  type PetFriendlySpot,
+} from '@/lib/course/filters';
 
 interface SpotCardProps {
-  spot: SpotItem;
+  /** SpotItem 또는 buildCandidatePool 출력의 PetFriendlySpot (isPetFriendly:true 메타 포함) */
+  spot: SpotItem | PetFriendlySpot;
   /** 거리 표시 옵션 (locationBased 응답일 때 dist 사용) */
   showDistance?: boolean;
   /** 카드 외곽 클래스 오버라이드 */
@@ -38,6 +45,12 @@ export function SpotCard({ spot, showDistance = false, className }: SpotCardProp
   const isFestival =
     spot.contenttypeid === CONTENT_TYPE.축제공연행사 ||
     Boolean(festivalFields.eventstartdate);
+
+  // 반려동물 친화 식별 (Week 8~9):
+  //   - 1순위: PetFriendlySpot 타입 가드(filters.isPetFriendly) — buildCandidatePool 부착 메타.
+  //   - 2순위: spot.chkpet="가능"/"Y" 등 (KorService2 detailIntro2 필드, 향후 응답 확장 대비).
+  const isPetFriendly =
+    isPetFriendlySpot(spot) || isPetFriendlyChkValue(spot.chkpet);
 
   return (
     <article
@@ -74,15 +87,18 @@ export function SpotCard({ spot, showDistance = false, className }: SpotCardProp
           >
             {typeLabel}
           </span>
-          {/* 축제 강조 — 우측 상단 (typeBadge와 충돌 회피) */}
-          {isFestival ? (
-            <span className="absolute right-3 top-3">
-              <FestivalBadge
-                eventStartDate={festivalFields.eventstartdate}
-                eventEndDate={festivalFields.eventenddate}
-                size="sm"
-              />
-            </span>
+          {/* 우측 상단 뱃지 스택 — 축제 + 반려동물 동시 가능 (typeBadge와 충돌 회피) */}
+          {isFestival || isPetFriendly ? (
+            <div className="absolute right-3 top-3 flex flex-col items-end gap-1">
+              {isFestival ? (
+                <FestivalBadge
+                  eventStartDate={festivalFields.eventstartdate}
+                  eventEndDate={festivalFields.eventenddate}
+                  size="sm"
+                />
+              ) : null}
+              {isPetFriendly ? <PetBadge size="sm" /> : null}
+            </div>
           ) : null}
         </div>
 

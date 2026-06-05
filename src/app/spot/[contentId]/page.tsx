@@ -10,6 +10,8 @@
 // ※ Week 2 시점 tourapi-integrator의 9개 Route는 병행 구현 중.
 //   Route가 placeholder(501)인 동안엔 not-found 표시. Route 완성 직후 즉시 동작.
 import type { Metadata } from 'next';
+
+export const dynamic = 'force-dynamic';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 import Link from 'next/link';

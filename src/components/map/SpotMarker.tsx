@@ -23,6 +23,11 @@ export interface SpotMarkerProps {
   imageUrl?: string;
   contentId?: string;
   contentTypeId?: number;
+  /**
+   * 반려동물 동반 가능 여부 (Week 8~9).
+   * true이면 InfoWindow에 "🐾 반려동물 동반" 리본 표시.
+   */
+  isPetFriendly?: boolean;
 }
 
 // 간단한 HTML escape — InfoWindow content는 innerHTML로 들어가므로 필수
@@ -41,6 +46,10 @@ const FESTIVAL_CONTENT_TYPE_ID = 15;
 const FESTIVAL_ACCENT = '#F59E0B';
 /** brand.primary (#0B8C5C) — 일반 마커 색상 */
 const BRAND_PRIMARY = '#0B8C5C';
+/** brand.secondary teal (#0E7490) — 반려동물 마커/리본 색상. tokens.brand.secondary.light 정합. */
+const PET_ACCENT = '#0E7490';
+/** pet.surface(#CFFAFE cyan-100) — 반려동물 리본 배경 */
+const PET_SURFACE = '#CFFAFE';
 
 export function SpotMarker({
   lat,
@@ -50,6 +59,7 @@ export function SpotMarker({
   imageUrl,
   contentId,
   contentTypeId,
+  isPetFriendly = false,
 }: SpotMarkerProps) {
   const { map } = useContext(MapContext);
   const isFestival = contentTypeId === FESTIVAL_CONTENT_TYPE_ID;
@@ -116,7 +126,10 @@ export function SpotMarker({
       : '';
 
     const festivalRibbon = isFestival
-      ? `<div style="display:inline-block;font-size:11px;font-weight:600;color:${FESTIVAL_ACCENT};background:#FEF3C7;padding:2px 8px;border-radius:9999px;margin-bottom:6px;" aria-label="축제 행사">🎉 축제</div>`
+      ? `<div style="display:inline-block;font-size:11px;font-weight:600;color:${FESTIVAL_ACCENT};background:#FEF3C7;padding:2px 8px;border-radius:9999px;margin-bottom:6px;margin-right:4px;" aria-label="축제 행사">🎉 축제</div>`
+      : '';
+    const petRibbon = isPetFriendly
+      ? `<div style="display:inline-block;font-size:11px;font-weight:600;color:${PET_ACCENT};background:${PET_SURFACE};padding:2px 8px;border-radius:9999px;margin-bottom:6px;margin-right:4px;" aria-label="반려동물 동반 가능">🐾 반려동물 동반</div>`
       : '';
 
     const contentHTML = `
@@ -126,7 +139,7 @@ export function SpotMarker({
             ? `<img src="${safeImage}" alt="" style="width:100%;height:96px;object-fit:cover;border-radius:6px;margin-bottom:8px;" />`
             : ''
         }
-        ${festivalRibbon}
+        ${festivalRibbon}${petRibbon}
         <div style="font-size:14px;font-weight:700;color:#0F1F1A;line-height:1.3;margin-bottom:6px;">
           ${safeTitle}
         </div>
@@ -156,7 +169,7 @@ export function SpotMarker({
         customOverlay.setMap(null);
       }
     };
-  }, [map, lat, lng, title, order, imageUrl, contentId, isFestival]);
+  }, [map, lat, lng, title, order, imageUrl, contentId, isFestival, isPetFriendly]);
 
   return null;
 }

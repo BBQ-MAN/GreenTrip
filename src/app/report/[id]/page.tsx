@@ -1,6 +1,8 @@
 // 탄소 절감 인증서 페이지 (placeholder — Phase 2 W10~11)
 // 참조: DEVELOPMENT_PLAN.md §7.5
 
+export const dynamic = 'force-dynamic';
+
 export default function ReportPage({ params }: { params: { id: string } }) {
   return (
     <main className="container py-16">

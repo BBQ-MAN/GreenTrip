@@ -19,9 +19,12 @@ import { TimelineView } from '@/components/course/TimelineView';
 import { TransportBadge, categoryFromMode } from '@/components/course/TransportBadge';
 import { BeforeAfterCompare } from '@/components/course/BeforeAfterCompare';
 import { FestivalBadge } from '@/components/course/FestivalBadge';
+import { PetBadge } from '@/components/spot/PetBadge';
 import { CONTENT_TYPE } from '@/lib/tourapi/constants';
 import { CourseMap } from './CourseMap';
 import type { TransportMode } from '@/types/course';
+
+export const dynamic = 'force-dynamic';
 
 // 강원 중심 좌표 (춘천 시청) — 좌표 누락 시 fallback
 const GANGWON_CENTER = { lat: 37.8813, lng: 127.7298 };
@@ -61,6 +64,11 @@ export default async function CourseDetailPage({
   const hasFestival = course.includeFestival && festivalWaypoints.length > 0;
   const festivalName = festivalWaypoints[0]?.title;
 
+  // 반려동물 강조 (Week 8~9): course.includePet=true이면 펫프렌들리 풀에서 선별된 코스.
+  // waypoint별 isPetFriendly 메타는 미보존이므로 boolean 단일 분기.
+  const hasPetCourse = course.includePet === true;
+  const petSpotCount = course.waypoints.length;
+
   return (
     <main className="container max-w-5xl py-6 md:py-10">
       {/* 헤더 */}
@@ -93,6 +101,23 @@ export default async function CourseDetailPage({
                 </span>
               ) : null}
               <span className="text-muted-foreground">{' '}행사 기간 포함 코스</span>
+            </p>
+          </div>
+        ) : null}
+
+        {/* 반려동물 강조 배너 — course.includePet ON (Week 8~9). 축제와 동시 표시 가능. */}
+        {hasPetCourse ? (
+          <div
+            className="flex flex-wrap items-center gap-3 rounded-lg border border-pet/30 bg-pet-surface/50 p-3 md:p-4"
+            role="region"
+            aria-label="반려동물 동반 코스 안내"
+          >
+            <PetBadge size="md" />
+            <p className="text-body-sm text-foreground md:text-body-md">
+              <span className="font-semibold text-pet">반려동물 동반 코스</span>
+              <span className="text-muted-foreground">
+                {' '}— 펫프렌들리 장소 {petSpotCount}곳만 선별
+              </span>
             </p>
           </div>
         ) : null}
@@ -162,6 +187,7 @@ export default async function CourseDetailPage({
           }))}
           category={category}
           center={mapCenter}
+          includePet={hasPetCourse}
         />
       </section>
 
@@ -176,6 +202,7 @@ export default async function CourseDetailPage({
         <TimelineView
           waypoints={course.waypoints}
           transportMode={transportMode}
+          includePet={hasPetCourse}
         />
       </section>
 

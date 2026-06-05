@@ -16,6 +16,8 @@ import { durationToDateRange } from '@/lib/course/filters';
 import { TourAPIError } from '@/lib/tourapi/client';
 import type { CourseWaypoint } from '@/types/course';
 
+export const dynamic = 'force-dynamic';
+
 const RequestSchema = z.object({
   areaCode: z.number().int().min(1).max(50),
   sigunguCode: z.number().int().min(1).max(50).optional(),
@@ -64,7 +66,9 @@ export async function POST(req: NextRequest) {
       ? durationToDateRange(data.duration)
       : undefined;
 
-    // 후보 풀 구성 (areaBasedList2 + 옵션 searchFestival2)
+    // 후보 풀 구성 (areaBasedList2 + 옵션 searchFestival2 + 옵션 detailPetTour2 폴백)
+    // Week 8~9: includePet=true 시 buildCandidatePool 내부에서 filterPetFriendly 적용.
+    //   - 트레이드오프 디폴트 (petConcurrency=5·petMaxFallback=20)는 Route에서 명시 안 함 (lib 기본값 사용)
     const pool = await buildCandidatePool({
       areaCode: data.areaCode,
       sigunguCode: data.sigunguCode,
@@ -72,6 +76,7 @@ export async function POST(req: NextRequest) {
       numOfRows: 50,
       includeFestival: data.includeFestival,
       festivalDateRange,
+      includePet: data.includePet,
     });
 
     if (pool.length < 2) {

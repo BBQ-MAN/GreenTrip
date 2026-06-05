@@ -8,6 +8,8 @@
 //   { items: [{ common, intro, info? }], totalCount: 1, pageNo: 1, numOfRows: 1 }
 //   - 상세는 단일 contentId 조회이므로 items 길이는 항상 0 또는 1
 import { NextRequest, NextResponse } from 'next/server';
+
+export const dynamic = 'force-dynamic';
 import { callTourAPI, TourAPIError } from '@/lib/tourapi/client';
 import {
   getCached,

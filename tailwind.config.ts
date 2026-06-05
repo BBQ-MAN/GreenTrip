@@ -84,6 +84,17 @@ const config: Config = {
           surface: '#FEF3C7', // tokens.color.carbon.mid.bg.light 와 동일 (warm yellow surface)
           ring: tokens.color.brand.accent.light,
         },
+        // Pet 시그니처 토큰 — brand.secondary (#0E7490 teal) 의 의미적 별칭 (Week 8~9).
+        // transport.balance 와 같은 hex이지만 "반려동물" 의미와 "균형 이동수단" 의미를
+        // CSS 클래스 수준에서 분리 (festival/brand.accent 동일 트레이드오프).
+        // pet.fg(#0E7490) on pet.surface(#CFFAFE cyan-100) → 대비비 ~5.6:1 WCAG AA 통과.
+        pet: {
+          DEFAULT: tokens.color.brand.secondary.light, // #0E7490
+          fg: tokens.color.brand.secondary.light,
+          // bg surface — 카드/뱃지 surface (밝은 cyan tint)
+          surface: '#CFFAFE', // Tailwind cyan-100
+          ring: tokens.color.brand.secondary.light,
+        },
       },
       fontFamily: {
         sans: ['Pretendard Variable', 'Pretendard', 'sans-serif'],

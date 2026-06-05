@@ -6,6 +6,8 @@
 //   mode=areaBased → areaBasedList2 contentTypeId=32 사용
 //   (Week 2는 기본 검색만, 필터 로직은 W12~13)
 import { NextRequest, NextResponse } from 'next/server';
+
+export const dynamic = 'force-dynamic';
 import { callTourAPI, TourAPIError } from '@/lib/tourapi/client';
 import {
   getCached,
