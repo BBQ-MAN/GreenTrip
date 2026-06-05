@@ -16,7 +16,7 @@ import {
   Navigation,
 } from 'lucide-react';
 import type { SpotDetailCommon, SpotDetailIntro } from '@/types/tour';
-import { CONTENT_TYPE_LABEL } from './SpotCard';
+import { CONTENT_TYPE_LABEL, categoryLabel } from '@/lib/tourapi/categories';
 
 interface SpotDetailProps {
   spot: SpotDetailCommon & SpotDetailIntro;
@@ -124,9 +124,23 @@ export function SpotDetail({ spot }: SpotDetailProps) {
   const hasAccessibility = Boolean(
     spot.chkbabycarriage || spot.chkpet || spot.chkcreditcard
   );
-  const hasCategory = Boolean(
-    spot.cat1 || spot.cat2 || spot.cat3 || spot.lclsSystm1
-  );
+  // 분류 라벨 dedupe (Week 3 QA Medium #2 fix):
+  //   prefix 매칭으로 lclsSystm2(HS01)와 lclsSystm3(HS010100)가 동일 라벨 "역사유적"이 되는 케이스 회피.
+  //   같은 라벨은 1번만 표시하고, 결합된 원본 코드는 title 속성에 보존.
+  const categoryEntries: Array<{ label: string; codes: string[] }> = (() => {
+    const codes = [spot.cat1, spot.cat2, spot.cat3, spot.lclsSystm1, spot.lclsSystm2, spot.lclsSystm3]
+      .filter((c): c is string => Boolean(c));
+    const byLabel = new Map<string, string[]>();
+    for (const code of codes) {
+      const label = categoryLabel(code);
+      if (!label) continue;
+      const arr = byLabel.get(label);
+      if (arr) arr.push(code);
+      else byLabel.set(label, [code]);
+    }
+    return Array.from(byLabel.entries()).map(([label, codes]) => ({ label, codes }));
+  })();
+  const hasCategory = categoryEntries.length > 0;
   const hasGps = typeof spot.mapx === 'number' && typeof spot.mapy === 'number';
 
   // Kakao 지도 외부 링크 (Week 5에서 사이트 내 지도로 교체)
@@ -300,25 +314,25 @@ export function SpotDetail({ spot }: SpotDetailProps) {
         </Section>
       ) : null}
 
-      {/* 분류 (Week 3에서 lclsSystmCode2 매핑으로 한글 라벨화 예정) */}
+      {/* 분류 — Week 3: categoryLabel(code) 한글 매핑 + Medium #2 fix dedupe (같은 라벨 1번만, 원본 코드는 title에 결합) */}
       {hasCategory ? (
         <Section title="분류">
           <div className="flex flex-wrap gap-2">
-            {[spot.cat1, spot.cat2, spot.cat3, spot.lclsSystm1, spot.lclsSystm2, spot.lclsSystm3]
-              .filter((c): c is string => Boolean(c))
-              .map((code) => (
-                <span
-                  key={code}
-                  className="inline-flex items-center gap-1 rounded-full bg-muted px-3 py-1 text-caption text-muted-foreground"
-                >
-                  <Tag aria-hidden="true" className="h-3 w-3" />
-                  {code}
-                </span>
-              ))}
+            {categoryEntries.map(({ label, codes }) => {
+                const codesJoined = codes.join(' / ');
+                const showTitle = label !== codesJoined;
+                return (
+                  <span
+                    key={codesJoined}
+                    className="inline-flex items-center gap-1 rounded-full bg-muted px-3 py-1 text-caption text-muted-foreground"
+                    title={showTitle ? codesJoined : undefined}
+                  >
+                    <Tag aria-hidden="true" className="h-3 w-3" />
+                    {label}
+                  </span>
+                );
+              })}
           </div>
-          <p className="text-caption text-muted-foreground">
-            * 분류 코드는 Week 3에 한글 라벨로 매핑 예정 (lclsSystmCode2)
-          </p>
         </Section>
       ) : null}
     </article>

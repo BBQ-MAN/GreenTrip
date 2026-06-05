@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { MapPin } from 'lucide-react';
 import type { SpotItem } from '@/types/tour';
 import { cn } from '@/lib/utils';
+import { CONTENT_TYPE_LABEL } from '@/lib/tourapi/categories';
 
 interface SpotCardProps {
   spot: SpotItem;
@@ -13,22 +14,6 @@ interface SpotCardProps {
   /** 카드 외곽 클래스 오버라이드 */
   className?: string;
 }
-
-/**
- * 관광지 타입 코드 → 한글 라벨
- * KorService2 contentTypeId: 12 관광지 · 14 문화시설 · 15 축제 · 25 여행코스
- *                            · 28 레포츠 · 32 숙박 · 38 쇼핑 · 39 음식점
- */
-const CONTENT_TYPE_LABEL: Record<number, string> = {
-  12: '관광지',
-  14: '문화시설',
-  15: '축제·행사',
-  25: '여행코스',
-  28: '레포츠',
-  32: '숙박',
-  38: '쇼핑',
-  39: '음식점',
-};
 
 function formatDistance(meters?: number): string | null {
   if (typeof meters !== 'number' || Number.isNaN(meters)) return null;
@@ -99,4 +84,5 @@ export function SpotCard({ spot, showDistance = false, className }: SpotCardProp
   );
 }
 
+// CONTENT_TYPE_LABEL은 @/lib/tourapi/categories 에서 import 하세요 (단일 진원지).
 export { CONTENT_TYPE_LABEL };
