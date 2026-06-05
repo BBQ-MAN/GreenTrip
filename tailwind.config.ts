@@ -95,6 +95,19 @@ const config: Config = {
           surface: '#CFFAFE', // Tailwind cyan-100
           ring: tokens.color.brand.secondary.light,
         },
+        // Cert 시그니처 토큰 — 인증서 그라데이션 헤더 + 본문 (Week 10~11).
+        // gradient1(brand.primary 진녹) → gradient2(brand.secondary 청록)
+        // = 시그니처 1·2의 "저탄소→균형" 색감을 인증서 헤더로 승화.
+        // 본문은 흰색 surface + cert.fg 텍스트(brand.primary 동일 hex).
+        // border(#D1FAE5 emerald-100) = carbon.low.bg 와 동일 → 시그니처 1 연속성.
+        cert: {
+          DEFAULT: tokens.color.brand.primary.light, // #0B8C5C
+          gradient1: tokens.color.brand.primary.light, // #0B8C5C
+          gradient2: tokens.color.brand.secondary.light, // #0E7490
+          surface: '#FFFFFF',
+          fg: tokens.color.brand.primary.light, // #0B8C5C
+          border: tokens.color.carbon.low.bg.light, // #D1FAE5 emerald-100
+        },
       },
       fontFamily: {
         sans: ['Pretendard Variable', 'Pretendard', 'sans-serif'],

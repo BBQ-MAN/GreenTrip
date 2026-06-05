@@ -12,7 +12,7 @@
 
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ChevronLeft, MapPin, Sparkles } from 'lucide-react';
+import { ChevronLeft, MapPin } from 'lucide-react';
 import { prisma } from '@/lib/db';
 import { Button } from '@/components/ui/button';
 import { TimelineView } from '@/components/course/TimelineView';
@@ -20,6 +20,7 @@ import { TransportBadge, categoryFromMode } from '@/components/course/TransportB
 import { BeforeAfterCompare } from '@/components/course/BeforeAfterCompare';
 import { FestivalBadge } from '@/components/course/FestivalBadge';
 import { PetBadge } from '@/components/spot/PetBadge';
+import { ReportCTA } from '@/components/report/ReportCTA';
 import { CONTENT_TYPE } from '@/lib/tourapi/constants';
 import { CourseMap } from './CourseMap';
 import type { TransportMode } from '@/types/course';
@@ -206,14 +207,10 @@ export default async function CourseDetailPage({
         />
       </section>
 
-      {/* 하단 CTA */}
+      {/* 하단 CTA — 시그니처 2 본격 (Phase 2 W10~11):
+          ReportCTA = POST /api/report/generate → router.push(`/report/{reportId}`) */}
       <div className="mt-10 flex flex-col items-stretch gap-3 sm:flex-row sm:justify-center">
-        <Button asChild variant="default">
-          <Link href={`/report/${course.id}`}>
-            <Sparkles aria-hidden="true" className="mr-1.5 h-4 w-4" />
-            탄소 리포트 보기
-          </Link>
-        </Button>
+        <ReportCTA courseId={course.id} />
         <Button asChild variant="outline">
           <Link href="/plan">
             <ChevronLeft aria-hidden="true" className="mr-1 h-4 w-4" />
