@@ -3,7 +3,10 @@
 // 5개 모델: User, Course, Waypoint, CarbonReport, ThemeCourse
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  // Vercel(Linux) + 로컬(Windows/macOS) 모두 지원.
+  // native = 빌드 머신 자동 감지, rhel-openssl-3.0.x = Vercel Node 20 런타임.
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
