@@ -1,11 +1,12 @@
 // 축제·반려동물·접근성 필터
-// 참조: DEVELOPMENT_PLAN.md §4.3 (접근성 점수)
+// 참조: DEVELOPMENT_PLAN.md §4.3 (접근성 점수) + §8 Phase 2 Week 6~7 (축제 연동)
 //
 // Week 3 본격 구현:
 //   - calculateAccessibility (overview·infocenter 키워드 매칭, 보수적)
 //   - filterByAccessibility (점수 임계값 필터)
-// Week 6~7 본격:
-//   - mergeFestivals (시그니처만)
+// Week 6~7 본격 (v2.0):
+//   - rangeOverlaps · durationToDateRange · isFestival
+//   - mergeFestivals (FestivalItem → CourseWaypoint 변환 + 중복 제거 + 축제 우선 배치)
 // Week 8~9 본격:
 //   - excludeNonPetFriendly (시그니처만)
 import type { CourseWaypoint } from '@/types/course';
@@ -18,6 +19,14 @@ import type {
   FestivalItem,
   PetInfo,
 } from '@/types/tour';
+import { spotToWaypoint, hasValidCoord } from './generator';
+import { CONTENT_TYPE } from '@/lib/tourapi/constants';
+
+/**
+ * 축제 타입 별칭 — FestivalItem(`@/types/tour`)이 단일 진원지.
+ * ui-builder가 본 파일에서 import할 수 있도록 re-export.
+ */
+export type FestivalSpot = FestivalItem;
 
 /**
  * detailCommon2 + detailIntro2 병합 객체에서 접근성 점수 산출.
@@ -101,20 +110,152 @@ export function filterByAccessibility(
 }
 
 /**
- * 축제 병합 — Week 6~7 본격 구현. 시그니처만 제공.
+ * 날짜 범위 (YYYYMMDD 8자리). KorService2 eventStartDate/eventEndDate와 단위 일치.
+ */
+export interface DateRange {
+  start: string; // YYYYMMDD
+  end: string; // YYYYMMDD
+}
+
+/**
+ * YYYYMMDD 8자리 문자열 검증. 빈 문자열·자릿수 부족·비숫자는 false.
+ */
+function isYyyymmdd(s: string | undefined | null): s is string {
+  return typeof s === 'string' && /^\d{8}$/.test(s);
+}
+
+/**
+ * 두 날짜 범위가 겹치는지 (양 끝 포함, [start, end] 닫힌 구간).
  *
- * daterange 내 진행 중인 축제를 spots 사이에 삽입.
- * 우선 시점은 좌표 근접도 기반 (가장 가까운 spot 다음 위치).
+ *   겹침 = a.start <= b.end && a.end >= b.start
+ *
+ * 두 값 모두 YYYYMMDD 8자리이므로 문자열 사전순 비교 = 수치 비교 (zero-pad 보장).
+ * 유효성 검증을 통과하지 못한 입력(빈 문자열·잘못된 길이)은 false 반환.
+ */
+export function rangeOverlaps(a: DateRange, b: DateRange): boolean {
+  if (!isYyyymmdd(a.start) || !isYyyymmdd(a.end)) return false;
+  if (!isYyyymmdd(b.start) || !isYyyymmdd(b.end)) return false;
+  // 자체적으로 start > end인 비정상 입력은 false (closed interval 의미 손실 방지)
+  if (a.start > a.end || b.start > b.end) return false;
+  return a.start <= b.end && a.end >= b.start;
+}
+
+/**
+ * YYYYMMDD 문자열 → UTC Date (시각 00:00 고정). KST 가정이지만 일 단위 산술만 하므로 UTC OK.
+ */
+function parseYyyymmdd(s: string): Date {
+  const y = Number(s.slice(0, 4));
+  const m = Number(s.slice(4, 6));
+  const d = Number(s.slice(6, 8));
+  return new Date(Date.UTC(y, m - 1, d));
+}
+
+/**
+ * Date → YYYYMMDD UTC 문자열.
+ */
+function formatYyyymmdd(d: Date): string {
+  const y = d.getUTCFullYear().toString().padStart(4, '0');
+  const m = (d.getUTCMonth() + 1).toString().padStart(2, '0');
+  const day = d.getUTCDate().toString().padStart(2, '0');
+  return `${y}${m}${day}`;
+}
+
+/**
+ * YYYYMMDD에 dayDelta 만큼 더한 YYYYMMDD 반환 (UTC 산술, 윤년·월말 안전).
+ */
+function addDays(yyyymmdd: string, dayDelta: number): string {
+  const dt = parseYyyymmdd(yyyymmdd);
+  dt.setUTCDate(dt.getUTCDate() + dayDelta);
+  return formatYyyymmdd(dt);
+}
+
+/**
+ * KST 오늘 날짜 YYYYMMDD. 명시적 호출 시점 일관성을 위해 분리.
+ * (테스트 가능성을 위해 startDate를 받지 않는 분기에서만 사용)
+ */
+function todayKst(): string {
+  // KST = UTC+9. Date.now()는 epoch ms. +9h 보정 후 YYYY-MM-DD 추출.
+  const now = new Date(Date.now() + 9 * 60 * 60 * 1000);
+  const y = now.getUTCFullYear().toString().padStart(4, '0');
+  const m = (now.getUTCMonth() + 1).toString().padStart(2, '0');
+  const d = now.getUTCDate().toString().padStart(2, '0');
+  return `${y}${m}${d}`;
+}
+
+/**
+ * duration 키워드 → YYYYMMDD DateRange.
+ *
+ *   당일   : start ~ start         (1일)
+ *   1박2일 : start ~ start+1       (2일)
+ *   2박3일 : start ~ start+2       (3일)
+ *
+ * @param duration 사용자 선택 기간 (Zod enum과 1:1)
+ * @param startDate YYYYMMDD 시작일 (미지정 시 KST 오늘)
+ */
+export function durationToDateRange(
+  duration: '당일' | '1박2일' | '2박3일',
+  startDate?: string,
+): DateRange {
+  const start = startDate && isYyyymmdd(startDate) ? startDate : todayKst();
+  const delta = duration === '당일' ? 0 : duration === '1박2일' ? 1 : 2;
+  return { start, end: addDays(start, delta) };
+}
+
+/**
+ * 축제 타입 가드 — contenttypeid가 15(축제공연행사) 이면서 eventstartdate 보유.
+ *
+ * SpotItem이 들어와도 안전 (eventstartdate 부재 시 false).
+ */
+export function isFestival(
+  spot: { contenttypeid?: number; eventstartdate?: string } | FestivalItem,
+): spot is FestivalItem {
+  return (
+    spot.contenttypeid === CONTENT_TYPE.축제공연행사 &&
+    typeof (spot as FestivalItem).eventstartdate === 'string' &&
+    (spot as FestivalItem).eventstartdate.length > 0
+  );
+}
+
+/**
+ * 축제 병합 — Week 6~7 본격 구현 (DEVELOPMENT_PLAN §8 매트릭스).
+ *
+ * 정책 (input 명세 §A-1):
+ *   1. dateRange와 행사 기간이 겹치는 축제만 채택 (rangeOverlaps, 닫힌 구간).
+ *   2. 중복 제거 — 이미 spots에 같은 contentid가 있으면 기존 spot 우선 (축제 측은 버림).
+ *   3. 결과는 [신규 축제..., 기존 spots...] — 축제 우선 배치 (호출측 NN 시작점 선정 시 의미)
+ *   4. 좌표 무효 축제(mapx/mapy 누락·범위 밖)는 제외 (CourseWaypoint 변환 후 hasValidCoord).
+ *   5. eventstartdate/eventenddate가 YYYYMMDD가 아니면 rangeOverlaps에서 자동 탈락.
+ *
+ * 순수 함수 — I/O 없음.
  */
 export function mergeFestivals(
   spots: CourseWaypoint[],
   festivals: FestivalItem[],
-  daterange: { start: string; end: string },
+  dateRange: DateRange,
 ): CourseWaypoint[] {
-  // TODO Week 6~7: daterange 필터링 + 좌표 기반 삽입
-  void festivals;
-  void daterange;
-  return spots;
+  // 1. dateRange와 겹치는 축제만
+  const overlapping = festivals.filter((f) =>
+    rangeOverlaps(
+      { start: f.eventstartdate, end: f.eventenddate },
+      dateRange,
+    ),
+  );
+
+  // 2. contentid 중복 제거 — 기존 spots에 있는 contentid는 건너뜀
+  const existingIds = new Set(spots.map((s) => s.contentId));
+  const novelFestivals: CourseWaypoint[] = [];
+  const seenNovel = new Set<string>();
+  for (const f of overlapping) {
+    if (existingIds.has(f.contentid)) continue;
+    if (seenNovel.has(f.contentid)) continue; // festivals 자체 중복
+    const wp = spotToWaypoint(f);
+    if (!hasValidCoord(wp)) continue; // 좌표 무효 제외
+    seenNovel.add(f.contentid);
+    novelFestivals.push(wp);
+  }
+
+  // 3. 축제 우선 배치
+  return [...novelFestivals, ...spots];
 }
 
 /**

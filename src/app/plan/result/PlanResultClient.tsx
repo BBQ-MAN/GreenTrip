@@ -16,6 +16,7 @@ import { EmptyState } from '@/components/common/EmptyState';
 import { LoadingSkeleton } from '@/components/common/LoadingSkeleton';
 import { CourseCompareCard } from '@/components/course/CourseCompareCard';
 import { BeforeAfterCompare } from '@/components/course/BeforeAfterCompare';
+import { FestivalBadge } from '@/components/course/FestivalBadge';
 import { RouteOverlay } from '@/components/map/RouteOverlay';
 import { SpotMarker } from '@/components/map/SpotMarker';
 import { useCourseStore } from '@/stores/courseStore';
@@ -167,6 +168,15 @@ export function PlanResultClient() {
         <p className="text-body-md text-muted-foreground">
           자가용 기준 대비 가장 적합한 이동수단을 추천드려요.
         </p>
+        {/* 축제 ON 요청 시 mini 헤더 (단순 안내, 검증 없음) */}
+        {lastRequest.includeFestival ? (
+          <div className="inline-flex items-center gap-2">
+            <FestivalBadge size="sm" />
+            <span className="text-body-sm text-muted-foreground">
+              행사 기간 코스를 만들었습니다.
+            </span>
+          </div>
+        ) : null}
       </header>
 
       {/* Before/After 강조 (선택된 추천안 vs 자가용) */}

@@ -6,6 +6,8 @@ import { MapPin } from 'lucide-react';
 import type { SpotItem } from '@/types/tour';
 import { cn } from '@/lib/utils';
 import { CONTENT_TYPE_LABEL } from '@/lib/tourapi/categories';
+import { CONTENT_TYPE } from '@/lib/tourapi/constants';
+import { FestivalBadge } from '@/components/course/FestivalBadge';
 
 interface SpotCardProps {
   spot: SpotItem;
@@ -27,6 +29,15 @@ export function SpotCard({ spot, showDistance = false, className }: SpotCardProp
   const href = `/spot/${spot.contentid}?contentTypeId=${spot.contenttypeid}`;
   const fullAddress = [spot.addr1, spot.addr2].filter(Boolean).join(' ').trim();
   const image = spot.firstimage || spot.firstimage2;
+
+  // 축제 식별 (Week 6~7):
+  //   - contentTypeId === 15 또는 FestivalItem 의 eventstartdate가 있으면 FestivalBadge 노출.
+  //   - SpotItem 베이스 타입에는 eventstartdate가 선택 필드로 존재하지 않으므로
+  //     FestivalItem extends 케이스에 대비해 안전한 타입 좁히기 사용.
+  const festivalFields = spot as Partial<{ eventstartdate: string; eventenddate: string }>;
+  const isFestival =
+    spot.contenttypeid === CONTENT_TYPE.축제공연행사 ||
+    Boolean(festivalFields.eventstartdate);
 
   return (
     <article
@@ -63,6 +74,16 @@ export function SpotCard({ spot, showDistance = false, className }: SpotCardProp
           >
             {typeLabel}
           </span>
+          {/* 축제 강조 — 우측 상단 (typeBadge와 충돌 회피) */}
+          {isFestival ? (
+            <span className="absolute right-3 top-3">
+              <FestivalBadge
+                eventStartDate={festivalFields.eventstartdate}
+                eventEndDate={festivalFields.eventenddate}
+                size="sm"
+              />
+            </span>
+          ) : null}
         </div>
 
         <div className="space-y-2 p-4">

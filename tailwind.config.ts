@@ -74,6 +74,16 @@ const config: Config = {
           balance: tokens.color.transport.balance.light,
           fast: tokens.color.transport.fast.light,
         },
+        // Festival 시그니처 토큰 — brand.accent (#F59E0B amber) 의 의미적 별칭.
+        // transport.fast 와 같은 hex이지만 "축제·행사" 의미와 "속도/자가용" 의미를
+        // CSS 클래스 수준에서 분리하여 코드 가독성과 후속 토큰 분기를 보존.
+        festival: {
+          DEFAULT: tokens.color.brand.accent.light, // #F59E0B
+          fg: tokens.color.brand.accent.light,
+          // bg surface — 카드/뱃지 surface (밝은 amber tint)
+          surface: '#FEF3C7', // tokens.color.carbon.mid.bg.light 와 동일 (warm yellow surface)
+          ring: tokens.color.brand.accent.light,
+        },
       },
       fontFamily: {
         sans: ['Pretendard Variable', 'Pretendard', 'sans-serif'],

@@ -320,7 +320,7 @@ export function CourseOptionForm({ onSubmitted }: CourseOptionFormProps) {
                     축제·행사 포함
                   </p>
                   <p className="text-caption text-muted-foreground">
-                    기간 내 진행되는 행사를 코스에 포함합니다.
+                    📅 축제·행사 자동 삽입 (오늘 ~ 여행 기간 내)
                   </p>
                 </div>
               </label>

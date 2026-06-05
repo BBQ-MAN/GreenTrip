@@ -17,6 +17,8 @@ import {
 } from 'lucide-react';
 import type { SpotDetailCommon, SpotDetailIntro } from '@/types/tour';
 import { CONTENT_TYPE_LABEL, categoryLabel } from '@/lib/tourapi/categories';
+import { CONTENT_TYPE } from '@/lib/tourapi/constants';
+import { FestivalBadge } from '@/components/course/FestivalBadge';
 
 interface SpotDetailProps {
   spot: SpotDetailCommon & SpotDetailIntro;
@@ -112,11 +114,32 @@ function Section({
   );
 }
 
+/**
+ * YYYYMMDD → "yyyy.mm.dd" 변환. 형식 불일치 시 원본 그대로 반환.
+ */
+function formatYmd(yyyymmdd?: string): string | null {
+  if (!yyyymmdd || typeof yyyymmdd !== 'string') return null;
+  const s = yyyymmdd.trim();
+  if (!/^\d{8}$/.test(s)) return s;
+  return `${s.slice(0, 4)}.${s.slice(4, 6)}.${s.slice(6, 8)}`;
+}
+
 export function SpotDetail({ spot }: SpotDetailProps) {
   const overview = sanitizeOverview(spot.overview);
   const fullAddress = [spot.addr1, spot.addr2].filter(Boolean).join(' ').trim();
   const typeLabel = CONTENT_TYPE_LABEL[spot.contenttypeid] ?? '기타';
   const homepageUrl = extractHomepageUrl(spot.homepage);
+
+  // 축제 식별 (Week 6~7) — contentTypeId=15 또는 eventStart/End 보유 시
+  const eventStart = typeof spot.eventstartdate === 'string' ? spot.eventstartdate : undefined;
+  const eventEnd = typeof spot.eventenddate === 'string' ? spot.eventenddate : undefined;
+  const isFestival =
+    spot.contenttypeid === CONTENT_TYPE.축제공연행사 || Boolean(eventStart);
+  const eventPlace = typeof spot.eventplace === 'string' ? spot.eventplace : undefined;
+  const sponsor1 = typeof spot.sponsor1 === 'string' ? spot.sponsor1 : undefined;
+  const usetimeFestival =
+    typeof spot.usetimefestival === 'string' ? spot.usetimefestival : undefined;
+  const playtime = typeof spot.playtime === 'string' ? spot.playtime : undefined;
 
   const hasOperatingInfo = Boolean(
     spot.usetime || spot.restdate || spot.parking || spot.opendate
@@ -152,9 +175,19 @@ export function SpotDetail({ spot }: SpotDetailProps) {
     <article className="space-y-6">
       {/* 헤더 */}
       <header className="space-y-3">
-        <span className="inline-flex items-center rounded-full bg-brand-surface px-3 py-1 text-caption text-brand">
-          {typeLabel}
-        </span>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="inline-flex items-center rounded-full bg-brand-surface px-3 py-1 text-caption text-brand">
+            {typeLabel}
+          </span>
+          {/* 축제 시각 강조 — 타입 뱃지 옆에 병렬 배치 */}
+          {isFestival ? (
+            <FestivalBadge
+              eventStartDate={eventStart}
+              eventEndDate={eventEnd}
+              size="md"
+            />
+          ) : null}
+        </div>
         <h1 className="text-display-md text-foreground md:text-display-lg">
           {spot.title}
         </h1>
@@ -165,6 +198,63 @@ export function SpotDetail({ spot }: SpotDetailProps) {
           </p>
         ) : null}
       </header>
+
+      {/* 행사 정보 (contentTypeId=15 또는 eventstartdate 보유 시) */}
+      {isFestival ? (
+        <Section title="🎉 행사 정보">
+          <dl className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            {eventStart || eventEnd ? (
+              <InfoRow
+                icon={<Calendar className="h-4 w-4" />}
+                label="행사 기간"
+                value={
+                  <span className="numeric">
+                    {formatYmd(eventStart) ?? '미정'}
+                    {' ~ '}
+                    {formatYmd(eventEnd) ?? '미정'}
+                  </span>
+                }
+              />
+            ) : null}
+            {eventPlace ? (
+              <InfoRow
+                icon={<MapPin className="h-4 w-4" />}
+                label="행사 장소"
+                value={<span className="whitespace-pre-line">{eventPlace}</span>}
+              />
+            ) : null}
+            {usetimeFestival ? (
+              <InfoRow
+                icon={<Clock className="h-4 w-4" />}
+                label="이용 요금"
+                value={
+                  <span className="whitespace-pre-line">
+                    {sanitizeOverview(usetimeFestival)}
+                  </span>
+                }
+              />
+            ) : null}
+            {playtime ? (
+              <InfoRow
+                icon={<Clock className="h-4 w-4" />}
+                label="공연 시간"
+                value={
+                  <span className="whitespace-pre-line">
+                    {sanitizeOverview(playtime)}
+                  </span>
+                }
+              />
+            ) : null}
+            {sponsor1 ? (
+              <InfoRow
+                icon={<Tag className="h-4 w-4" />}
+                label="주최"
+                value={sponsor1}
+              />
+            ) : null}
+          </dl>
+        </Section>
+      ) : null}
 
       {/* 개요 */}
       {overview ? (

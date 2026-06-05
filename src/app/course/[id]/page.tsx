@@ -18,6 +18,8 @@ import { Button } from '@/components/ui/button';
 import { TimelineView } from '@/components/course/TimelineView';
 import { TransportBadge, categoryFromMode } from '@/components/course/TransportBadge';
 import { BeforeAfterCompare } from '@/components/course/BeforeAfterCompare';
+import { FestivalBadge } from '@/components/course/FestivalBadge';
+import { CONTENT_TYPE } from '@/lib/tourapi/constants';
 import { CourseMap } from './CourseMap';
 import type { TransportMode } from '@/types/course';
 
@@ -52,6 +54,13 @@ export default async function CourseDetailPage({
     ? { lat: firstWp.lat, lng: firstWp.lng }
     : GANGWON_CENTER;
 
+  // 축제 강조 (Week 6~7): course.includeFestival=true 이고 waypoints 중 contentType=15 존재
+  const festivalWaypoints = course.waypoints.filter(
+    (wp) => wp.contentType === CONTENT_TYPE.축제공연행사,
+  );
+  const hasFestival = course.includeFestival && festivalWaypoints.length > 0;
+  const festivalName = festivalWaypoints[0]?.title;
+
   return (
     <main className="container max-w-5xl py-6 md:py-10">
       {/* 헤더 */}
@@ -66,6 +75,27 @@ export default async function CourseDetailPage({
             </>
           ) : null}
         </p>
+
+        {/* 축제 강조 배너 — includeFestival ON + 실제 contentType=15 waypoint 존재 시 */}
+        {hasFestival ? (
+          <div
+            className="flex flex-wrap items-center gap-3 rounded-lg border border-festival/30 bg-festival-surface/50 p-3 md:p-4"
+            role="region"
+            aria-label="행사 기간 포함 코스 안내"
+          >
+            <FestivalBadge size="md" />
+            <p className="text-body-sm text-foreground md:text-body-md">
+              <span className="font-semibold">{festivalName}</span>
+              {festivalWaypoints.length > 1 ? (
+                <span className="text-muted-foreground">
+                  {' '}
+                  외 {festivalWaypoints.length - 1}건
+                </span>
+              ) : null}
+              <span className="text-muted-foreground">{' '}행사 기간 포함 코스</span>
+            </p>
+          </div>
+        ) : null}
 
         <div className="flex flex-wrap items-start justify-between gap-3">
           <h1 className="text-display-sm text-foreground md:text-display-md">

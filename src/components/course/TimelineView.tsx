@@ -16,7 +16,9 @@ import { Clock, MapPin } from 'lucide-react';
 import type { Waypoint, TransportMode } from '@/types/course';
 import { formatCarbon } from '@/lib/carbon/formatter';
 import { cn } from '@/lib/utils';
+import { CONTENT_TYPE } from '@/lib/tourapi/constants';
 import { TransportBadge, MODE_LABEL } from './TransportBadge';
+import { FestivalBadge } from './FestivalBadge';
 
 interface TimelineViewProps {
   /** Prisma Waypoint 배열 (order ASC 정렬되어 있어야 함) */
@@ -64,16 +66,22 @@ export function TimelineView({
       {waypoints.map((wp, index) => {
         const isLast = index === waypoints.length - 1;
         const hasConnector = !isLast && wp.distToNext != null;
+        const isFestival = wp.contentType === CONTENT_TYPE.축제공연행사;
 
         return (
           <li
             key={wp.id}
             role="listitem"
             className="relative flex flex-col"
-            aria-label={`${index + 1}번째 방문지: ${wp.title}`}
+            aria-label={`${index + 1}번째 방문지${isFestival ? ' (축제 행사)' : ''}: ${wp.title}`}
           >
-            {/* 카드 */}
-            <article className="relative flex gap-3 rounded-lg border bg-card p-4 shadow-sm md:gap-4 md:p-5">
+            {/* 카드 — 축제는 festival.surface 배경 + ring 강조 */}
+            <article
+              className={cn(
+                'relative flex gap-3 rounded-lg border bg-card p-4 shadow-sm md:gap-4 md:p-5',
+                isFestival && 'bg-festival-surface/40 ring-1 ring-festival/30',
+              )}
+            >
               {/* 순서 라벨 */}
               <div
                 aria-hidden="true"
@@ -122,6 +130,13 @@ export function TimelineView({
                     <Clock aria-hidden="true" className="h-3 w-3" />
                     {formatStay(wp.stayMinutes)}
                   </p>
+                  {/* 축제 강조 — 카드 내 마지막 line에 FestivalBadge.
+                      Waypoint는 eventStart/End를 보유하지 않으므로 라벨만 표시. */}
+                  {isFestival ? (
+                    <div className="mt-1">
+                      <FestivalBadge size="sm" />
+                    </div>
+                  ) : null}
                 </div>
               </div>
             </article>

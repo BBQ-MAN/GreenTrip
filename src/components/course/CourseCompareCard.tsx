@@ -9,8 +9,10 @@ import { Star, Clock, Wallet, MapPin, AlertCircle, Bike } from 'lucide-react';
 import type { CourseOption, CourseCategory } from '@/types/course';
 import { Button } from '@/components/ui/button';
 import { formatCarbon } from '@/lib/carbon/formatter';
+import { CONTENT_TYPE } from '@/lib/tourapi/constants';
 import { TransportBadge, CATEGORY_LABEL } from './TransportBadge';
 import { CarbonGauge } from './CarbonGauge';
+import { FestivalBadge } from './FestivalBadge';
 import { cn } from '@/lib/utils';
 
 interface CourseCompareCardProps {
@@ -100,6 +102,11 @@ export function CourseCompareCard({
     baselineCO2g > 0 ? Math.round((savedG / baselineCO2g) * 100) : 0;
   const isBaseline = cat === 'car';
 
+  // 축제 포함 여부 (Week 6~7) — waypoints 중 contentType=15가 있으면 미니 뱃지
+  const hasFestival = option.waypoints.some(
+    (wp) => wp.contentType === CONTENT_TYPE.축제공연행사,
+  );
+
   return (
     <article
       className={cn(
@@ -121,11 +128,14 @@ export function CourseCompareCard({
         </span>
       ) : null}
 
-      {/* 헤더 — 카테고리 라벨 + 이동수단 배지 */}
-      <header className="mb-3 flex items-center justify-between gap-2">
-        <span className="text-caption font-semibold text-muted-foreground">
-          {CATEGORY_LABEL[cat]}
-        </span>
+      {/* 헤더 — 카테고리 라벨 + (축제 미니 뱃지) + 이동수단 배지 */}
+      <header className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-caption font-semibold text-muted-foreground">
+            {CATEGORY_LABEL[cat]}
+          </span>
+          {hasFestival ? <FestivalBadge size="sm" /> : null}
+        </div>
         <TransportBadge mode={option.mode} category={cat} size="sm" />
       </header>
 

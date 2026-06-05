@@ -12,6 +12,7 @@ import { z } from 'zod';
 import { buildCandidatePool } from '@/lib/course/generator';
 import { buildThreeOptions } from '@/lib/course/comparator';
 import { TWO_OPT_POOL_LIMIT } from '@/lib/course/optimizer';
+import { durationToDateRange } from '@/lib/course/filters';
 import { TourAPIError } from '@/lib/tourapi/client';
 import type { CourseWaypoint } from '@/types/course';
 
@@ -57,12 +58,20 @@ export async function POST(req: NextRequest) {
   const data = parsed.data;
 
   try {
-    // 후보 풀 구성 (areaBasedList2)
+    // Week 6~7: duration → 축제 검색 dateRange (KST 오늘 시작).
+    // includeFestival=true일 때만 buildCandidatePool에서 searchFestival2 호출.
+    const festivalDateRange = data.includeFestival
+      ? durationToDateRange(data.duration)
+      : undefined;
+
+    // 후보 풀 구성 (areaBasedList2 + 옵션 searchFestival2)
     const pool = await buildCandidatePool({
       areaCode: data.areaCode,
       sigunguCode: data.sigunguCode,
       contentTypeIds: data.contentTypeIds,
       numOfRows: 50,
+      includeFestival: data.includeFestival,
+      festivalDateRange,
     });
 
     if (pool.length < 2) {

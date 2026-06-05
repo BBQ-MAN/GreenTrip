@@ -7,9 +7,10 @@
 // 순수 함수 원칙: nearestNeighborRoute는 I/O 없음.
 // buildCandidatePool은 I/O 포함 (callTourAPI) — Route Handler 호출용.
 import { callTourAPI } from '@/lib/tourapi/client';
-import type { SpotItem } from '@/types/tour';
+import type { SpotItem, FestivalItem } from '@/types/tour';
 import type { CourseWaypoint } from '@/types/course';
 import { haversineKm } from '@/lib/map/distance';
+import { mergeFestivals, type DateRange } from './filters';
 
 /**
  * SpotItem → CourseWaypoint 매핑.
@@ -53,6 +54,15 @@ export interface BuildPoolParams {
   lclsSystm1?: string;
   numOfRows?: number; // endpoint당 최대 (기본 50)
   arrange?: string; // 정렬 (기본 'A' = 제목순)
+  // Week 6~7: 축제 자동 통합
+  includeFestival?: boolean;
+  /**
+   * 축제 검색 대상 기간 (YYYYMMDD). includeFestival=true일 때 사용.
+   * 미지정 시 호출측에서 durationToDateRange로 계산하여 전달 권장.
+   */
+  festivalDateRange?: DateRange;
+  /** 축제 endpoint 최대 결과 수 (기본 30). */
+  festivalNumOfRows?: number;
 }
 
 /**
@@ -105,6 +115,23 @@ export async function buildCandidatePool(
       pool.push(wp);
     }
   }
+
+  // Week 6~7: 축제 통합 (DEVELOPMENT_PLAN §8)
+  // includeFestival=true이고 dateRange 유효 시 searchFestival2 호출 후 mergeFestivals.
+  if (params.includeFestival && params.festivalDateRange) {
+    const range = params.festivalDateRange;
+    const festResp = await callTourAPI<FestivalItem>('searchFestival2', {
+      eventStartDate: range.start,
+      eventEndDate: range.end,
+      areaCode: params.areaCode,
+      sigunguCode: params.sigunguCode,
+      numOfRows: params.festivalNumOfRows ?? 30,
+      pageNo: 1,
+      arrange: params.arrange ?? 'A',
+    });
+    return mergeFestivals(pool, festResp.items, range);
+  }
+
   return pool;
 }
 

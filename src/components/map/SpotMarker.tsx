@@ -35,6 +35,13 @@ function escapeHTML(s: string): string {
     .replace(/'/g, '&#39;');
 }
 
+/** 축제·행사 contentTypeId (KorService2). lib/tourapi/constants.CONTENT_TYPE.축제공연행사 */
+const FESTIVAL_CONTENT_TYPE_ID = 15;
+/** brand.accent (#F59E0B) — 축제 마커 색상. tokens.brand.accent.light 정합. */
+const FESTIVAL_ACCENT = '#F59E0B';
+/** brand.primary (#0B8C5C) — 일반 마커 색상 */
+const BRAND_PRIMARY = '#0B8C5C';
+
 export function SpotMarker({
   lat,
   lng,
@@ -42,10 +49,10 @@ export function SpotMarker({
   order,
   imageUrl,
   contentId,
-  contentTypeId: _contentTypeId,
+  contentTypeId,
 }: SpotMarkerProps) {
-  void _contentTypeId; // 현재 미사용 — 추후 카테고리별 아이콘 분기에 활용 예정
   const { map } = useContext(MapContext);
+  const isFestival = contentTypeId === FESTIVAL_CONTENT_TYPE_ID;
 
   useEffect(() => {
     if (!map || typeof window === 'undefined') return;
@@ -83,7 +90,8 @@ export function SpotMarker({
         width: '22px',
         height: '22px',
         borderRadius: '9999px',
-        backgroundColor: '#0B8C5C',
+        // 축제는 festival accent(#F59E0B), 그 외는 brand primary(#0B8C5C)
+        backgroundColor: isFestival ? FESTIVAL_ACCENT : BRAND_PRIMARY,
         color: '#FFFFFF',
         fontSize: '12px',
         fontWeight: '700',
@@ -107,6 +115,10 @@ export function SpotMarker({
       ? `/spot/${encodeURIComponent(contentId)}`
       : '';
 
+    const festivalRibbon = isFestival
+      ? `<div style="display:inline-block;font-size:11px;font-weight:600;color:${FESTIVAL_ACCENT};background:#FEF3C7;padding:2px 8px;border-radius:9999px;margin-bottom:6px;" aria-label="축제 행사">🎉 축제</div>`
+      : '';
+
     const contentHTML = `
       <div style="padding:10px 12px;min-width:180px;max-width:240px;font-family:Pretendard,system-ui,sans-serif;">
         ${
@@ -114,6 +126,7 @@ export function SpotMarker({
             ? `<img src="${safeImage}" alt="" style="width:100%;height:96px;object-fit:cover;border-radius:6px;margin-bottom:8px;" />`
             : ''
         }
+        ${festivalRibbon}
         <div style="font-size:14px;font-weight:700;color:#0F1F1A;line-height:1.3;margin-bottom:6px;">
           ${safeTitle}
         </div>
@@ -143,7 +156,7 @@ export function SpotMarker({
         customOverlay.setMap(null);
       }
     };
-  }, [map, lat, lng, title, order, imageUrl, contentId]);
+  }, [map, lat, lng, title, order, imageUrl, contentId, isFestival]);
 
   return null;
 }
