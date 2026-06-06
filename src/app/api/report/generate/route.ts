@@ -14,6 +14,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/db';
+import { getCurrentUser } from '@/lib/auth/session';
 import { gramsToTreeEq } from '@/lib/carbon/equivalents';
 
 export const dynamic = 'force-dynamic';
@@ -65,12 +66,17 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 4. CarbonReport 신규 발급 (always-new)
+    // 4. userId 우선순위: course.userId(저장 시점) > 현재 로그인 사용자 > null.
+    //    이미 익명으로 저장된 코스를 로그인 후 인증서 발급 시 연결하기 위해 fallback 사용.
+    const sessionUser = await getCurrentUser();
+    const userId = course.userId ?? sessionUser?.id ?? null;
+
+    // 5. CarbonReport 신규 발급 (always-new)
     const savedTreeEq = gramsToTreeEq(course.savedCarbonG);
     const report = await prisma.carbonReport.create({
       data: {
         courseId: course.id,
-        userId: course.userId, // 현재는 null 동기화 (Phase 2 W12 이후 채워짐)
+        userId,
         savedCarbonG: course.savedCarbonG,
         savedTreeEq,
         shareImageUrl: null,

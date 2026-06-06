@@ -19,6 +19,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/db';
+import { getCurrentUser } from '@/lib/auth/session';
 import { MODE_LABEL } from '@/components/course/TransportBadge';
 import type { TransportMode } from '@/types/course';
 
@@ -124,11 +125,16 @@ export async function POST(req: NextRequest) {
   // 4. 절감량 계산 (음수 방지)
   const savedCarbonG = Math.max(0, baselineCO2g - option.totalCO2g);
 
-  // 5. Prisma 트랜잭션 — Course + Waypoint cascade insert
+  // 5. 로그인 사용자라면 userId 자동 채움 (비로그인은 null 유지 — 시그니처 2 깔때기).
+  //    getCurrentUser는 RSC/Route Handler 안에서만 안전하게 호출 가능.
+  const sessionUser = await getCurrentUser();
+  const userId = sessionUser?.id ?? null;
+
+  // 6. Prisma 트랜잭션 — Course + Waypoint cascade insert
   try {
     const created = await prisma.course.create({
       data: {
-        userId: null, // Phase 2 W12 NextAuth 도입 시 채움
+        userId, // 로그인 시 user.id, 비로그인 시 null
         title,
         region,
         areaCode,

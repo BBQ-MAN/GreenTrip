@@ -1,10 +1,17 @@
 'use client';
 // Header — 글로벌 상단 네비게이션 (모바일 햄버거 + 데스크탑 가로 메뉴)
 // 디자인 토큰: brand·brand-surface. 모바일 퍼스트.
+//
+// Phase 2 W12 (2026-06-05):
+//   - useSession()으로 로그인 상태 분기
+//   - 비로그인 → "로그인" 링크 (→ /signin)
+//   - 로그인 → 이름 표시 + "로그아웃" 버튼 (signOut)
+//   - SessionProvider는 app/providers.tsx에서 root 주입
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
-import { Leaf, Menu, X } from 'lucide-react';
+import { signOut, useSession } from 'next-auth/react';
+import { Leaf, LogIn, LogOut, Menu, User as UserIcon, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface NavItem {
@@ -21,6 +28,10 @@ const NAV: NavItem[] = [
 export function Header() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const { data: session, status } = useSession();
+  const isAuthed = status === 'authenticated' && Boolean(session?.user);
+  const displayName = session?.user?.name ?? '';
+  const signInHref = `/signin?callbackUrl=${encodeURIComponent(pathname || '/')}`;
 
   return (
     <header
@@ -70,6 +81,46 @@ export function Header() {
               </Link>
             );
           })}
+
+          {/* 데스크탑 인증 영역 — 로딩 중에는 자리 차지 안 함 (hydration mismatch 회피) */}
+          {status !== 'loading' ? (
+            <div
+              className="ml-2 flex items-center gap-2 border-l pl-3"
+              aria-label="계정"
+            >
+              {isAuthed ? (
+                <>
+                  <span
+                    className="inline-flex max-w-[8rem] items-center gap-1.5 truncate text-body-sm font-medium text-foreground"
+                    title={displayName}
+                  >
+                    <UserIcon
+                      aria-hidden="true"
+                      className="h-4 w-4 text-brand"
+                    />
+                    {displayName || '회원'}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => signOut({ callbackUrl: '/' })}
+                    className="inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-body-sm font-medium text-muted-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    aria-label="로그아웃"
+                  >
+                    <LogOut aria-hidden="true" className="h-4 w-4" />
+                    로그아웃
+                  </button>
+                </>
+              ) : (
+                <Link
+                  href={signInHref}
+                  className="inline-flex items-center gap-1 rounded-md bg-brand-surface px-3 py-1.5 text-body-sm font-semibold text-brand hover:bg-brand-surface/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                >
+                  <LogIn aria-hidden="true" className="h-4 w-4" />
+                  로그인
+                </Link>
+              )}
+            </div>
+          ) : null}
         </nav>
 
         {/* 모바일 햄버거 */}
@@ -114,6 +165,49 @@ export function Header() {
                 </li>
               );
             })}
+
+            {/* 모바일 인증 영역 — 메뉴 항목과 동일 줄간격 */}
+            {status !== 'loading' ? (
+              <li className="mt-1 border-t pt-2">
+                {isAuthed ? (
+                  <div className="flex items-center justify-between gap-2 px-3 py-2">
+                    <span
+                      className="inline-flex min-w-0 items-center gap-1.5 truncate text-body-md font-medium text-foreground"
+                      title={displayName}
+                    >
+                      <UserIcon
+                        aria-hidden="true"
+                        className="h-4 w-4 shrink-0 text-brand"
+                      />
+                      {displayName || '회원'}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setOpen(false);
+                        signOut({ callbackUrl: '/' });
+                      }}
+                      className="inline-flex items-center gap-1 rounded-md px-2 py-1.5 text-body-sm font-medium text-muted-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      aria-label="로그아웃"
+                    >
+                      <LogOut aria-hidden="true" className="h-4 w-4" />
+                      로그아웃
+                    </button>
+                  </div>
+                ) : (
+                  <Link
+                    href={signInHref}
+                    onClick={() => setOpen(false)}
+                    className="block rounded-md bg-brand-surface px-3 py-2.5 text-body-md font-semibold text-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  >
+                    <span className="inline-flex items-center gap-1.5">
+                      <LogIn aria-hidden="true" className="h-4 w-4" />
+                      로그인
+                    </span>
+                  </Link>
+                )}
+              </li>
+            ) : null}
           </ul>
         </nav>
       ) : null}

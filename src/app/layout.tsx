@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
+import { Providers } from './providers';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -37,17 +38,19 @@ export default function RootLayout({
   return (
     <html lang="ko" suppressHydrationWarning>
       <body className="flex min-h-screen flex-col bg-background font-sans text-foreground antialiased">
-        <a
-          href="#main-content"
-          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-brand focus:px-4 focus:py-2 focus:text-white"
-        >
-          본문 바로가기
-        </a>
-        <Header />
-        <div id="main-content" className="flex-1">
-          {children}
-        </div>
-        <Footer />
+        <Providers>
+          <a
+            href="#main-content"
+            className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-brand focus:px-4 focus:py-2 focus:text-white"
+          >
+            본문 바로가기
+          </a>
+          <Header />
+          <div id="main-content" className="flex-1">
+            {children}
+          </div>
+          <Footer />
+        </Providers>
       </body>
     </html>
   );
