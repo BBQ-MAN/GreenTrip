@@ -7,10 +7,14 @@
 import Link from 'next/link';
 import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { getProviders, signIn } from 'next-auth/react';
-import { Leaf, MessageCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { getProviders } from 'next-auth/react';
+import { Leaf } from 'lucide-react';
 import { DevSignInForm } from '@/components/auth/DevSignInForm';
+
+// 카카오 OAuth는 인프라(authOptions·redirect URI·Client Secret)만 준비된 상태로
+// UI에서 한시적으로 숨김. 카카오 로그인 본격 활성화 시 false → true 로 변경하고
+// /signin 페이지의 카카오 버튼만 다시 렌더링하면 됨.
+const SHOW_KAKAO_LOGIN = false as const;
 
 // next-auth getProviders 반환 타입 (라이브러리 export 제한 → 로컬 정의)
 type ProviderInfo = {
@@ -42,7 +46,8 @@ function SignInBody() {
     };
   }, []);
 
-  const hasKakao = Boolean(providers?.kakao);
+  // SHOW_KAKAO_LOGIN 플래그가 꺼져 있으면 providers에 kakao가 있어도 UI에서 숨김
+  const hasKakao = SHOW_KAKAO_LOGIN && Boolean(providers?.kakao);
   const hasDev = Boolean(providers?.dev);
   const noneAvailable =
     providers !== null && !hasKakao && !hasDev && !loadFailed;
@@ -74,18 +79,14 @@ function SignInBody() {
       ) : null}
 
       <div className="mt-8 space-y-3">
-        {/* Kakao OAuth — clientId/Secret이 설정된 경우에만 노출 */}
-        {hasKakao ? (
-          <Button
-            type="button"
-            onClick={() => signIn('kakao', { callbackUrl })}
-            aria-label="카카오 계정으로 로그인"
-            className="w-full bg-[#FEE500] text-black hover:bg-[#FDD835]"
-          >
-            <MessageCircle aria-hidden="true" className="mr-1.5 h-4 w-4" />
-            카카오로 시작하기
-          </Button>
-        ) : null}
+        {/* Kakao OAuth — SHOW_KAKAO_LOGIN 플래그로 한시적으로 숨김 (인프라는 보존).
+            본격 활성화 시 SHOW_KAKAO_LOGIN=true + 아래 블록 복원:
+              {hasKakao ? (
+                <Button onClick={() => signIn('kakao', { callbackUrl })} ...>
+                  카카오로 시작하기
+                </Button>
+              ) : null}
+            signIn import 및 MessageCircle, Button import 도 함께 복원 필요. */}
 
         {/* 개발용 Credentials Provider */}
         {hasDev ? <DevSignInForm callbackUrl={callbackUrl} /> : null}
