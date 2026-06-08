@@ -1,10 +1,10 @@
-// TourAPI 동기화 헬퍼 — Week 2 골격 (Phase 3 W14에서 DB 반영 본격 구현)
+// TourAPI 동기화 헬퍼 — Phase 3 W14 (Vercel Cron 트리거 본격 운영)
 //
 // 목적: `areaBasedSyncList2`로 modifiedTime 이후 변경/추가/삭제된 contentId 수집.
-// 현재는 호출 + 카운트만 반환. Week 14에서:
-//   - Prisma Spot 테이블 upsert
-//   - 동기화 로그(`SyncLog` 테이블) 기록
-//   - Vercel Cron 또는 GitHub Actions 일 1회 트리거
+// Phase 3 MVP:
+//   - 변경 contentId 목록 + 카운트 반환 (route handler가 incrStat + JSON 응답)
+//   - DB upsert는 Phase 4+ 별도 Spot 캐시 테이블 도입 시점에 추가
+// 트리거: `vercel.json` cron `0 3 * * *` (KST 12:00) → /api/tour/sync
 import { callTourAPI } from './client';
 import type { SpotItem } from '@/types/tour';
 

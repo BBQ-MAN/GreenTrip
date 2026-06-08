@@ -48,6 +48,15 @@ Thumbs.db
 # Prisma
 prisma/migrations/dev.db*
 
+# next-pwa generated (Phase 3 W14)
+public/sw.js
+public/sw.js.map
+public/workbox-*.js
+public/workbox-*.js.map
+public/swe-worker-*.js
+public/swe-worker-*.js.map
+public/fallback-*.js
+
 # Harness workspace (intermediate artifacts)
 _workspace/
 _workspace_*/

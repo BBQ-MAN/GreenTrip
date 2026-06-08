@@ -1,0 +1,27 @@
+{
+  "name": "GreenTrip — 저탄소 여행 코스 플래너",
+  "short_name": "GreenTrip",
+  "description": "이동수단별 탄소 배출량 비교 + 저탄소 최적 관광 코스 자동 설계",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#F8FAF7",
+  "theme_color": "#0B8C5C",
+  "orientation": "portrait",
+  "lang": "ko-KR",
+  "categories": ["travel", "navigation", "lifestyle"],
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

@@ -7,6 +7,7 @@
 //   2. 서비스 소개 — 3단계 stepper
 //   3. 시그니처 미리보기 — CourseCompareCard 3안 mock (시그니처 1 데모)
 //   4. 누적 절감 카운터 (placeholder)
+import { Suspense } from 'react';
 import Link from 'next/link';
 import { ArrowRight, Map, GitCompareArrows, Leaf, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -14,6 +15,8 @@ import { CourseCompareCard } from '@/components/course/CourseCompareCard';
 import { BeforeAfterCompare } from '@/components/course/BeforeAfterCompare';
 import type { CourseCompareResult } from '@/types/course';
 import { PageContainer } from '@/components/layout/PageContainer';
+import { SavingsHistory } from '@/components/report/SavingsHistory';
+import { aggregateSiteSavings } from '@/lib/carbon/aggregator';
 
 // ---------------------------------------------------------------------------
 // 시그니처 미리보기 — Mock CourseCompareResult (강원 코스 실측값 기반)
@@ -93,14 +96,47 @@ function HeroSection() {
             </Button>
           </div>
 
-          {/* 누적 절감 카운터 (placeholder, Phase 4 본격) */}
-          <p className="mt-8 inline-flex items-center gap-2 rounded-full border bg-card px-4 py-2 text-caption text-muted-foreground">
-            <Leaf aria-hidden="true" className="h-3.5 w-3.5 text-transport-eco" />
-            누적 절감 CO₂{' '}
-            <span className="numeric font-semibold text-foreground">
-              집계 준비 중
-            </span>
+          <p className="mt-6 inline-flex items-center gap-1.5 rounded-full border bg-card px-3 py-1 text-caption text-muted-foreground">
+            <Sparkles aria-hidden="true" className="h-3 w-3 text-brand" />
+            강원도 18개 시·군 첫 출시 — 한국관광공사 TourAPI 14종 활용
           </p>
+        </div>
+      </PageContainer>
+    </section>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// SavingsStripSection — 실 누적 KPI (시그니처 2 · 비로그인 깔때기)
+// Prisma 의존: Suspense로 격리, 실패 시 조용히 fallback (try/catch는 SavingsHistory 호출부에서)
+// ---------------------------------------------------------------------------
+// SavingsHistorySafe — DB 미설정·연결 실패 환경에서도 랜딩 prerender가 깨지지 않도록 격리.
+//   성공 시: SavingsHistory(server) 그대로 렌더.
+//   실패 시: 조용히 null (시각적 누락만, error.tsx로 escalation 하지 않음).
+async function SavingsHistorySafe() {
+  try {
+    await aggregateSiteSavings(); // probe — Prisma 호출 검증
+    return <SavingsHistory />;
+  } catch {
+    return null;
+  }
+}
+
+function SavingsStripSection() {
+  return (
+    <section aria-label="누적 절감 KPI" className="border-b bg-background">
+      <PageContainer as="div" className="py-10 md:py-12">
+        <div className="mx-auto max-w-xl">
+          <Suspense
+            fallback={
+              <div
+                className="h-40 animate-pulse rounded-lg border bg-card"
+                aria-hidden="true"
+              />
+            }
+          >
+            <SavingsHistorySafe />
+          </Suspense>
         </div>
       </PageContainer>
     </section>
@@ -232,12 +268,18 @@ function SignaturePreviewSection() {
   );
 }
 
+// 랜딩은 정적 우선 + 5분 ISR (SavingsHistory 누적값 주기 갱신)
+//   - Prisma 미설정 빌드 환경에서는 SavingsHistory가 throw → error.tsx로 위임,
+//     랜딩 본문 자체는 build에서 정상 prerender 시도. (ISR이면 prerender 실패 시 dynamic fallback)
+export const revalidate = 300;
+
 export default function HomePage() {
   return (
     <>
       <HeroSection />
       <HowItWorksSection />
       <SignaturePreviewSection />
+      <SavingsStripSection />
     </>
   );
 }
