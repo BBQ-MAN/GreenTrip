@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="GreenTrip">
   <!-- maskable: 안전영역 80% 중앙 — 바깥 10% safe-zone 확보 -->
-  <rect width="512" height="512" fill="#0B8C5C"/>
+  <rect width="512" height="512" fill="#097A50"/>
   <g transform="translate(102.4 102.4) scale(0.6)">
     <path d="M256 96c-66 0-118 50-118 116 0 64 48 110 100 132v52a18 18 0 0 0 36 0v-52c52-22 100-68 100-132 0-66-52-116-118-116z" fill="#7DD3A4"/>
-    <path d="M256 152c-12 38-12 76 0 114 12-38 12-76 0-114z" fill="#0B8C5C"/>
-    <path d="M210 196c10 28 28 50 46 64 18-14 36-36 46-64-30 6-62 6-92 0z" fill="#0B8C5C"/>
+    <path d="M256 152c-12 38-12 76 0 114 12-38 12-76 0-114z" fill="#097A50"/>
+    <path d="M210 196c10 28 28 50 46 64 18-14 36-36 46-64-30 6-62 6-92 0z" fill="#097A50"/>
     <text x="256" y="430" text-anchor="middle" fill="#F8FAF7" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="64" font-weight="700" letter-spacing="-2">GT</text>
   </g>
 </svg>

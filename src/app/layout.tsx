@@ -26,8 +26,13 @@ export const metadata: Metadata = {
     title: 'GreenTrip',
   },
   icons: {
-    icon: [{ url: '/icon.svg', type: 'image/svg+xml' }],
-    apple: [{ url: '/icon.svg' }],
+    icon: [
+      { url: '/icon.svg', type: 'image/svg+xml' },
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+    ],
+    // iOS는 apple-touch-icon에서 SVG를 렌더하지 않으므로 PNG 사용.
+    apple: [{ url: '/icon-192.png', sizes: '192x192', type: 'image/png' }],
   },
   openGraph: {
     title: 'GreenTrip — 저탄소 여행 코스 플래너',

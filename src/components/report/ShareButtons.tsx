@@ -4,7 +4,13 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { Download, Share2, Link as LinkIcon, Check } from 'lucide-react';
+import {
+  Download,
+  Share2,
+  Link as LinkIcon,
+  Check,
+  AlertCircle,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { shareToKakao } from '@/lib/kakao/share';
 
@@ -29,12 +35,14 @@ export function ShareButtons({
   origin,
 }: ShareButtonsProps) {
   const [copied, setCopied] = useState(false);
+  const [shareError, setShareError] = useState<string | null>(null);
   const [sharing, startShareTransition] = useTransition();
 
   const reportUrl = `${origin}/report/${reportId}`;
   const ogUrl = `${origin}/api/og/cert/${reportId}`;
 
   const handleKakao = () => {
+    setShareError(null);
     startShareTransition(async () => {
       try {
         await shareToKakao({
@@ -44,14 +52,11 @@ export function ShareButtons({
           webUrl: reportUrl,
         });
       } catch (e) {
-        // Kakao 미설정 / SDK 로드 실패 시 폴백 — 링크 복사 안내
+        // Kakao 미설정 / SDK 로드 실패 시 폴백 — 인라인 에러로 링크 복사 안내
+        // (native alert 대체: 토스트 인프라 미설치 → role="alert" 인라인 메시지)
         // eslint-disable-next-line no-console
         console.warn('[kakao share]', e);
-        if (typeof window !== 'undefined') {
-          window.alert(
-            '카카오톡 공유에 실패했습니다. 링크 복사를 이용해 주세요.',
-          );
-        }
+        setShareError('카카오톡 공유에 실패했습니다. 링크 복사를 이용해 주세요.');
       }
     });
   };
@@ -68,6 +73,7 @@ export function ShareButtons({
   };
 
   return (
+    <div className="flex flex-col gap-2">
     <div
       role="group"
       aria-label="인증서 공유"
@@ -116,6 +122,17 @@ export function ShareButtons({
           </>
         )}
       </Button>
+    </div>
+      {shareError ? (
+        <p
+          role="alert"
+          aria-live="assertive"
+          className="flex items-start gap-1.5 text-body-sm text-destructive"
+        >
+          <AlertCircle aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" />
+          <span>{shareError}</span>
+        </p>
+      ) : null}
     </div>
   );
 }

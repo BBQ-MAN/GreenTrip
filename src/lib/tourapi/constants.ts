@@ -52,7 +52,7 @@ export const TOUR_API_BASE = 'https://apis.data.go.kr/B551011/KorService2';
 
 /**
  * 두루누비(코리아둘레길) Base URL — 별도 신청 필요 (사용자 활용신청서 미포함)
- * DEVELOPMENT_PLAN §3.2 API-11 (2026-05-28 추가)
+ * DEVELOPMENT_PLAN §3.2 API-14 (2026-05-28 추가)
  */
 export const DURUNUBI_API_BASE = 'https://apis.data.go.kr/B551011/Durunubi';
 

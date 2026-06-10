@@ -13,7 +13,6 @@ import useSWR, { type SWRConfiguration, type SWRResponse } from 'swr';
 import type {
   SpotItem,
   FestivalItem,
-  StayItem,
   SpotDetailCommon,
   SpotDetailIntro,
   SpotDetailInfo,
@@ -21,6 +20,8 @@ import type {
   PetInfo,
   TourAPIResponse,
 } from '@/types/tour';
+// LodgingItem — /api/tour/lodging 라우트가 정규화 후 반환하는 타입 (StayItem 확장).
+import type { LodgingItem } from '@/lib/course/lodging';
 
 // ---------------------------------------------------------------------------
 // Fetcher — JSON 페치. 에러 응답이면 throw하여 SWR error로 전달.
@@ -232,18 +233,39 @@ export function usePetInfo(
 
 // ---------------------------------------------------------------------------
 // 8) useLodging — searchStay2 (숙박 검색, Phase 2 활용)
+//    /api/tour/lodging 라우트 정합:
+//      - 쿼리 eco/pet/barrier 필터 지원 (route.ts §48-55)
+//      - 응답은 StayItem이 아닌 LodgingItem (메타 부착, route.ts:97 / lib/course/lodging)
 // ---------------------------------------------------------------------------
+
+export interface UseLodgingOptions {
+  sigunguCode?: number;
+  /** 친환경(한옥/굿스테이 등) 숙소만 — route ?eco=true */
+  eco?: boolean;
+  /** 반려동물 동반 가능 숙소만 — route ?pet=true */
+  pet?: boolean;
+  /** 무장애(배리어프리) 숙소만 — route ?barrier=true */
+  barrier?: boolean;
+}
 
 export function useLodging(
   areaCode: number | null,
-  sigunguCode?: number,
+  options?: UseLodgingOptions,
   config?: SWRConfiguration
-): SWRResponse<TourAPIResponse<StayItem>, TourAPIClientError> {
+): SWRResponse<TourAPIResponse<LodgingItem>, TourAPIClientError> {
+  const { sigunguCode, eco, pet, barrier } = options ?? {};
   const key =
     typeof areaCode === 'number'
-      ? `/api/tour/lodging?${buildQuery({ areaCode, sigunguCode })}`
+      ? `/api/tour/lodging?${buildQuery({
+          areaCode,
+          sigunguCode,
+          // 라우트는 true/1/yes/on 을 truthy로 인식 — false는 파라미터 자체 생략
+          eco: eco ? 'true' : undefined,
+          pet: pet ? 'true' : undefined,
+          barrier: barrier ? 'true' : undefined,
+        })}`
       : null;
-  return useSWR<TourAPIResponse<StayItem>, TourAPIClientError>(
+  return useSWR<TourAPIResponse<LodgingItem>, TourAPIClientError>(
     key,
     fetcher,
     { ...baseSWRConfig, ...config }

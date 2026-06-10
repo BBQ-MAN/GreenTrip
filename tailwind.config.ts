@@ -70,16 +70,20 @@ const config: Config = {
           'severe-fg': tokens.color.carbon.severe.fg.light,
         },
         transport: {
-          eco: tokens.color.transport.eco.light,
-          balance: tokens.color.transport.balance.light,
-          fast: tokens.color.transport.fast.light,
+          eco: tokens.color.transport.eco.light, // #097A50 (전경/배경 겸용, AA 보정)
+          balance: tokens.color.transport.balance.light, // #0E7490
+          fast: tokens.color.transport.fast.light, // #F59E0B (배경/그래픽 전용)
+          // 'fast' 전경 전용 변형 — text-transport-fast-fg / bg 등. on white 7.09:1.
+          'fast-fg': tokens.color.transport.fastFg.light, // #92400E amber-800
         },
-        // Festival 시그니처 토큰 — brand.accent (#F59E0B amber) 의 의미적 별칭.
-        // transport.fast 와 같은 hex이지만 "축제·행사" 의미와 "속도/자가용" 의미를
-        // CSS 클래스 수준에서 분리하여 코드 가독성과 후속 토큰 분기를 보존.
+        // Festival 시그니처 토큰 — "축제·행사" 의미 별칭.
+        // DEFAULT/ring 은 brand.accent(#F59E0B) — 면적 배경/링 장식용.
+        // fg 는 전경 텍스트/아이콘 전용으로 #92400E(amber-800)로 분리:
+        //   #92400E on festival.surface(#FEF3C7) = 6.37:1 WCAG AA 통과 (small text 4.5:1+).
+        //   (구 #F59E0B-on-#FEF3C7 은 1.93:1 FAIL 이었음 — 본 보정으로 해소.)
         festival: {
-          DEFAULT: tokens.color.brand.accent.light, // #F59E0B
-          fg: tokens.color.brand.accent.light,
+          DEFAULT: tokens.color.brand.accent.light, // #F59E0B (배경/링 장식 전용)
+          fg: '#92400E', // amber-800 — 전경 텍스트/아이콘 (on #FEF3C7 = 6.37:1)
           // bg surface — 카드/뱃지 surface (밝은 amber tint)
           surface: '#FEF3C7', // tokens.color.carbon.mid.bg.light 와 동일 (warm yellow surface)
           ring: tokens.color.brand.accent.light,
@@ -87,7 +91,7 @@ const config: Config = {
         // Pet 시그니처 토큰 — brand.secondary (#0E7490 teal) 의 의미적 별칭 (Week 8~9).
         // transport.balance 와 같은 hex이지만 "반려동물" 의미와 "균형 이동수단" 의미를
         // CSS 클래스 수준에서 분리 (festival/brand.accent 동일 트레이드오프).
-        // pet.fg(#0E7490) on pet.surface(#CFFAFE cyan-100) → 대비비 ~5.6:1 WCAG AA 통과.
+        // pet.fg(#0E7490) on pet.surface(#CFFAFE cyan-100) → 대비비 4.79:1 WCAG AA 통과 (실측, 2026-06-10).
         pet: {
           DEFAULT: tokens.color.brand.secondary.light, // #0E7490
           fg: tokens.color.brand.secondary.light,
@@ -101,11 +105,11 @@ const config: Config = {
         // 본문은 흰색 surface + cert.fg 텍스트(brand.primary 동일 hex).
         // border(#D1FAE5 emerald-100) = carbon.low.bg 와 동일 → 시그니처 1 연속성.
         cert: {
-          DEFAULT: tokens.color.brand.primary.light, // #0B8C5C
-          gradient1: tokens.color.brand.primary.light, // #0B8C5C
+          DEFAULT: tokens.color.brand.primary.light, // #097A50
+          gradient1: tokens.color.brand.primary.light, // #097A50
           gradient2: tokens.color.brand.secondary.light, // #0E7490
           surface: '#FFFFFF',
-          fg: tokens.color.brand.primary.light, // #0B8C5C
+          fg: tokens.color.brand.primary.light, // #097A50
           border: tokens.color.carbon.low.bg.light, // #D1FAE5 emerald-100
         },
       },
@@ -115,6 +119,8 @@ const config: Config = {
       fontSize: {
         'display-lg': ['3rem', { lineHeight: '55px', fontWeight: '800' }],
         'display-md': ['2.25rem', { lineHeight: '44px', fontWeight: '800' }],
+        // display-sm — 모바일 H1 기본 크기 (display 계열 800 weight 유지). 9곳 사용처.
+        'display-sm': ['1.875rem', { lineHeight: '38px', fontWeight: '800' }],
         'heading-lg': ['1.75rem', { lineHeight: '36px', fontWeight: '700' }],
         'heading-md': ['1.375rem', { lineHeight: '30px', fontWeight: '700' }],
         'heading-sm': ['1.125rem', { lineHeight: '25px', fontWeight: '600' }],

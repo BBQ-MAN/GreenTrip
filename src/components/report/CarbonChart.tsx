@@ -33,9 +33,9 @@ export interface CarbonChartProps {
 }
 
 // Recharts 인라인 hex — tokens.ts 와 1:1 정합.
-// transport.eco (#0B8C5C) = 실제 (저탄소 선택)
+// transport.eco (#097A50) = 실제 (저탄소 선택)
 // transport.fast (#F59E0B) = 자가용 baseline
-const COLOR_ACTUAL = '#0B8C5C';
+const COLOR_ACTUAL = '#097A50';
 const COLOR_BASELINE = '#F59E0B';
 
 export function CarbonChart({ data, ariaSummary }: CarbonChartProps) {

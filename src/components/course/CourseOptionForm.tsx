@@ -7,7 +7,7 @@
 //      src/app/api/course/generate/route.ts (Zod 권위)
 //      DEVELOPMENT_PLAN.md §7.2
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -79,6 +79,8 @@ export function CourseOptionForm({ onSubmitted }: CourseOptionFormProps) {
   const router = useRouter();
   const { generate, isLoading, error } = useCourseGenerator();
   const [submitError, setSubmitError] = useState<string | null>(null);
+  // radiogroup roving-tabindex 포커스 이동용 (여행 기간 라디오 버튼 참조)
+  const durationRefs = useRef<Array<HTMLButtonElement | null>>([]);
 
   const form = useForm<CourseFormValues>({
     resolver: zodResolver(FormSchema),
@@ -220,7 +222,7 @@ export function CourseOptionForm({ onSubmitted }: CourseOptionFormProps) {
                     aria-label="여행 기간"
                     className="grid grid-cols-3 gap-2"
                   >
-                    {DURATION_OPTIONS.map((opt) => {
+                    {DURATION_OPTIONS.map((opt, idx) => {
                       const active = field.value === opt;
                       return (
                         <button
@@ -228,7 +230,33 @@ export function CourseOptionForm({ onSubmitted }: CourseOptionFormProps) {
                           type="button"
                           role="radio"
                           aria-checked={active}
+                          // WAI-ARIA radio group: roving tabindex — 선택된 항목만 Tab 진입(0),
+                          // 나머지는 -1. 화살표 키로 포커스+선택을 함께 이동.
+                          tabIndex={active ? 0 : -1}
+                          ref={(el) => {
+                            durationRefs.current[idx] = el;
+                          }}
                           onClick={() => field.onChange(opt)}
+                          onKeyDown={(e) => {
+                            // ←/↑ = 이전, →/↓ = 다음 (순환). Home/End = 처음/끝.
+                            let nextIdx: number | null = null;
+                            if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                              nextIdx = (idx + 1) % DURATION_OPTIONS.length;
+                            } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                              nextIdx =
+                                (idx - 1 + DURATION_OPTIONS.length) %
+                                DURATION_OPTIONS.length;
+                            } else if (e.key === 'Home') {
+                              nextIdx = 0;
+                            } else if (e.key === 'End') {
+                              nextIdx = DURATION_OPTIONS.length - 1;
+                            }
+                            if (nextIdx !== null) {
+                              e.preventDefault();
+                              field.onChange(DURATION_OPTIONS[nextIdx]);
+                              durationRefs.current[nextIdx]?.focus();
+                            }
+                          }}
                           className={`rounded-md border px-4 py-3 text-body-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
                             active
                               ? 'border-brand bg-brand text-white'
@@ -272,7 +300,7 @@ export function CourseOptionForm({ onSubmitted }: CourseOptionFormProps) {
                               : [...(field.value ?? []), opt.id];
                             field.onChange(next);
                           }}
-                          className={`rounded-full border px-4 py-2 text-body-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
+                          className={`inline-flex min-h-11 items-center rounded-full border px-4 py-2 text-body-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
                             selected
                               ? 'border-brand bg-brand-surface text-brand'
                               : 'border-input bg-background text-foreground hover:bg-muted'
@@ -320,7 +348,7 @@ export function CourseOptionForm({ onSubmitted }: CourseOptionFormProps) {
                     축제·행사 포함
                   </p>
                   <p className="text-caption text-muted-foreground">
-                    📅 축제·행사 자동 삽입 (오늘 ~ 여행 기간 내)
+                    <span aria-hidden="true">📅 </span>축제·행사 자동 삽입 (오늘 ~ 여행 기간 내)
                   </p>
                 </div>
               </label>
@@ -341,7 +369,7 @@ export function CourseOptionForm({ onSubmitted }: CourseOptionFormProps) {
                 />
                 <div className="flex-1">
                   <p className="text-body-md font-medium text-foreground">
-                    🐾 반려동물 동반 가능 우선
+                    <span aria-hidden="true">🐾 </span>반려동물 동반 가능 우선
                   </p>
                   <p className="text-caption text-muted-foreground">
                     반려동물 동반 가능한 곳만 추천 (chkpet=가능 우선 + detailPetTour2 폴백)

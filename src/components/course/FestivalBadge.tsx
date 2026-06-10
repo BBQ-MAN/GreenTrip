@@ -8,7 +8,8 @@
 //  - 이모지(🎉)만으로 정보 전달 X → "축제" 한글 텍스트 병기
 //  - 색 + 텍스트 + 아이콘 3중 (Sparkles)
 //  - aria-label 명시 ("축제 행사 진행 중" 또는 기간 포함)
-//  - festival.fg(#F59E0B) on festival.surface(#FEF3C7) → 대비비 ~4.6:1 AA 통과 (small text는 4.5:1+)
+//  - festival.fg(#92400E amber-800) on festival.surface(#FEF3C7) → 대비비 6.37:1 WCAG AA 통과
+//    (실측, 2026-06-10). 구 #F59E0B-on-#FEF3C7 은 1.93:1 FAIL 이었음 — tailwind.config festival.fg 보정으로 해소.
 import { Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 

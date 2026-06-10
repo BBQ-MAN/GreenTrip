@@ -27,7 +27,7 @@ interface StatsChartProps {
 }
 
 // CarbonChart와 동일 hex 토큰 정합
-const COLOR_ACTIVE = '#0B8C5C'; // transport.eco / brand
+const COLOR_ACTIVE = '#097A50'; // transport.eco / brand (AA 보정)
 const COLOR_INACTIVE = '#9CA3AF'; // gray-400
 
 export function StatsChart({ stats }: StatsChartProps) {

@@ -5,7 +5,7 @@
 //
 // 동작:
 //  - kakao.maps.Marker 생성
-//  - order 지정 시 CustomOverlay로 순서 배지 (brand 컬러 #0B8C5C)
+//  - order 지정 시 CustomOverlay로 순서 배지 (brand 컬러 #097A50)
 //  - 마커 클릭 시 InfoWindow 토글: 이미지 + 제목 + "상세보기" 링크 (/spot/{contentId})
 //  - cleanup: marker, customOverlay, infoWindow 모두 setMap(null)/close()
 //
@@ -44,8 +44,10 @@ function escapeHTML(s: string): string {
 const FESTIVAL_CONTENT_TYPE_ID = 15;
 /** brand.accent (#F59E0B) — 축제 마커 색상. tokens.brand.accent.light 정합. */
 const FESTIVAL_ACCENT = '#F59E0B';
-/** brand.primary (#0B8C5C) — 일반 마커 색상 */
-const BRAND_PRIMARY = '#0B8C5C';
+/** festival.fg (#92400E amber-800) — 축제 리본 텍스트. #FEF3C7 위 6.37:1 AA 통과 (FestivalBadge와 동일 보정). */
+const FESTIVAL_FG = '#92400E';
+/** brand.primary (#097A50) — 일반 마커 색상 (AA 보정) */
+const BRAND_PRIMARY = '#097A50';
 /** brand.secondary teal (#0E7490) — 반려동물 마커/리본 색상. tokens.brand.secondary.light 정합. */
 const PET_ACCENT = '#0E7490';
 /** pet.surface(#CFFAFE cyan-100) — 반려동물 리본 배경 */
@@ -91,7 +93,7 @@ export function SpotMarker({
     if (typeof order === 'number' && Number.isFinite(order)) {
       const badge = document.createElement('div');
       badge.textContent = String(order);
-      // brand 컬러 (#0B8C5C) 인라인 — Kakao CustomOverlay는 자체 DOM이라 Tailwind 클래스 적용 가능하나
+      // brand 컬러 (#097A50) 인라인 — Kakao CustomOverlay는 자체 DOM이라 Tailwind 클래스 적용 가능하나
       // SSR/HMR 안정성을 위해 핵심 스타일은 인라인 + tailwind class 보조
       Object.assign(badge.style, {
         display: 'inline-flex',
@@ -100,7 +102,7 @@ export function SpotMarker({
         width: '22px',
         height: '22px',
         borderRadius: '9999px',
-        // 축제는 festival accent(#F59E0B), 그 외는 brand primary(#0B8C5C)
+        // 축제는 festival accent(#F59E0B), 그 외는 brand primary(#097A50)
         backgroundColor: isFestival ? FESTIVAL_ACCENT : BRAND_PRIMARY,
         color: '#FFFFFF',
         fontSize: '12px',
@@ -126,7 +128,7 @@ export function SpotMarker({
       : '';
 
     const festivalRibbon = isFestival
-      ? `<div style="display:inline-block;font-size:11px;font-weight:600;color:${FESTIVAL_ACCENT};background:#FEF3C7;padding:2px 8px;border-radius:9999px;margin-bottom:6px;margin-right:4px;" aria-label="축제 행사">🎉 축제</div>`
+      ? `<div style="display:inline-block;font-size:11px;font-weight:600;color:${FESTIVAL_FG};background:#FEF3C7;padding:2px 8px;border-radius:9999px;margin-bottom:6px;margin-right:4px;" aria-label="축제 행사">🎉 축제</div>`
       : '';
     const petRibbon = isPetFriendly
       ? `<div style="display:inline-block;font-size:11px;font-weight:600;color:${PET_ACCENT};background:${PET_SURFACE};padding:2px 8px;border-radius:9999px;margin-bottom:6px;margin-right:4px;" aria-label="반려동물 동반 가능">🐾 반려동물 동반</div>`
@@ -145,7 +147,7 @@ export function SpotMarker({
         </div>
         ${
           safeHref
-            ? `<a href="${safeHref}" style="display:inline-block;font-size:12px;font-weight:600;color:#0B8C5C;text-decoration:none;">상세보기 →</a>`
+            ? `<a href="${safeHref}" style="display:inline-block;font-size:12px;font-weight:600;color:#097A50;text-decoration:none;">상세보기 →</a>`
             : ''
         }
       </div>

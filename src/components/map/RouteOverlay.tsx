@@ -6,7 +6,7 @@
 // 색상 매핑 (TRANSPORT_COLORS, tokens.transport.* 와 일치):
 //   car     → #F59E0B (transport.fast)    solid, weight 4
 //   transit → #0E7490 (transport.balance) solid, weight 4
-//   active  → #0B8C5C (transport.eco)     dash,  weight 4 (시각 구분)
+//   active  → #097A50 (transport.eco)     dash,  weight 4 (시각 구분)
 // highlight=true: weight 6, opacity 1.0
 // highlight=false: weight 4, opacity 0.6
 //

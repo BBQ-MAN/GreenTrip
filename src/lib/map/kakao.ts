@@ -104,12 +104,12 @@ export function loadKakaoSDK(): Promise<void> {
  *
  * - car     → transport.fast   (#F59E0B)
  * - transit → transport.balance(#0E7490)
- * - active  → transport.eco    (#0B8C5C)
+ * - active  → transport.eco    (#097A50)
  */
 export const TRANSPORT_COLORS = {
   car: '#F59E0B',
   transit: '#0E7490',
-  active: '#0B8C5C',
+  active: '#097A50',
 } as const;
 
 export type TransportColorCategory = keyof typeof TRANSPORT_COLORS;

@@ -3,7 +3,7 @@
 // 참조: _workspace/benchmark/04_signatures.md 시그니처 1
 //
 // transport.car(fast=주황 #F59E0B) / transport.transit(balance=청록 #0E7490) /
-// transport.active(eco=초록 #0B8C5C). WCAG AA: 색 + 아이콘 + 텍스트 3중.
+// transport.active(eco=초록 #097A50). WCAG AA: 색 + 아이콘 + 텍스트 3중.
 import { Car, Bus, TrainFront, Bike, Footprints } from 'lucide-react';
 import type { TransportMode, CourseCategory } from '@/types/course';
 import { cn } from '@/lib/utils';
@@ -54,11 +54,12 @@ const CATEGORY_STYLES: Record<
   { bg: string; fg: string; ring: string; icon: string }
 > = {
   car: {
-    // fast — amber (transport.fast #F59E0B)
+    // fast — amber. 배경/링은 transport.fast(#F59E0B), 전경 텍스트·아이콘은
+    // transport.fast-fg(#92400E amber-800)로 분리해 WCAG AA 통과 (on white 7.09:1).
     bg: 'bg-transport-fast/10',
-    fg: 'text-transport-fast',
+    fg: 'text-transport-fast-fg',
     ring: 'ring-transport-fast/30',
-    icon: 'text-transport-fast',
+    icon: 'text-transport-fast-fg',
   },
   transit: {
     // balance — teal (transport.balance #0E7490)
@@ -68,7 +69,7 @@ const CATEGORY_STYLES: Record<
     icon: 'text-transport-balance',
   },
   active: {
-    // eco — green (transport.eco #0B8C5C)
+    // eco — green (transport.eco #097A50)
     bg: 'bg-transport-eco/10',
     fg: 'text-transport-eco',
     ring: 'ring-transport-eco/30',

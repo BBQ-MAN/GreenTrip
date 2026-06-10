@@ -7,15 +7,18 @@
 export const tokens = {
   color: {
     brand: {
-      primary: { light: '#0B8C5C', dark: '#34D399' },
-      primaryHover: { light: '#097A50', dark: '#6EE7B7' },
+      // primary.light: #097A50 — WCAG AA 보정 (구 #0B8C5C 4.27:1 미달 → 5.37:1 통과).
+      // 전경 텍스트·링크·버튼 배경 전반에 쓰이므로 전경 안전값으로 어둡게.
+      primary: { light: '#097A50', dark: '#34D399' },
+      // hover는 primary보다 한 단계 더 진하게 유지 (구 #097A50 → #06734A 5.90:1)
+      primaryHover: { light: '#06734A', dark: '#6EE7B7' },
       primarySurface: { light: '#ECFDF5', dark: '#064E3B' },
       secondary: { light: '#0E7490', dark: '#22D3EE' },
       secondarySurface: { light: '#ECFEFF', dark: '#164E63' },
       accent: { light: '#F59E0B', dark: '#FBBF24' },
     },
     semantic: {
-      success: { light: '#0B8C5C', dark: '#34D399' },
+      success: { light: '#097A50', dark: '#34D399' }, // AA 보정 (brand.primary 동기화)
       warning: { light: '#D97706', dark: '#FBBF24' },
       danger: { light: '#DC2626', dark: '#F87171' },
       info: { light: '#0E7490', dark: '#22D3EE' },
@@ -48,10 +51,16 @@ export const tokens = {
       },
     },
     // ★ 시그니처 2: Transport 3안 컬러 코딩
+    // 주의: eco/balance/fast(light)는 차트 막대·채움 등 면적 배경(graphical object 3:1)
+    //       에도 쓰이고, 전경 텍스트/아이콘에도 쓰인다.
+    //  - eco는 전경 텍스트로 쓰이므로 AA 보정값(#097A50, on white 5.37:1).
+    //  - fast(#F59E0B)는 면적 배경으로는 적합하나 전경 텍스트(2.15:1 FAIL)로는 부적합 →
+    //    전경 전용 fastFg(#92400E amber-800, on white 7.09:1)를 분리 추가.
     transport: {
-      eco: { light: '#0B8C5C', dark: '#34D399' }, // 저탄소 안
+      eco: { light: '#097A50', dark: '#34D399' }, // 저탄소 안 (AA 보정)
       balance: { light: '#0E7490', dark: '#22D3EE' }, // 균형 안
-      fast: { light: '#F59E0B', dark: '#FBBF24' }, // 속도 안
+      fast: { light: '#F59E0B', dark: '#FBBF24' }, // 속도 안 (배경/그래픽 전용)
+      fastFg: { light: '#92400E', dark: '#FBBF24' }, // 속도 안 전경 텍스트/아이콘 전용
     },
     surface: {
       base: { light: '#F8FAF7', dark: '#0A0F0D' },
@@ -66,7 +75,7 @@ export const tokens = {
       secondary: { light: '#4B5563', dark: '#9CA3AF' },
       tertiary: { light: '#6B7280', dark: '#6B7280' },
       inverse: { light: '#FFFFFF', dark: '#0F1F1A' },
-      brand: { light: '#0B8C5C', dark: '#34D399' },
+      brand: { light: '#097A50', dark: '#34D399' }, // AA 보정 (brand.primary 동기화)
       danger: { light: '#DC2626', dark: '#F87171' },
     },
   },
@@ -79,6 +88,7 @@ export const tokens = {
     size: {
       'display-lg': { px: 48, lh: 55, weight: 800 },
       'display-md': { px: 36, lh: 44, weight: 800 },
+      'display-sm': { px: 30, lh: 38, weight: 800 },
       'heading-lg': { px: 28, lh: 36, weight: 700 },
       'heading-md': { px: 22, lh: 30, weight: 700 },
       'heading-sm': { px: 18, lh: 25, weight: 600 },

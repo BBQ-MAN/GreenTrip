@@ -25,8 +25,9 @@ const RequestSchema = z.object({
   startContentId: z.string().optional(),
   startLat: z.number().min(-90).max(90).optional(),
   startLng: z.number().min(-180).max(180).optional(),
-  // DEVELOPMENT_PLAN §7.2 + types/course.ts GenerateCourseRequest.duration과 1:1 정합 (required, Week 4 QA Medium 정정)
-  duration: z.enum(['당일', '1박2일', '2박3일']),
+  // DEVELOPMENT_PLAN §7.2 + types/course.ts GenerateCourseRequest.duration과 1:1 정합 (optional).
+  // 미지정 시 코드에서 기본값 '당일'(단일 day, 코스 최소 단위) 적용 — DEVELOPMENT_PLAN 코스 생성 스펙 기준.
+  duration: z.enum(['당일', '1박2일', '2박3일']).optional(),
   includeFestival: z.boolean().optional(),
   includePet: z.boolean().optional(),
   accessibilityMin: z.number().min(0).max(100).optional(),
@@ -58,12 +59,14 @@ export async function POST(req: NextRequest) {
   }
 
   const data = parsed.data;
+  // duration 미지정 시 기본값 '당일' (코스 최소 단위, DEVELOPMENT_PLAN 코스 생성 스펙).
+  const duration = data.duration ?? '당일';
 
   try {
     // Week 6~7: duration → 축제 검색 dateRange (KST 오늘 시작).
     // includeFestival=true일 때만 buildCandidatePool에서 searchFestival2 호출.
     const festivalDateRange = data.includeFestival
-      ? durationToDateRange(data.duration)
+      ? durationToDateRange(duration)
       : undefined;
 
     // 후보 풀 구성 (areaBasedList2 + 옵션 searchFestival2 + 옵션 detailPetTour2 폴백)

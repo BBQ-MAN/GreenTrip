@@ -19,6 +19,8 @@ import { ChevronLeft } from 'lucide-react';
 
 import { SpotGallery } from '@/components/spot/SpotGallery';
 import { SpotDetail } from '@/components/spot/SpotDetail';
+import { AccessibilityScoreCard } from '@/components/spot/AccessibilityScoreCard';
+import { calculateAccessibility } from '@/lib/course/filters';
 import { LoadingSkeleton } from '@/components/common/LoadingSkeleton';
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 import type {
@@ -154,6 +156,9 @@ export default async function SpotPage({ params, searchParams }: PageProps) {
   if (!data) notFound();
 
   const { detail, images } = data;
+  // 접근성 점수 — detailCommon2+detailIntro2 병합 detail로 서버에서 산출.
+  // 새 API 라우트 없이 calculateAccessibility 순수 함수 재사용 (P2-8 출력 가시화).
+  const accessibility = calculateAccessibility(detail);
 
   return (
     <main className="container max-w-5xl py-6 md:py-10 lg:py-12">
@@ -182,6 +187,8 @@ export default async function SpotPage({ params, searchParams }: PageProps) {
         </ErrorBoundary>
 
         <SpotDetail spot={detail} />
+
+        <AccessibilityScoreCard score={accessibility} />
       </div>
     </main>
   );

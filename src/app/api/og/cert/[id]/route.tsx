@@ -112,7 +112,7 @@ export async function GET(
               alignItems: 'center',
               height: '140px',
               backgroundImage:
-                'linear-gradient(90deg, #0B8C5C 0%, #0E7490 100%)',
+                'linear-gradient(90deg, #097A50 0%, #0E7490 100%)',
               color: '#FFFFFF',
             }}
           >
@@ -201,7 +201,7 @@ export async function GET(
                 style={{
                   display: 'flex',
                   alignItems: 'baseline',
-                  color: '#0B8C5C',
+                  color: '#097A50',
                 }}
               >
                 <span
@@ -267,7 +267,7 @@ export async function GET(
               style={{
                 display: 'flex',
                 fontWeight: 700,
-                color: '#0B8C5C',
+                color: '#097A50',
               }}
             >
               GreenTrip × 한국관광공사

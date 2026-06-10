@@ -24,7 +24,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 160 33% 9%;
 
-    --primary: 154 86% 30%; /* brand.primary #0B8C5C */
+    --primary: 158 86% 26%; /* brand.primary #097A50 — AA 보정 (round-trip ≈ #097B52, 5.37:1) */
     --primary-foreground: 0 0% 100%;
 
     --secondary: 191 82% 31%; /* brand.secondary #0E7490 */
@@ -41,7 +41,7 @@
 
     --border: 220 13% 91%; /* surface.border #E5E7EB */
     --input: 220 13% 91%;
-    --ring: 154 86% 30%; /* brand.primary */
+    --ring: 158 86% 26%; /* brand.primary #097A50 — AA 보정 동기화 */
 
     --radius: 0.875rem; /* radius.lg 14px */
   }

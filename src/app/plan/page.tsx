@@ -3,7 +3,7 @@
 // 참조: DEVELOPMENT_PLAN.md §7.2, _workspace/00_input/week4_request.md §A-2
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, ChevronDown } from 'lucide-react';
 import { CourseOptionForm } from '@/components/course/CourseOptionForm';
 import { PageContainer } from '@/components/layout/PageContainer';
 
@@ -12,6 +12,42 @@ export const metadata: Metadata = {
   description:
     '지역·기간·테마를 선택하면 이동수단별 3가지 저탄소 코스를 자동 생성합니다.',
 };
+
+/**
+ * 이동수단 3안 가이드 내용. 데스크탑 우측 aside·모바일 disclosure 양쪽에서 공유.
+ */
+function GuideList() {
+  return (
+    <>
+      <ul className="space-y-3 text-body-sm text-muted-foreground">
+        <li className="flex gap-2">
+          <span className="mt-1 inline-block h-2 w-2 shrink-0 rounded-full bg-transport-fast" />
+          <span>
+            <strong className="text-foreground">속도</strong> — 자가용 기반 최단
+            경로. CO₂가 가장 높습니다.
+          </span>
+        </li>
+        <li className="flex gap-2">
+          <span className="mt-1 inline-block h-2 w-2 shrink-0 rounded-full bg-transport-balance" />
+          <span>
+            <strong className="text-foreground">균형</strong> — 대중교통 가정. 시간은
+            비슷하지만 탄소 1/3 수준.
+          </span>
+        </li>
+        <li className="flex gap-2">
+          <span className="mt-1 inline-block h-2 w-2 shrink-0 rounded-full bg-transport-eco" />
+          <span>
+            <strong className="text-foreground">저탄소</strong> — 자전거·도보 10km
+            반경. 가능할 때만 표시됩니다.
+          </span>
+        </li>
+      </ul>
+      <p className="border-t pt-3 text-caption text-muted-foreground">
+        코스 생성은 한국관광공사 TourAPI 14종 데이터를 사용합니다.
+      </p>
+    </>
+  );
+}
 
 export default function PlanPage() {
   return (
@@ -39,7 +75,21 @@ export default function PlanPage() {
       </header>
 
       <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
-        <div className="min-w-0">
+        <div className="min-w-0 space-y-6">
+          {/* 모바일 가이드 — 폼 위, 접이식 disclosure (기본 접힘으로 폼 우선) */}
+          <details className="group rounded-lg border bg-card lg:hidden">
+            <summary className="flex cursor-pointer items-center justify-between gap-2 rounded-lg p-4 text-heading-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+              <span>한눈에 알아두기</span>
+              <ChevronDown
+                aria-hidden="true"
+                className="h-5 w-5 shrink-0 text-muted-foreground transition-transform group-open:rotate-180 motion-reduce:transition-none"
+              />
+            </summary>
+            <div className="space-y-4 px-4 pb-4">
+              <GuideList />
+            </div>
+          </details>
+
           <CourseOptionForm />
         </div>
 
@@ -49,32 +99,7 @@ export default function PlanPage() {
           className="hidden h-fit space-y-4 rounded-lg border bg-card p-5 lg:block"
         >
           <h2 className="text-heading-sm text-foreground">한눈에 알아두기</h2>
-          <ul className="space-y-3 text-body-sm text-muted-foreground">
-            <li className="flex gap-2">
-              <span className="mt-1 inline-block h-2 w-2 shrink-0 rounded-full bg-transport-fast" />
-              <span>
-                <strong className="text-foreground">속도</strong> — 자가용 기반 최단
-                경로. CO₂가 가장 높습니다.
-              </span>
-            </li>
-            <li className="flex gap-2">
-              <span className="mt-1 inline-block h-2 w-2 shrink-0 rounded-full bg-transport-balance" />
-              <span>
-                <strong className="text-foreground">균형</strong> — 대중교통 가정. 시간은
-                비슷하지만 탄소 1/3 수준.
-              </span>
-            </li>
-            <li className="flex gap-2">
-              <span className="mt-1 inline-block h-2 w-2 shrink-0 rounded-full bg-transport-eco" />
-              <span>
-                <strong className="text-foreground">저탄소</strong> — 자전거·도보 10km
-                반경. 가능할 때만 표시됩니다.
-              </span>
-            </li>
-          </ul>
-          <p className="border-t pt-3 text-caption text-muted-foreground">
-            코스 생성은 한국관광공사 TourAPI 14종 데이터를 사용합니다.
-          </p>
+          <GuideList />
         </aside>
       </div>
     </PageContainer>
