@@ -79,7 +79,7 @@ description: GreenTrip 통합 정합성 검증 스킬. API 응답↔프론트 �
 - [ ] **lclsSystmCode2 호출 확인** ⭐신규 — categoryCode 정식 대체 (`/api/tour/search`, 분류체계)
 
 **별도 트랙 1종:**
-- [ ] **두루누비 정보** — 별도 Base URL `Durunubi/courseList`·`routeList` 호출 확인 (`/api/tour/durunubi`, DEVELOPMENT_PLAN §3.2 API-14). 강원 코스 필터링 + GPX 트랙 활용. ⭐ 강원 RTO 특별상 어필 데이터. 별도 신청 필요.
+- [ ] **두루누비 정보** — 별도 Base URL `Durunubi/courseList`·`routeList` 호출 확인 (`/api/tour/durunubi`, DEVELOPMENT_PLAN §3.2 API-14). 강원 코스 필터링 + GPX 트랙 활용. ⭐ 강원 RTO 특별상 어필 데이터. **별도 활용신청 미완료 시 N/A로 기록하되, 그 상태에서는 문서의 "14종 활용" 주장이 13종으로 하향되어야 하므로 3대 문서 정합성 이슈(섹션 H)로 승격하여 보고할 것.** (2026-06-10 기준 `callDurunubiAPI` 정의만 존재, 실호출 0건 — 해소 전까지 매 QA에서 재확인.)
 
 **미사용 2종 — 호출 0건 의무:**
 - [ ] ⚠ **areaCode2 호출 0건** — Grep `"areaCode2"` src/app/api src/lib/tourapi → 호출 코드(`callTourAPI('areaCode2', ...)`) 0건. 상수 정의(`TOUR_API_DEPRECATED`)·주석 언급은 허용.

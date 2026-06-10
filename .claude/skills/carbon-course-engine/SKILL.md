@@ -119,10 +119,10 @@ export function treeEquivalent(co2g: number): number {
 ## 5. 코스 생성 (generator.ts)
 
 **후보 풀 구성:**
-1. areaBasedList1 또는 locationBasedList1로 관광지 풀 수집
-2. categoryCode1 cat1~3 필터 적용
-3. (옵션) searchFestival1 결과 병합
-4. (옵션) detailPetTour1로 반려동물 불가 제외
+1. areaBasedList2 또는 locationBasedList2로 관광지 풀 수집
+2. lclsSystmCode2 분류체계(lclsSystm1~3) 필터 적용 — categoryCode 계열은 폐기 예정이므로 사용 금지
+3. (옵션) searchFestival2 결과 병합
+4. (옵션) detailPetTour2로 반려동물 불가 제외
 
 **Nearest Neighbor:**
 ```typescript
@@ -211,7 +211,7 @@ export function calculateAccessibility(detail: SpotDetail): AccessibilityScore {
   const parking = text.includes('주차장') ? (text.includes('무료') ? 100 : 60) : 20;
   const wheelchair = Math.min(100,
     (text.match(/장애인|엘리베이터|경사로|무장애/g)?.length ?? 0) * 30);
-  const petFriendly = /* detailPetTour1 결과로 대체 */;
+  const petFriendly = /* detailPetTour2 결과로 대체 */;
   return { publicTransport, parking, wheelchair, petFriendly };
 }
 ```

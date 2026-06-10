@@ -1,6 +1,6 @@
 ---
 name: greentrip-dev
-description: GreenTrip(저탄소 여행 플래너) 개발 오케스트레이터. DEVELOPMENT_PLAN.md 기반의 Phase/Week별 기능 구현, TourAPI 연동, 탄소 계산, 코스 생성, UI 구축, 지도 통합, QA를 에이전트 팀으로 조율. 트리거 — "Phase N Week M 구현", "TourAPI 연동", "탄소 계산", "코스 생성", "그린트립/GreenTrip 개발". 후속 — "재실행", "업데이트", "수정", "보완", "이전 결과 개선", "특정 Week만 다시", "Phase 2 시작" 등 이어지는 작업도 반드시 이 스킬을 사용.
+description: GreenTrip(저탄소 여행 플래너) 개발 오케스트레이터. DEVELOPMENT_PLAN.md 기반의 Phase/Week별 기능 구현, TourAPI 연동, 탄소 계산, 코스 생성, UI 구축, 지도 통합, QA에 더해 공모전 준비 트랙(제출물·운영계정·배포 점검·강원 RTO 추적·PT 발표·데모 시연)을 에이전트 팀으로 조율. 트리거 — "Phase N Week M 구현", "TourAPI 연동", "탄소 계산", "코스 생성", "그린트립/GreenTrip 개발", "제출 준비", "배포 점검", "PT 준비", "데모 시연", "발표자료". 후속 — "재실행", "업데이트", "수정", "보완", "이전 결과 개선", "특정 Week만 다시", "Phase 2 시작", "제출 상태 업데이트" 등 이어지는 작업도 반드시 이 스킬을 사용.
 ---
 
 # GreenTrip Development Orchestrator
@@ -21,6 +21,8 @@ GreenTrip(저탄소 여행 플래너) 에이전트 팀을 조율하여 DEVELOPME
 | ui-builder | general-purpose | 페이지·컴포넌트·훅 | nextjs-ui-builder | src/app/, src/components/, src/hooks/ |
 | map-integrator | general-purpose | Kakao Maps SDK | kakao-maps-integration | src/lib/map/kakao.ts, src/components/map/ |
 | qa-reviewer | general-purpose | 통합 정합성 검증 | greentrip-qa | `_workspace/{week}_qa_report.md` |
+| submission-manager | general-purpose | 공모전 제출물·배포·임계경로 (2026-06-10 신설) | contest-submission | `_workspace/submission/` |
+| pt-director | general-purpose | PT 발표·데모 시연 제작 (2026-06-10 신설) | pt-demo-production | `_workspace/pt/` |
 
 ## 워크플로우
 
@@ -147,6 +149,20 @@ GreenTrip(저탄소 여행 플래너) 에이전트 팀을 조율하여 DEVELOPME
 | Phase 4 (병행) — 전국 확장 | 강원도 외 1개 지역(제주 또는 경상) 추가, ThemeCourse 콘텐츠 확장 | tourapi-integrator(지역코드), ui-builder |
 | Phase 5 (2027.02~04) — B2G·B2B | 지자체 대시보드(ESG 리포트), 탄소 포인트 ↔ 지역화폐 교환 PoC, 친환경 숙소 제휴 5개 | architect, domain-logic, qa |
 | Phase 6 (2027.05+) — 지속 | 전국 17개 시도, 모바일 앱(React Native 또는 Flutter), 관광빅데이터(방문자 수) 연동 분산 관광 | 전체 |
+
+### 공모전 준비 트랙 (Phase/Week와 병행, 2026-06-10 신설)
+
+**실행 모드:** 서브 에이전트 (제출·발표는 결과 전달 중심이라 팀 통신 오버헤드 불필요. 단, 제출 패키지 작성 시 qa-reviewer 검증 결과를 입력으로 받음)
+
+| 시점 | 작업 | 주 담당 | 협업 |
+|------|------|--------|------|
+| 상시 (D-역산 체크포인트) | 제출 트래커·운영계정·위치기반 등록·강원 RTO 의향서 추적 | submission-manager | product-strategist(RTO 논리) |
+| 09-21 마감 D-14/D-7/D-3 | 1차 제출 패키지 (활용 API 명세 14종 + 미사용 2종 사유) | submission-manager | qa-reviewer(14종 실호출 검증 인용) |
+| 제출 전 | 프로덕션 배포 점검 (env·cron·PWA·Lighthouse·시드) | submission-manager | architect, tourapi-integrator(실패 항목 이관) |
+| 10-21 합격 발표 직후 | 제출 패키지 → 발표 입력 핸드오프 | submission-manager → pt-director | - |
+| 10-28 PT D-7~ | 스토리라인·데모 스크립트·Q&A 은행·리허설 체크리스트 | pt-director | ui-builder(시연 결함 이관), product-strategist(발전성 검증) |
+
+공모전 준비 요청("제출 준비", "배포 점검", "PT 준비", "데모 스크립트")은 주차 매트릭스가 아니라 이 트랙으로 라우팅한다. 두 에이전트는 코드를 직접 수정하지 않고 결함을 담당 에이전트에 이관한다.
 
 ## 제안서 변경 트리거
 

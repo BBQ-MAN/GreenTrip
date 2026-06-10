@@ -55,8 +55,10 @@ type: general-purpose
 - [ ] nullable 필드(`address?`, `imageUrl?`)가 UI에서 null 처리
 
 ### TourAPI 14종 사용 검증 (v1.6 — KorService2 13종 + 두루누비)
-- [ ] areaCode1, categoryCode1, locationBasedList1, areaBasedList1, searchKeyword1 호출 확인
-- [ ] searchFestival1, detailCommon1, detailIntro1, detailImage1, detailPetTour1 호출 확인
+- [ ] 활성 13종 호출 확인: locationBasedList2, areaBasedList2, searchKeyword2, searchFestival2, searchStay2, detailCommon2, detailIntro2, detailImage2, detailInfo2, detailPetTour2, ldongCode2, lclsSystmCode2, areaBasedSyncList2
+- [ ] 두루누비(courseList/routeList) 호출 확인 — 별도 활용신청 미완 시 N/A로 기록하고 문서 주장(14종)과의 정합 여부를 보고
+- [ ] 미사용 2종(areaCode2, categoryCode2) 호출 0건 확인 (신청됐으나 호출 금지 — ldongCode2/lclsSystmCode2로 대체)
+- [ ] KorService1 잔존 0건 grep 확인
 - [ ] 호출 로그/통계 수집 기반 마련 (심사 대응)
 
 ## 입력/출력 프로토콜
