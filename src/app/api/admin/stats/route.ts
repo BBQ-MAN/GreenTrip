@@ -13,6 +13,7 @@
 // Forward-compat: 14종 endpoint 통계 + 미사용 2종(areaCode2·categoryCode2)은 의도적 제외.
 import { NextResponse, type NextRequest } from 'next/server';
 import { Redis } from '@upstash/redis';
+import { GENERIC_MESSAGES, logRouteError } from '@/lib/apiError';
 
 export const dynamic = 'force-dynamic';
 
@@ -116,11 +117,10 @@ export async function GET(req: NextRequest) {
       },
     });
   } catch (e) {
+    // M-3: Redis 연결 단서가 응답에 노출되지 않도록 일반 메시지 + 서버 로그 분리
+    logRouteError('admin/stats', e);
     return NextResponse.json(
-      {
-        error: 'REDIS_UNAVAILABLE',
-        message: e instanceof Error ? e.message : String(e),
-      },
+      { error: 'REDIS_UNAVAILABLE', message: GENERIC_MESSAGES.redis },
       { status: 503 },
     );
   }

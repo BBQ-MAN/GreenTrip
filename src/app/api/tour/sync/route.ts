@@ -20,6 +20,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { syncRecentChanges } from '@/lib/tourapi/sync';
 import { TourAPIError } from '@/lib/tourapi/client';
 import { incrStat } from '@/lib/tourapi/cache';
+import { GENERIC_MESSAGES, logRouteError } from '@/lib/apiError';
 
 export const dynamic = 'force-dynamic';
 
@@ -96,12 +97,14 @@ export async function GET(req: NextRequest) {
       { headers: { 'X-Cache': 'MISS', 'X-Source': 'sync' } },
     );
   } catch (e) {
+    // M-3: 원본 메시지는 서버 로그로만 — 응답에는 코드 + 일반 메시지
+    logRouteError('tour/sync', e);
     const err = e instanceof TourAPIError ? e : null;
     return NextResponse.json(
       {
         success: false,
         error: err?.code ?? 'TOUR_API_ERROR',
-        message: err?.message ?? String(e),
+        message: GENERIC_MESSAGES.tour,
       },
       { status: 503 },
     );

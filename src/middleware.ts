@@ -1,23 +1,46 @@
 /**
- * Edge Middleware — Rate Limit for /api/tour/*
+ * Edge Middleware — Rate Limit (재감사 H-4 강화판)
  *
- * - IP 기준 30 req/min sliding window (rateLimit.ts)
- * - 인증/DB/OG API는 제외 (matcher)
- * - fail-open: Redis 미설정/오류 시 통과
+ * 대상: /api/tour/* (TourAPI 쿼터 보호) + /api/course/* (코스 생성 POST가 내부에서
+ *       TourAPI 호출 + 2-opt O(n²) 연산) + /api/report/* (익명 DB 쓰기) + /api/carbon/*
+ * 정책: IP 기준 30 req/min sliding window (Redis) / 20 req/min 인메모리 폴백.
+ *
+ * IP 추출 (스푸핑 방어):
+ *   1) req.ip — Vercel이 검증한 클라이언트 IP (가장 신뢰)
+ *   2) x-real-ip — Vercel/신뢰 프록시가 세팅
+ *   3) x-forwarded-for 첫 토큰 — 최후 폴백 (셀프호스팅 dev 환경용; 위조 가능하므로 우선하지 않음)
  */
 import { NextResponse, type NextRequest } from 'next/server';
 import { rateLimit } from '@/lib/rateLimit';
 
 export const config = {
-  matcher: ['/api/tour/:path*'],
+  matcher: [
+    '/api/tour/:path*',
+    '/api/course/:path*',
+    '/api/report/:path*',
+    '/api/carbon/:path*',
+  ],
 };
 
-export async function middleware(req: NextRequest) {
+/** 신뢰 가능 소스 우선의 클라이언트 IP 추출 */
+function getClientIp(req: NextRequest): string {
+  // Vercel 런타임이 채워주는 검증된 IP (Edge에서 제공)
+  if (req.ip) return req.ip;
+
+  const realIp = req.headers.get('x-real-ip');
+  if (realIp) return realIp.trim();
+
   const fwd = req.headers.get('x-forwarded-for');
-  const ip =
-    (fwd ? fwd.split(',')[0].trim() : undefined) ??
-    req.headers.get('x-real-ip') ??
-    'unknown';
+  if (fwd) {
+    const first = fwd.split(',')[0]?.trim();
+    if (first) return first;
+  }
+
+  return 'unknown';
+}
+
+export async function middleware(req: NextRequest) {
+  const ip = getClientIp(req);
 
   const { success, limit, remaining, reset } = await rateLimit(ip);
 

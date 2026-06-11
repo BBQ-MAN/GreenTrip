@@ -25,7 +25,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
-import { callTourAPI, TourAPIError } from '@/lib/tourapi/client';
+import { callTourAPI } from '@/lib/tourapi/client';
+import { clampNumOfRows, clampPageNo } from '@/lib/tourapi/params';
+import { tourErrorResponse } from '@/lib/apiError';
 import {
   getCached,
   setCached,
@@ -61,8 +63,8 @@ export async function GET(req: NextRequest) {
   const commonParams: Record<string, string | undefined> = {
     areaCode,
     sigunguCode: searchParams.get('sigunguCode') ?? undefined,
-    numOfRows: searchParams.get('numOfRows') ?? '20',
-    pageNo: searchParams.get('pageNo') ?? '1',
+    numOfRows: clampNumOfRows(searchParams.get('numOfRows')),
+    pageNo: clampPageNo(searchParams.get('pageNo')),
     arrange: searchParams.get('arrange') ?? 'A',
   };
 
@@ -107,10 +109,6 @@ export async function GET(req: NextRequest) {
     void incrStat(endpoint);
     return NextResponse.json(result, { headers: { 'X-Cache': 'MISS' } });
   } catch (e) {
-    const err = e instanceof TourAPIError ? e : null;
-    return NextResponse.json(
-      { error: err?.code ?? 'TOUR_API_ERROR', message: err?.message ?? String(e) },
-      { status: 503 },
-    );
+    return tourErrorResponse(`tour/lodging:${endpoint}`, e);
   }
 }

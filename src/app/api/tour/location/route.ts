@@ -5,7 +5,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
-import { callTourAPI, TourAPIError } from '@/lib/tourapi/client';
+import { callTourAPI } from '@/lib/tourapi/client';
 import {
   getCached,
   setCached,
@@ -13,6 +13,8 @@ import {
   TOUR_CACHE_TTL,
   incrStat,
 } from '@/lib/tourapi/cache';
+import { clampNumOfRows, clampPageNo, clampRadius } from '@/lib/tourapi/params';
+import { tourErrorResponse } from '@/lib/apiError';
 import type { SpotItem, TourAPIResponse } from '@/types/tour';
 
 const ENDPOINT = 'locationBasedList2';
@@ -21,10 +23,11 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const mapX = searchParams.get('mapX');
   const mapY = searchParams.get('mapY');
-  const radius = searchParams.get('radius') ?? '5000';
+  // H-3: 폭주값 클램프 (쿼터 소진·캐시 회피 방어) — 초과 값은 400이 아닌 클램프
+  const radius = clampRadius(searchParams.get('radius'));
   const contentTypeId = searchParams.get('contentTypeId') ?? undefined;
-  const numOfRows = searchParams.get('numOfRows') ?? '20';
-  const pageNo = searchParams.get('pageNo') ?? '1';
+  const numOfRows = clampNumOfRows(searchParams.get('numOfRows'));
+  const pageNo = clampPageNo(searchParams.get('pageNo'));
   const arrange = searchParams.get('arrange') ?? 'E'; // E=거리순
 
   if (!mapX || !mapY) {
@@ -56,13 +59,6 @@ export async function GET(req: NextRequest) {
     void incrStat(ENDPOINT);
     return NextResponse.json(result, { headers: { 'X-Cache': 'MISS' } });
   } catch (e) {
-    const err = e instanceof TourAPIError ? e : null;
-    return NextResponse.json(
-      {
-        error: err?.code ?? 'TOUR_API_ERROR',
-        message: err?.message ?? String(e),
-      },
-      { status: 503 },
-    );
+    return tourErrorResponse(`tour/location:${ENDPOINT}`, e);
   }
 }

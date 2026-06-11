@@ -61,6 +61,22 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ['lucide-react', 'recharts'],
   },
+  // 기본 보안 헤더 (재감사 H-2·L-3)
+  // - Referrer-Policy: 외부 리소스 요청 시 URL(쿼리 포함) Referer 누출 차단
+  // - CSP는 Kakao Maps SDK·인라인 스크립트 영향 검증 후 별도 도입 (의도적 보류)
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), payment=()' },
+        ],
+      },
+    ];
+  },
 };
 
 export default withPWA(nextConfig);

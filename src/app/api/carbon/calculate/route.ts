@@ -11,6 +11,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
 import { calculateRouteCarbon } from '@/lib/carbon/calculator';
 import { formatCarbon, treeEquivalent } from '@/lib/carbon/formatter';
+import { internalErrorResponse } from '@/lib/apiError';
 
 const TransportModeEnum = z.enum([
   'car',
@@ -66,12 +67,6 @@ export async function POST(req: NextRequest) {
       treeEquivalent: treeEquivalent(result.totalCO2g),
     });
   } catch (e) {
-    return NextResponse.json(
-      {
-        error: 'INTERNAL_ERROR',
-        message: e instanceof Error ? e.message : 'Unknown error',
-      },
-      { status: 500 },
-    );
+    return internalErrorResponse('carbon/calculate', e);
   }
 }

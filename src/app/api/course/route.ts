@@ -20,6 +20,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/db';
 import { getCurrentUser } from '@/lib/auth/session';
+import { internalErrorResponse } from '@/lib/apiError';
 import { MODE_LABEL } from '@/components/course/TransportBadge';
 import type { TransportMode } from '@/types/course';
 
@@ -59,8 +60,9 @@ const SegmentSchema = z.object({
 const CourseOptionSchema = z.object({
   mode: TransportModeSchema,
   category: CourseCategorySchema,
-  waypoints: z.array(WaypointSchema).min(2),
-  segments: z.array(SegmentSchema),
+  // 상한 50: carbon/calculate의 waypoints max(50)과 일관 (재감사 L-5 — DB insert 폭탄 방지)
+  waypoints: z.array(WaypointSchema).min(2).max(50),
+  segments: z.array(SegmentSchema).max(100),
   totalKm: z.number().min(0),
   totalCO2g: z.number().min(0),
   durationMin: z.number().min(0),
@@ -75,7 +77,8 @@ const SaveSchema = z.object({
   duration: z.enum(['당일', '1박2일', '2박3일']).optional(),
   includeFestival: z.boolean().optional(),
   includePet: z.boolean().optional(),
-  title: z.string().min(1).optional(),
+  // max(100): OG 인증서 렌더(satori) 부하·UI 오버플로 방지 (재감사 M-4)
+  title: z.string().min(1).max(100).optional(),
 });
 
 function buildTitle(
@@ -172,12 +175,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ id: created.id }, { status: 201 });
   } catch (e) {
-    return NextResponse.json(
-      {
-        error: 'INTERNAL_ERROR',
-        message: e instanceof Error ? e.message : 'Unknown DB error',
-      },
-      { status: 500 },
-    );
+    return internalErrorResponse('course', e);
   }
 }

@@ -10,7 +10,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
-import { callTourAPI, TourAPIError } from '@/lib/tourapi/client';
+import { callTourAPI } from '@/lib/tourapi/client';
+import { tourErrorResponse } from '@/lib/apiError';
 import {
   getCached,
   setCached,
@@ -90,10 +91,6 @@ export async function GET(req: NextRequest) {
     if (includeInfo) void incrStat('detailInfo2');
     return NextResponse.json(result, { headers: { 'X-Cache': 'MISS' } });
   } catch (e) {
-    const err = e instanceof TourAPIError ? e : null;
-    return NextResponse.json(
-      { error: err?.code ?? 'TOUR_API_ERROR', message: err?.message ?? String(e) },
-      { status: 503 },
-    );
+    return tourErrorResponse('tour/detail:merged', e);
   }
 }

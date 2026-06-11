@@ -14,6 +14,11 @@ import { buildThreeOptions } from '@/lib/course/comparator';
 import { TWO_OPT_POOL_LIMIT } from '@/lib/course/optimizer';
 import { durationToDateRange } from '@/lib/course/filters';
 import { TourAPIError } from '@/lib/tourapi/client';
+import {
+  GENERIC_MESSAGES,
+  internalErrorResponse,
+  logRouteError,
+} from '@/lib/apiError';
 import type { CourseWaypoint } from '@/types/course';
 
 export const dynamic = 'force-dynamic';
@@ -123,21 +128,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(result);
   } catch (e) {
     if (e instanceof TourAPIError) {
+      // M-3: resultMsg 원문은 로그로만 — resultCode는 프론트 분기를 위해 유지
+      logRouteError('course/generate', e);
       return NextResponse.json(
         {
           error: 'TOUR_API_ERROR',
-          message: e.message,
+          message: GENERIC_MESSAGES.tour,
           resultCode: e.code,
         },
         { status: 503 },
       );
     }
-    return NextResponse.json(
-      {
-        error: 'INTERNAL_ERROR',
-        message: e instanceof Error ? e.message : 'Unknown error',
-      },
-      { status: 500 },
-    );
+    return internalErrorResponse('course/generate', e);
   }
 }
