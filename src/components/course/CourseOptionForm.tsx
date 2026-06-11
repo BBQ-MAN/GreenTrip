@@ -274,11 +274,15 @@ export function CourseOptionForm({ onSubmitted }: CourseOptionFormProps) {
             )}
           />
 
-          {/* 테마 (contentTypeIds) — 다중 선택 칩 */}
-          <Controller
+          {/* 테마 (contentTypeIds) — 다중 선택 칩
+              FormField(FormFieldContext 제공) 사용 — duration 필드와 동일 패턴.
+              FormControl(Slot, 단일 자식 div 충족)이 그룹 컨테이너에
+              aria-describedby(에러 시 FormMessage id 포함)·aria-invalid를 주입해
+              SR이 "테마를 1개 이상 선택해 주세요"를 그룹과 연결해 읽음 (reaudit N-3). */}
+          <FormField
             control={form.control}
             name="contentTypeIds"
-            render={({ field, fieldState }) => (
+            render={({ field }) => (
               <FormItem>
                 <FormLabel>테마 (1개 이상)</FormLabel>
                 <FormControl>
@@ -312,11 +316,7 @@ export function CourseOptionForm({ onSubmitted }: CourseOptionFormProps) {
                     })}
                   </div>
                 </FormControl>
-                {fieldState.error ? (
-                  <p className="text-sm font-medium text-destructive">
-                    {fieldState.error.message}
-                  </p>
-                ) : null}
+                <FormMessage role="alert" />
               </FormItem>
             )}
           />

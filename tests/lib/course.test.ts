@@ -216,4 +216,61 @@ describe('buildThreeOptions — 3안 shape', () => {
     const r = buildThreeOptions(pool, CHUNCHEON);
     expect(['car', 'transit', 'active']).toContain(r.recommended);
   });
+
+  // 2026-06-11 재감사 H1 회귀 방지 — 옵션별 구간 합 = 총합 자기일관
+  it('각 옵션의 Σ(seg.km)=totalKm, Σ(seg.co2g)=totalCO2g (DB 영속 값 자기일관)', () => {
+    const pool = [CHUNCHEON, GANGNEUNG, SOKCHO, PYEONGCHANG];
+    const r = buildThreeOptions(pool, CHUNCHEON);
+    for (const opt of [r.car, r.transit]) {
+      const sumKm = opt.segments.reduce((acc, s) => acc + s.km, 0);
+      const sumCo2 = opt.segments.reduce((acc, s) => acc + s.co2g, 0);
+      expect(Math.round(sumKm * 10) / 10).toBe(opt.totalKm);
+      expect(sumCo2).toBe(opt.totalCO2g);
+    }
+  });
+
+  it('단거리 다구간(active) 코스에서도 Σ(seg.km)=totalKm — 재감사 드리프트 패턴', () => {
+    // 구간 raw ≈ 0.457km(표시 0.5km)가 연속되는 도심형 코스
+    const step = 0.457 / 1.3 / 111.32;
+    const pool = Array.from({ length: 8 }, (_, i) =>
+      wp(`s${i}`, 37.5666 + i * step, 126.9784),
+    );
+    const r = buildThreeOptions(pool, pool[0]);
+    expect(r.active).not.toBeNull();
+    const sumKm = r.active!.segments.reduce((acc, s) => acc + s.km, 0);
+    expect(Math.round(sumKm * 10) / 10).toBe(r.active!.totalKm);
+  });
+});
+
+// 2026-06-11 재감사 H3 — 추천 = totalCO2g 최소 (방문지 수 공정성 규칙 포함)
+describe('pickRecommended (buildThreeOptions.recommended) — CO₂ 최소 규칙', () => {
+  // 시작점 주변 좁게 배치 (10km 반경 내)
+  const near1 = wp('n1', 37.5666, 126.9784); // 서울 시청
+  const near2 = wp('n2', 37.5759, 126.9769); // 광화문 (≈1km)
+  const near3 = wp('n3', 37.58, 126.99); // ≈2km
+
+  it('방문지 수가 같으면 3안 순수 CO₂ 비교 → CO₂=0인 active 추천', () => {
+    const r = buildThreeOptions([near1, near2, near3], near1);
+    expect(r.active).not.toBeNull();
+    // 전 spot이 10km 내 → active 방문지 수 = car 방문지 수
+    expect(r.active!.waypoints.length).toBe(r.car.waypoints.length);
+    expect(r.active!.totalCO2g).toBe(0);
+    expect(r.recommended).toBe('active');
+  });
+
+  it('active가 축소 코스(방문지 수 상이)면 비교에서 제외 → 동일 방문지인 transit 추천', () => {
+    // near 2개 + 원거리 2개: active는 2개로 축소, car/transit은 4개
+    const r = buildThreeOptions([near1, near2, GANGNEUNG, SOKCHO], near1);
+    expect(r.active).not.toBeNull();
+    expect(r.active!.waypoints.length).not.toBe(r.car.waypoints.length);
+    // 축소 코스의 CO₂=0이라도 불공정 비교 → car/transit 중 최소 CO₂
+    expect(r.recommended).toBe('transit');
+  });
+
+  it('active 없음(반경 내 spot 부족) → car/transit 중 CO₂ 최소인 transit', () => {
+    const r = buildThreeOptions([CHUNCHEON, GANGNEUNG, SOKCHO], CHUNCHEON);
+    expect(r.active).toBeNull();
+    expect(r.transit.totalCO2g).toBeLessThan(r.car.totalCO2g);
+    expect(r.recommended).toBe('transit');
+  });
 });

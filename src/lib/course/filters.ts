@@ -34,12 +34,47 @@ import { CONTENT_TYPE } from '@/lib/tourapi/constants';
 export type FestivalSpot = FestivalItem;
 
 /**
+ * 부정어 패턴 — 긍정 키워드 직후 인접 윈도 내 등장 시 해당 매치를 점수에서 제외.
+ * 2026-06-11 재감사 M1: "주차장 없음"·"주차 불가"·"장애인 화장실 없음" 류
+ * 부정 표현이 긍정 점수를 만드는 위양성 수정 (보수적 — 의심스러우면 제외).
+ */
+const NEGATION_AFTER = /없|불가|금지|미설치|미운영|폐쇄/;
+
+/** 키워드 매치 직후 부정어 탐색 윈도(문자 수). "장애인 화장실 없음"까지 커버. */
+const NEGATION_WINDOW = 8;
+
+/**
+ * 부정문을 제외한 긍정 키워드 매치 수 카운트 (M1).
+ *
+ * 각 매치에 대해 매치 종료 직후 NEGATION_WINDOW(8자) 안에 부정어가 있으면
+ * 해당 매치를 제외. 예: "주차장 없음" → 0건, "주차 가능" → 1건.
+ * 순수 함수 — 입력 keyword는 g 플래그 없이 전달해도 안전 (내부에서 재구성).
+ */
+function countPositiveMatches(text: string, keyword: RegExp): number {
+  const flags = keyword.flags.includes('g') ? keyword.flags : keyword.flags + 'g';
+  const re = new RegExp(keyword.source, flags);
+  let count = 0;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(text)) !== null) {
+    const after = text.slice(
+      m.index + m[0].length,
+      m.index + m[0].length + NEGATION_WINDOW,
+    );
+    if (!NEGATION_AFTER.test(after)) count++;
+    if (m[0].length === 0) re.lastIndex++; // zero-width 안전망
+  }
+  return count;
+}
+
+/**
  * detailCommon2 + detailIntro2 병합 객체에서 접근성 점수 산출.
  *
  * 보수적 채점 (DEVELOPMENT_PLAN §4.3):
  *   - overview·infocenter 텍스트만 사용 (정확한 키워드 매칭이 어려운 점 고려).
  *   - 키워드 1회 = 부분 점수, 다회 = 가산. 상한 100.
- *   - parking은 detailIntro의 parking 필드 우선 사용.
+ *   - 키워드 직후 인접 부정어("없음"·"불가" 등)가 있으면 매치 제외 (M1, 보수적).
+ *   - parking은 detailIntro의 parking 필드 우선 사용 — 부정 표현("불가능"이
+ *     /가능/에 부분 매치되는 역전 방지를 위해) 검사를 긍정 검사보다 먼저 수행.
  *   - petFriendly는 detailIntro.chkpet ("가능"/"불가능") 우선, 없으면 키워드.
  *
  * 단위 테스트 가능: 순수 함수 (I/O 없음).
@@ -54,35 +89,41 @@ export function calculateAccessibility(
     .join(' ')
     .toLowerCase();
 
-  // 대중교통 — 보수적 키워드. 매치 1건당 25점, 최대 100.
-  const transitMatches = (text.match(/버스|지하철|ktx|역에서|정류장|터미널/g) ?? []).length;
+  // 대중교통 — 보수적 키워드. 부정문 제외 매치 1건당 25점, 최대 100.
+  const transitMatches = countPositiveMatches(
+    text,
+    /버스|지하철|ktx|역에서|정류장|터미널/,
+  );
   const publicTransport = Math.min(100, transitMatches * 25);
 
   // 주차 — detailIntro.parking 우선, 없으면 본문 키워드.
   let parking = 0;
   if (detail.parking && typeof detail.parking === 'string') {
-    if (/무료|free/i.test(detail.parking)) parking = 100;
+    // M1: 부정 검사를 최우선 — "불가능"⊃"가능" 부분 매치 역전(60점) 방지
+    if (/불가|없음|금지/i.test(detail.parking)) parking = 10;
+    else if (/무료|free/i.test(detail.parking)) parking = 100;
     else if (/유료|가능|available/i.test(detail.parking)) parking = 60;
-    else if (/불가|없음/i.test(detail.parking)) parking = 10;
     else parking = 40;
-  } else if (/무료\s*주차/.test(text)) {
+  } else if (countPositiveMatches(text, /무료\s*주차/) > 0) {
     parking = 100;
-  } else if (/주차장|주차/.test(text)) {
+  } else if (countPositiveMatches(text, /주차장|주차/) > 0) {
     parking = 50;
   } else {
     parking = 20;
   }
 
-  // 휠체어/장애인 — 매치 1건당 30점, 최대 100.
-  const wheelchairMatches = (text.match(/장애인|엘리베이터|경사로|무장애|배리어프리/g) ?? [])
-    .length;
+  // 휠체어/장애인 — 부정문 제외 매치 1건당 30점, 최대 100.
+  const wheelchairMatches = countPositiveMatches(
+    text,
+    /장애인|엘리베이터|경사로|무장애|배리어프리/,
+  );
   const wheelchair = Math.min(100, wheelchairMatches * 30);
 
-  // 반려동물 — detailIntro.chkpet 우선
+  // 반려동물 — detailIntro.chkpet 우선. 본문 키워드도 부정문("출입 금지" 등) 제외.
   let petFriendly = false;
   if (detail.chkpet && typeof detail.chkpet === 'string') {
     petFriendly = /가능|허용|동반|ok|yes/i.test(detail.chkpet) && !/불가|금지/i.test(detail.chkpet);
-  } else if (/반려동물|애견|펫.{0,3}프렌들리/.test(text)) {
+  } else if (countPositiveMatches(text, /반려동물|애견|펫.{0,3}프렌들리/) > 0) {
     petFriendly = true;
   }
 

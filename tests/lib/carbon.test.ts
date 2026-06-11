@@ -100,6 +100,45 @@ describe('calculateRouteCarbon', () => {
     expect(r.segments[1].co2g).toBeGreaterThan(0);
   });
 
+  // 2026-06-11 재감사 H1 회귀 방지 — 구간 합 = 총합 자기일관
+  it('도심 8지점 단거리 코스: Σ(seg.km) = totalKm (구간 합 ≠ 총합 모순 해소)', () => {
+    // 재감사 실측 패턴 재현: 구간 raw ≈ 0.457km(표시 0.5km) × 7
+    // 구모델 구현은 totalKm=3.2 vs Σseg=3.5 (drift -0.3km)였음
+    const step = 0.457 / 1.3 / 111.32; // raw 도로거리 0.457km가 되는 위도 간격
+    const wps = Array.from({ length: 8 }, (_, i) => ({
+      lat: 37.5666 + i * step,
+      lng: 126.9784,
+    }));
+    const walk = calculateRouteCarbon(wps, 'walking');
+    const sumKm = walk.segments.reduce((acc, s) => acc + s.km, 0);
+    expect(Math.round(sumKm * 10) / 10).toBe(walk.totalKm);
+  });
+
+  it('도심 8지점 단거리 코스: Σ(seg.co2g) = totalCO2g (CO₂ 자기일관)', () => {
+    const step = 0.457 / 1.3 / 111.32;
+    const wps = Array.from({ length: 8 }, (_, i) => ({
+      lat: 37.5666 + i * step,
+      lng: 126.9784,
+    }));
+    const car = calculateRouteCarbon(wps, 'car');
+    const sumCo2 = car.segments.reduce((acc, s) => acc + s.co2g, 0);
+    expect(sumCo2).toBe(car.totalCO2g);
+  });
+
+  it('장거리 다구간 코스에서도 Σ(seg) = total (km·CO₂ 모두)', () => {
+    const wps = [
+      { lat: 37.8813, lng: 127.7298 }, // 춘천
+      { lat: 37.3705, lng: 128.3905 }, // 평창
+      { lat: 37.7519, lng: 128.8761 }, // 강릉
+      { lat: 38.207, lng: 128.5918 }, // 속초
+    ];
+    const r = calculateRouteCarbon(wps, 'express_bus');
+    const sumKm = r.segments.reduce((acc, s) => acc + s.km, 0);
+    const sumCo2 = r.segments.reduce((acc, s) => acc + s.co2g, 0);
+    expect(Math.round(sumKm * 10) / 10).toBe(r.totalKm);
+    expect(sumCo2).toBe(r.totalCO2g);
+  });
+
   it('km 소수 1자리, CO₂ 정수 (단위 일관성)', () => {
     const r = calculateRouteCarbon(
       [

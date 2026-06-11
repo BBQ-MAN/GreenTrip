@@ -49,10 +49,11 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#F8FAF7' },
-    { media: '(prefers-color-scheme: dark)', color: '#0A0F0D' },
-  ],
+  // 다크모드는 현재 미지원 (토큰만 정의, 활성 경로 없음 — reaudit N-2).
+  // 다크 theme-color 메타를 두면 OS 다크에서 브라우저 크롬만 어두워지고 본문은
+  // 라이트로 남아 상단 seam이 생기므로 라이트 단일 값으로 고정.
+  // 다크모드 활성화(next-themes 도입) 시 media 분기 복원할 것.
+  themeColor: '#F8FAF7',
   width: 'device-width',
   initialScale: 1,
 };

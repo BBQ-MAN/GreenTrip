@@ -8,7 +8,7 @@
 //  - 이모지(🐾)만으로 정보 전달 X → "반려동물 동반" 한글 텍스트 병기
 //  - 색 + 텍스트 + 아이콘 3중 (PawPrint)
 //  - aria-label 명시 ("반려동물 동반" 또는 petInfo 요약 포함)
-//  - pet.fg(#0E7490) on pet.surface(#CFFAFE cyan-100) → 대비비 ~5.6:1 AA 통과
+//  - pet.fg(#0E7490) on pet.surface(#CFFAFE cyan-100) → 대비비 4.79:1 AA 통과 (실측, reaudit N-5)
 //
 // 디자인 트레이드오프:
 //  - pet.DEFAULT(#0E7490)은 transport.balance와 동일 hex이나, "반려동물" 의미와

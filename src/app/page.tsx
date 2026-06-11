@@ -20,7 +20,9 @@ import { aggregateSiteSavings } from '@/lib/carbon/aggregator';
 
 // ---------------------------------------------------------------------------
 // 시그니처 미리보기 — Mock CourseCompareResult (강원 코스 실측값 기반)
-//   Week 3 검증: car 14,132g → transit 4,576g = 67% 절감
+//   Week 3 검증: car 14,133g → transit 4,576g = 68% 절감
+//   공식 재현: car 67.3km × 210g/km = 14,133g / (14133−4576)/14133 = 67.62% → Math.round = 68%
+//   (카드·Before/After 컴포넌트의 Math.round 계산값과 카피가 반드시 일치해야 함 — reaudit N-1)
 // ---------------------------------------------------------------------------
 const MOCK_RESULT: CourseCompareResult = {
   car: {
@@ -29,7 +31,7 @@ const MOCK_RESULT: CourseCompareResult = {
     waypoints: [],
     segments: [],
     totalKm: 67.3,
-    totalCO2g: 14_132,
+    totalCO2g: 14_133,
     durationMin: 67,
     estimatedCostKRW: 6_730,
   },
@@ -223,7 +225,7 @@ function SignaturePreviewSection() {
           </h2>
           <p className="mt-3 text-body-md text-muted-foreground">
             강원 코스 예시 — 자가용 대비 대중교통은{' '}
-            <span className="font-semibold text-transport-eco">67% 절감</span>.
+            <span className="font-semibold text-transport-eco">68% 절감</span>.
           </p>
         </div>
 

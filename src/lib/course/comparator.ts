@@ -55,7 +55,12 @@ const COST_PER_KM_KRW: Record<TransportMode, number> = {
 /**
  * 경로(waypoints)와 mode로 CourseOption 1건 생성.
  * - 도로 보정 ×1.3 후 CARBON_FACTOR[mode] 적용.
- * - 시간/비용 추정 포함.
+ * - 시간/비용 추정 포함 (내부 raw km 기준 — 표시 총합과 ±0.05km/구간 이내 차이).
+ *
+ * 총합 정의 (2026-06-11 재감사 H1): totalKm = Σ(반올림된 구간 km),
+ * totalCO2g = Σ(반올림된 구간 co2g). "합산 후 반올림" 방식은 구간 합 ≠ 총합
+ * 모순을 만들어 폐기 — 화면 표시값 자기일관 우선. DEVELOPMENT_PLAN §4는
+ * 총합만 정의(segments 미정의)하므로 스펙 충돌 없음.
  */
 function buildOption(
   waypoints: CourseWaypoint[],
@@ -65,52 +70,87 @@ function buildOption(
   const segments: CourseSegment[] = [];
   let totalKm = 0;
   let totalCO2g = 0;
+  let rawKmSum = 0; // 시간·비용 추정용 내부 raw 누적
 
   for (let i = 0; i < waypoints.length - 1; i++) {
     const a = waypoints[i];
     const b = waypoints[i + 1];
     const km = roadKm(haversineKm(a.lat, a.lng, b.lat, b.lng));
-    const co2g = km * CARBON_FACTOR[mode];
+    const segKm = Math.round(km * 10) / 10;
+    const segCo2 = Math.round(km * CARBON_FACTOR[mode]);
     segments.push({
       fromIndex: i,
       toIndex: i + 1,
-      km: Math.round(km * 10) / 10,
-      co2g: Math.round(co2g),
+      km: segKm,
+      co2g: segCo2,
       mode,
     });
-    totalKm += km;
-    totalCO2g += co2g;
+    // 총합 = Σ(반올림된 구간) — 구간 합 = 총합 보장 (H1)
+    totalKm += segKm;
+    totalCO2g += segCo2;
+    rawKmSum += km;
   }
 
   const speed = AVG_SPEED_KMH[mode];
-  const durationMin = speed > 0 ? Math.round((totalKm / speed) * 60) : 0;
-  const estimatedCostKRW = Math.round(totalKm * COST_PER_KM_KRW[mode]);
+  const durationMin = speed > 0 ? Math.round((rawKmSum / speed) * 60) : 0;
+  const estimatedCostKRW = Math.round(rawKmSum * COST_PER_KM_KRW[mode]);
 
   return {
     mode,
     category,
     waypoints,
     segments,
+    // 0.1 단위 합의 부동소수 잡음 제거 (수학적 값은 이미 구간 합과 동일)
     totalKm: Math.round(totalKm * 10) / 10,
-    totalCO2g: Math.round(totalCO2g),
+    totalCO2g, // 정수 합 — 추가 반올림 불필요
     durationMin,
     estimatedCostKRW,
   };
 }
 
 /**
- * 추천 카테고리 선택 — CO₂ 최소(0이면 active 우선, 그 다음 transit).
+ * 추천 카테고리 선택 — totalCO2g 최소 옵션 (2026-06-11 재감사 H3 재설계).
+ *
+ * 규칙:
+ *   1) 추천 = totalCO2g가 가장 작은 옵션. 동률 시 active > transit > car.
+ *   2) 공정성 제약: active(C안)는 시작점 10km 반경으로 축소·재최적화된 별도
+ *      코스라 방문지 수가 car/transit과 다를 수 있다. 방문지 수가 다른 옵션 간
+ *      CO₂ 비교는 불공정 — 코스 자체를 줄여서 배출이 적어 보이는 착시가 생기고,
+ *      사용자가 요청한 지역 전체 코스와 무관한 축소 코스를 추천하는 의미 왜곡이
+ *      된다(구현: active 존재만으로 무조건 추천하던 결함의 원인).
+ *      → 방문지 수가 같을 때만 active를 순수 CO₂ 비교에 포함하고,
+ *        다르면 동일 방문지 집합인 car·transit(같은 waypoints) 중 최소 CO₂를 추천.
+ *   3) active가 없으면(반경 내 spot < 2) car·transit 중 최소 CO₂.
+ *
+ * 참고: DEVELOPMENT_PLAN §4.2는 3안 "생성"만 정의하고 추천 규칙은 미정의 —
+ * "저탄소 코스 추천" 제품 컨셉에 맞춰 본 규칙을 구현 측에서 확정.
  */
 function pickRecommended(
   car: CourseOption,
   transit: CourseOption,
   active: CourseOption | null,
 ): CourseCategory {
-  // CO₂가 0인 active가 있고 waypoints가 충분하면 active 우선
-  if (active && active.waypoints.length >= 2) return 'active';
-  // 다음으로 transit (대중교통 권장)
-  if (transit.totalCO2g < car.totalCO2g) return 'transit';
-  return 'car';
+  // 동률 우선순위: 숫자가 클수록 우선 (active=2 > transit=1 > car=0)
+  const candidates: Array<{
+    category: CourseCategory;
+    co2: number;
+    priority: number;
+  }> = [
+    { category: 'car', co2: car.totalCO2g, priority: 0 },
+    { category: 'transit', co2: transit.totalCO2g, priority: 1 },
+  ];
+
+  // transit은 car와 동일 waypoints(carOptimized 재사용)이므로 car와의 비교만으로 충분
+  if (
+    active &&
+    active.waypoints.length >= 2 &&
+    active.waypoints.length === car.waypoints.length
+  ) {
+    candidates.push({ category: 'active', co2: active.totalCO2g, priority: 2 });
+  }
+
+  candidates.sort((a, b) => a.co2 - b.co2 || b.priority - a.priority);
+  return candidates[0].category;
 }
 
 export interface BuildOptionsParams {

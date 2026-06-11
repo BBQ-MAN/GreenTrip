@@ -25,10 +25,22 @@ interface AccessibilityScoreCardProps {
 
 type Tier = 'good' | 'fair' | 'unknown';
 
-/** 0~100 점수 → 등급. 키워드 미발견(낮은 점수)은 "정보 없음"으로 중립 처리 (불충분 ≠ 불가). */
+/**
+ * 0~100 점수 → 등급. 키워드 미발견(낮은 점수)은 "정보 없음"으로 중립 처리 (불충분 ≠ 불가).
+ *
+ * 경계는 calculateAccessibility(src/lib/course/filters.ts)의 **실제 이산 점수 분포**에 정렬
+ * (reaudit M3 — 구 33/66 경계는 wheelchair 30점(키워드 1건)을 "정보 적음"으로 오분류):
+ *   - 대중교통: 매치 ×25 → {0, 25, 50, 75, 100}
+ *   - 휠체어:   매치 ×30 → {0, 30, 60, 90, 100}
+ *   - 주차:     {10(불가), 20(무언급), 40(기타), 50(언급), 60(유료/가능), 100(무료)}
+ * 정렬 결과:
+ *   - unknown(<25): 0·10·20 — 키워드 0건 또는 불가 명시 → "정보 적음"
+ *   - fair(25~69):  25·30·40·50·60 — 근거 1~2건 → "보통"
+ *   - good(>=70):   75·90·100 — 근거 3건 이상 또는 무료 주차 확정 → "우수"
+ */
 function scoreTier(value: number): Tier {
-  if (value >= 66) return 'good';
-  if (value >= 33) return 'fair';
+  if (value >= 70) return 'good';
+  if (value >= 25) return 'fair';
   return 'unknown';
 }
 
@@ -76,7 +88,17 @@ function ScoreRow({
             {TIER_TEXT[tier]} · {value}점
           </span>
         </div>
-        <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+        {/* CarbonGauge:144-152와 동일한 progressbar 패턴 (reaudit N-4).
+            상위 ul[role="img"]이 SR 노출을 요약 1줄로 대체하므로 보조적 의미지만
+            컴포넌트 간 일관성 유지. */}
+        <div
+          role="progressbar"
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={value}
+          aria-label={`${label} 점수`}
+          className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-muted"
+        >
           <div
             className={cn('h-full rounded-full', TIER_BAR[tier])}
             style={{ width: `${Math.max(4, Math.min(100, value))}%` }}
