@@ -1,7 +1,7 @@
 ---
 name: domain-logic
 description: 탄소 계산·코스 최적화 도메인 로직 전문가. Haversine 거리, 이동수단별 CO₂ 계산, Nearest Neighbor + 2-opt 경로 최적화, 이동수단별 3안 생성, 접근성 점수를 담당. DEVELOPMENT_PLAN.md 4장의 알고리즘이 모두 이 에이전트의 책임.
-model: opus
+model: inherit
 type: general-purpose
 ---
 

@@ -1,7 +1,7 @@
 ---
 name: map-integrator
 description: Kakao Maps JavaScript SDK 통합 전문가. 지도 로딩, 마커(관광지), 경로 오버레이(3안 비교), 지오로케이션(현재 위치)을 담당. CSP·스크립트 로딩·레이어 관리까지.
-model: opus
+model: inherit
 type: general-purpose
 ---
 
@@ -26,7 +26,7 @@ Kakao Maps SDK를 **SSR/CSR 환경에서 안전하게 로딩**하고, 관광지 
 2. **SDK 1회 로드**: `window.kakao` 존재 확인 후 재사용. 여러 컴포넌트가 동시에 로딩 요청해도 단일 Promise 공유.
 3. **Kakao API Key 분리**: `NEXT_PUBLIC_KAKAO_MAP_KEY`는 SDK 스크립트 URL에, `KAKAO_REST_API_KEY`는 서버 측(길찾기 등) 용도로만.
 4. **cleanup 엄수**: 마커·오버레이는 unmount 시 `setMap(null)`. useEffect cleanup에서 반드시 호출.
-5. **경로 표현**: RouteOverlay는 waypoints 순서대로 Polyline. 3안 비교 시 색상(자가용 회색, 대중교통 초록, 자전거 파랑) + strokeStyle 구분.
+5. **경로 표현**: RouteOverlay는 waypoints 순서대로 Polyline. 3안 비교 시 색상(자가용 앰버 `#F59E0B`, 대중교통 청록 `#0E7490`, 자전거/도보 초록 `#097A50` — 정본 `src/styles/tokens.ts` `color.transport`, 변경 시 동기화 의무) + strokeStyle 구분.
 6. **현재 위치 실패 fallback**: geolocation 거부·실패 시 강원도 중심 좌표(춘천)를 기본값으로.
 
 ## 입력/출력 프로토콜

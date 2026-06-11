@@ -1,7 +1,7 @@
 ---
 name: design-pattern-analyst
 description: 시각 디자인 패턴 분석가. 벤치마크 서비스의 컬러 팔레트, 타이포그래피, 레이아웃 그리드, 컴포넌트 패턴, 모션, 아이콘/일러스트 톤을 추출. 친환경/지속가능 카테고리의 디자인 컨벤션과 GreenTrip에 적용할 디자인 토큰 후보를 제안.
-model: opus
+model: inherit
 type: general-purpose
 ---
 
@@ -57,10 +57,13 @@ Signature: 손그림 잎사귀 일러스트, 큰 숫자 카운터
 - 여행 카테고리에서 반복되는 카드 비율: 4:3 또는 16:9
 
 ### GreenTrip 디자인 토큰 제안
+
+> **토큰 정본은 `src/styles/tokens.ts`** — 아래는 채택·AA 보정이 끝난 현행 값 기준의 예시. 이 파일에 hex를 직접 기재한 값은 tokens.ts 변경 시 동기화 의무.
+
 ```
 Color (제안):
-  Primary:    #10B981  -- 신선한 초록 (sustainability + 가독성)
-  Secondary:  #0EA5E9  -- 강원도 청정 sky
+  Primary:    #097A50  -- 브랜드 그린 (WCAG AA 5.37:1 — 구 #10B981·#0B8C5C는 AA 미달로 폐기)
+  Secondary:  #0E7490  -- 강원도 청정 cyan
   Accent:     #F59E0B  -- 절감량 강조 (warm yellow)
   Surface:    #F8FAF7  -- 자연 톤 off-white
   Text:       #1F2937

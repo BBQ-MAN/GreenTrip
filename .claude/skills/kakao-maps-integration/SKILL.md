@@ -112,14 +112,16 @@ export function SpotMarker({ lat, lng, title, order, imageUrl }: Props) {
 ## RouteOverlay (3안 비교용)
 
 ```typescript
-// 색상:
-// car: #6B7280 (gray-500)
-// transit: #10B981 (green-500)
-// active (bicycle/walking): #3B82F6 (blue-500)
+// 색상 (src/styles/tokens.ts color.transport 정본 — WCAG AA 보정, 2026-06-10):
+// car: #F59E0B (속도 안 — amber, 배경/그래픽 전용. 전경 텍스트는 fastFg #92400E)
+// transit: #0E7490 (균형 안 — cyan-700)
+// active (bicycle/walking): #097A50 (저탄소 안 — AA 보정 브랜드 그린)
 
 const ROUTE_COLOR = {
-  car: '#6B7280', transit: '#10B981', active: '#3B82F6',
+  car: '#F59E0B', transit: '#0E7490', active: '#097A50',
 } as const;
+
+// 토큰 정본은 src/styles/tokens.ts — 이 스킬에 hex를 직접 기재한 값은 tokens.ts 변경 시 동기화 의무.
 
 export function RouteOverlay({ waypoints, mode, highlight }: Props) {
   const { map } = useContext(MapContext);

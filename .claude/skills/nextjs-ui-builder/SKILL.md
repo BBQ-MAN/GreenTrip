@@ -62,7 +62,7 @@ export default async function PlanPage() {
 - 선택 시 `onSelect(option)` 콜백
 
 ### CarbonGauge
-- Progress bar (Tailwind `bg-gradient-to-r from-green-500 via-yellow-400 to-red-500`)
+- Progress bar — Carbon Scale 4단계 색상(`src/styles/tokens.ts`의 `color.carbon`) 사용, 임의 Tailwind 그라디언트 금지
 - 현재값 + 기준값(자가용) 표시
 - 절감률 % 텍스트
 
@@ -99,12 +99,14 @@ export function useCourseGenerator() {
 
 **훅의 제네릭 T는 반드시 Route의 반환 shape과 일치.** qa-reviewer가 교차 검증.
 
-## 탄소 시각화 색상 규약
+## 탄소 시각화 색상 규약 (Carbon Scale 4단계 — WCAG AA 보정, 2026-06-10)
 
-- 초록 (≤ 1kg): `text-green-600`, `bg-green-100`
-- 노랑 (1~5kg): `text-yellow-600`, `bg-yellow-100`
-- 주황 (5~10kg): `text-orange-600`, `bg-orange-100`
-- 빨강 (> 10kg): `text-red-600`, `bg-red-100`
+- 저탄소 (≤ 2kg): fg `#065F46` / bg `#D1FAE5`
+- 균형 (2~6kg): fg `#92400E` / bg `#FEF3C7`
+- 주의 (6~12kg): fg `#9A3412` / bg `#FED7AA`
+- 고탄소 (> 12kg): fg `#991B1B` / bg `#FECACA`
+
+브랜드 그린은 `#097A50`(AA 5.37:1, 구 #0B8C5C·#10B981 사용 금지). **토큰 정본은 `src/styles/tokens.ts` — 이 스킬에 hex를 직접 기재한 값은 tokens.ts 변경 시 동기화 의무.**
 
 ## 접근성 체크리스트
 
@@ -127,7 +129,7 @@ export function useCourseGenerator() {
 npm install next-pwa
 ```
 
-- `public/manifest.json` — name, short_name, icons(192/512), theme_color: "#10B981" (green-500)
+- `public/manifest.json` — name, short_name, icons(192/512), theme_color: "#097A50" (브랜드 그린, tokens.ts `brand.primary.light`)
 - `next.config.ts`에 next-pwa 래핑
 - 서비스워커: TourAPI 응답 캐시 (1일), 이미지 캐시 (7일), 페이지 정적 리소스 (빌드별)
 

@@ -1,7 +1,7 @@
 ---
 name: qa-reviewer
 description: GreenTrip 통합 정합성 검증 전문가. API↔훅 shape 교차 검증, 라우팅 정합성, 타입 안정성, 접근성, Lighthouse 성능을 incremental QA로 검증. 각 모듈 완성 직후 실행.
-model: opus
+model: inherit
 type: general-purpose
 ---
 

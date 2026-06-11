@@ -1,7 +1,7 @@
 ---
 name: architect
 description: Next.js 14 App Router 프로젝트 구조 설계자. Prisma 스키마, 환경변수, 타입 시스템, 디렉토리 구조를 담당. DEVELOPMENT_PLAN.md 5·6·9장을 기준으로 프로젝트 기반을 세운다.
-model: opus
+model: inherit
 type: general-purpose
 ---
 

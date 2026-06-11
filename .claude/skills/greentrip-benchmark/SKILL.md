@@ -42,7 +42,7 @@ GreenTrip의 시장 지형을 파악하고 제품이 나아갈 방향을 도출�
    - `DEVELOPMENT_PLAN.md` 1장(개요), 4장(알고리즘), 7장(페이지 명세), 11장(심사 기준)
    - **`greentrip_proposal.md`** (프로젝트 루트) — 공모전 1차 심사 제출 제안서. 정량 주장·정책 인용·기대효과 4개 항목·발전 로드맵 3단계를 Phase A/B에서 검증·정합 대상으로 사용
    - `CLAUDE.md` — 현재 하네스 변경 이력
-4. 세 문서가 어긋나는 항목(예: 제안서의 "Python 백엔드" vs DEVELOPMENT_PLAN의 "TS 단일 스택", 또는 제안서 10종 OpenAPI ↔ v1.6 후 14종 차이)을 미리 식별하여 Phase B의 product-strategist에게 입력으로 전달
+4. 세 문서가 어긋나는 항목(예: 제안서의 "Python 백엔드" vs DEVELOPMENT_PLAN의 "TS 단일 스택" — OpenAPI 종수는 제안서도 14종으로 갱신됨(commit 8377ac3)이므로 선언·표·구현 정합 여부를 점검)을 미리 식별하여 Phase B의 product-strategist에게 입력으로 전달
 
 ### Phase A: 병렬 리서치 (서브 에이전트 모드)
 
@@ -50,11 +50,13 @@ GreenTrip의 시장 지형을 파악하고 제품이 나아갈 방향을 도출�
 
 단일 메시지에서 3개 Agent 도구 동시 호출 (`run_in_background: true`):
 
-| 에이전트 | subagent_type | 입력 | 출력 | model | run_in_background |
-|---------|--------------|------|------|-------|-------------------|
-| competitor-researcher | general-purpose | 분석 범위 + DEVELOPMENT_PLAN.md 1장 | `_workspace/benchmark/01_*.md` | opus | true |
-| ia-analyst | general-purpose | DEVELOPMENT_PLAN.md 7장 (자체 IA 점검 기준) | `_workspace/benchmark/02_*.md` | opus | true |
-| design-pattern-analyst | general-purpose | (선택) 사용자 제공 스크린샷 + 카테고리 컨벤션 | `_workspace/benchmark/03_*.md` | opus | true |
+| 에이전트 | subagent_type | 입력 | 출력 | run_in_background |
+|---------|--------------|------|------|-------------------|
+| competitor-researcher | general-purpose | 분석 범위 + DEVELOPMENT_PLAN.md 1장 | `_workspace/benchmark/01_*.md` | true |
+| ia-analyst | general-purpose | DEVELOPMENT_PLAN.md 7장 (자체 IA 점검 기준) | `_workspace/benchmark/02_*.md` | true |
+| design-pattern-analyst | general-purpose | (선택) 사용자 제공 스크린샷 + 카테고리 컨벤션 | `_workspace/benchmark/03_*.md` | true |
+
+> **모델 정책 (2026-06-11):** `model` 파라미터를 명시하지 않는다 — 에이전트 정의(frontmatter `model: inherit`)를 거쳐 세션의 개발 모델을 그대로 상속한다. 특정 모델명 하드코딩 금지 (모델 교체 시 하네스 드리프트 원인).
 
 > 세 에이전트는 처음에는 독립 실행 (각각 자기 영역 정리). 1차 결과 도출 후 Phase B에서 통합.
 
@@ -77,13 +79,13 @@ Phase A의 서브 에이전트 결과를 기반으로 팀을 구성:
 TeamCreate(
   team_name: "greentrip-strategy-team",
   members: [
-    { name: "competitor-researcher", agent_type: "general-purpose", model: "opus",
+    { name: "competitor-researcher", agent_type: "general-purpose",
       prompt: ".claude/agents/competitor-researcher.md 참조. _workspace/benchmark/01_* 산출물 책임자로 Q&A 응답 + 가설 검증." },
-    { name: "ia-analyst", agent_type: "general-purpose", model: "opus",
+    { name: "ia-analyst", agent_type: "general-purpose",
       prompt: ".claude/agents/ia-analyst.md 참조. _workspace/benchmark/02_* 산출물 책임자로 Q&A 응답 + 가설 검증." },
-    { name: "design-pattern-analyst", agent_type: "general-purpose", model: "opus",
+    { name: "design-pattern-analyst", agent_type: "general-purpose",
       prompt: ".claude/agents/design-pattern-analyst.md 참조. _workspace/benchmark/03_* 산출물 책임자로 Q&A 응답 + 가설 검증." },
-    { name: "product-strategist", agent_type: "general-purpose", model: "opus",
+    { name: "product-strategist", agent_type: "general-purpose",
       prompt: ".claude/agents/product-strategist.md 참조. Phase A 결과를 종합하여 04_* 및 STRATEGY.md를 작성. 검증이 필요한 가설은 SendMessage로 해당 분석가에게 질문." }
   ]
 )
@@ -159,7 +161,7 @@ TaskCreate(tasks: [
 | WebSearch/WebFetch 실패 | 다른 검색어로 1회 재시도, 실패 시 가용 정보 한도로 진행 + 한계 명시 |
 | 분석가 1명 산출물 부실 | product-strategist가 가정 명시하고 진행 (무한 대기 금지) |
 | 출처 검증 실패 | 해당 주장에 [unverified] 태그 + STRATEGY.md에 신뢰도 표기 |
-| 분석가 간 데이터 충돌 (예: 같은 서비스에 대해 IA와 디자인 평가 상충) | product-strategist가 양쪽 병기 후 가설 형태로 SWAT에 반영 |
+| 분석가 간 데이터 충돌 (예: 같은 서비스에 대해 IA와 디자인 평가 상충) | product-strategist가 양쪽 병기 후 가설 형태로 SWOT에 반영 |
 | 사용자가 새 경쟁사 추가 요청 (실행 중) | 현재 흐름 완료 후 증분 실행으로 처리 |
 
 ## 테스트 시나리오
@@ -190,7 +192,7 @@ TaskCreate(tasks: [
 
 1. competitor-researcher가 국외 사례 5개 중 3개의 출처를 못 찾음
 2. 해당 카드에 [unverified] 태그
-3. product-strategist가 SWAT의 "위협(국외 빅테크 진입)" 항목에서 [unverified] 비중 명시
+3. product-strategist가 SWOT의 "위협(국외 빅테크 진입)" 항목에서 [unverified] 비중 명시
 4. STRATEGY.md에 "신뢰도: 국외 경쟁 70% / 국내 95%" 표기
 
 ## 후속 작업 키워드 (재트리거 보장)

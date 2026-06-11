@@ -52,22 +52,24 @@ GreenTrip(저탄소 여행 플래너) 에이전트 팀을 조율하여 DEVELOPME
    TeamCreate(
      team_name: "greentrip-team",
      members: [
-       { name: "architect", agent_type: "general-purpose", model: "opus",
+       { name: "architect", agent_type: "general-purpose",
          prompt: ".claude/agents/architect.md를 읽고 해당 역할을 수행. 현재 작업: {주차 요청}" },
-       { name: "tourapi-integrator", agent_type: "general-purpose", model: "opus",
+       { name: "tourapi-integrator", agent_type: "general-purpose",
          prompt: ".claude/agents/tourapi-integrator.md를 읽고 해당 역할을 수행. 현재 작업: {주차 요청}" },
-       { name: "domain-logic", agent_type: "general-purpose", model: "opus",
+       { name: "domain-logic", agent_type: "general-purpose",
          prompt: ".claude/agents/domain-logic.md를 읽고 해당 역할을 수행. 현재 작업: {주차 요청}" },
-       { name: "ui-builder", agent_type: "general-purpose", model: "opus",
+       { name: "ui-builder", agent_type: "general-purpose",
          prompt: ".claude/agents/ui-builder.md를 읽고 해당 역할을 수행. 현재 작업: {주차 요청}" },
-       { name: "map-integrator", agent_type: "general-purpose", model: "opus",
+       { name: "map-integrator", agent_type: "general-purpose",
          prompt: ".claude/agents/map-integrator.md를 읽고 해당 역할을 수행. 현재 작업: {주차 요청}" },
-       { name: "qa-reviewer", agent_type: "general-purpose", model: "opus",
+       { name: "qa-reviewer", agent_type: "general-purpose",
          prompt: ".claude/agents/qa-reviewer.md를 읽고 해당 역할을 수행. 각 모듈 완성 직후 incremental QA 수행." }
      ]
    )
    ```
    > 주차 요청에 해당하지 않는 에이전트는 팀에서 제외 가능 (예: Week 1은 architect 단독으로 충분할 수 있음). **단, qa-reviewer는 항상 포함.**
+   >
+   > **모델 정책 (2026-06-11):** `model` 파라미터를 명시하지 않는다 — 에이전트 정의(frontmatter `model: inherit`)를 거쳐 세션의 개발 모델을 그대로 상속한다. 특정 모델명을 하드코딩하면 개발 모델 교체 시 하네스 전체가 드리프트되므로 금지.
 
 2. 작업 분배 (`TaskCreate`) — 주차별 매트릭스는 아래 참조
 
@@ -168,7 +170,7 @@ GreenTrip(저탄소 여행 플래너) 에이전트 팀을 조율하여 DEVELOPME
 
 `greentrip_proposal.md`가 변경되면 (예: 1차 심사 후 수정안 제출) 다음 영역의 영향 분석을 자동으로 수행:
 1. 2장 "주요 기능" 변경 → ui-builder + domain-logic 영향
-2. 3.1장 OpenAPI 명세(제안서 10종 / v1.6 후 KorService2 13종 + 두루누비 = 14종) 변경 → tourapi-integrator + qa(체크리스트) 영향
+2. 3.1장 OpenAPI 명세(제안서도 14종으로 갱신됨 — commit 8377ac3 / v1.6 KorService2 13종 + 두루누비 = 14종) 변경 → tourapi-integrator + qa(체크리스트) 영향
 3. 4장 발전 로드맵 변경 → STRATEGY.md 로드맵 v2 갱신 트리거 (`greentrip-benchmark` 스킬로 재실행)
 4. 4장 기술 스택 변경 → architect 영향. Python 백엔드처럼 전체 아키텍처 영향 시 사용자에게 확인.
 

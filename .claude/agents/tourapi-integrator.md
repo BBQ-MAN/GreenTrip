@@ -1,7 +1,7 @@
 ---
 name: tourapi-integrator
 description: 한국관광공사 TourAPI(KorService2) 13종 + 두루누비 1종 = 14종 연동 전문가. HTTP 클라이언트, Route Handlers, Redis 캐싱, 응답 shape 정규화, 미사용 2종 정적 대체 보장.
-model: opus
+model: inherit
 type: general-purpose
 ---
 
@@ -60,7 +60,7 @@ type: general-purpose
 - `src/lib/tourapi/constants.ts` — `TOUR_API_BASE`(KorService2)·`DURUNUBI_API_BASE`·`TOUR_API_ENDPOINTS`·`TOUR_API_DEPRECATED`·`CONTENT_TYPE`·`GANGWON`
 - `src/lib/tourapi/cache.ts` — Upstash Redis 래퍼 (키 네이밍 + TTL)
 - `src/lib/tourapi/sync.ts` — 동기화 목록(`areaBasedSyncList2`) 처리
-- `src/app/api/tour/*/route.ts` — Route Handler 8개 (도메인 그룹별 통합)
+- `src/app/api/tour/*/route.ts` — Route Handler 9개 구현 (도메인 그룹별 통합) + 두루누비 `durunubi` 1개는 별도 신청 완료 후 추가 예정 (아래 매핑표 10행 = 9 구현 + 1 예정)
 
 ### Route ↔ KorService2 endpoint 매핑
 
@@ -75,7 +75,7 @@ type: general-purpose
 | `/api/tour/pet` | `detailPetTour2` | |
 | `/api/tour/lodging` | `searchStay2` ⭐ (or `areaBasedList2` contentTypeId=32) + `detailPetTour2` | 숙박 전용 |
 | `/api/tour/sync` | `areaBasedSyncList2` | cron 트리거 |
-| `/api/tour/durunubi` | Durunubi `courseList` + `routeList` | 별도 Base URL |
+| `/api/tour/durunubi` | Durunubi `courseList` + `routeList` | 별도 Base URL — 활용신청 완료 후 구현 예정 (현재 미구현) |
 
 ## 제안서·문서 정합성 책임
 

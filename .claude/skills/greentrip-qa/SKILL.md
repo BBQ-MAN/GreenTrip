@@ -27,7 +27,7 @@ description: GreenTrip 통합 정합성 검증 스킬. API 응답↔프론트 �
 ## 통합 정합성 체크리스트
 
 ### A. API ↔ 프론트엔드 교차 검증
-- [ ] `/api/tour/*` 10개 Route(area·location·search·festival·detail·images·pet·lodging·sync·durunubi)의 응답 shape과 `useTourAPI.ts` 훅의 제네릭 T 일치
+- [ ] `/api/tour/*` 9개 Route(area·location·search·festival·detail·images·pet·lodging·sync)의 응답 shape과 `useTourAPI.ts` 훅의 제네릭 T 일치 — durunubi 라우트는 두루누비 별도 신청 완료 후 추가 예정(§E 별도 트랙 참조, 추가 시 10개)
 - [ ] 공통 shape `{ items, totalCount, pageNo, numOfRows }`을 모든 TourAPI Route가 준수 (KorService2 unwrap 일관성)
 - [ ] `/api/course/generate` 응답 shape과 CourseCompareCard props 일치
 - [ ] `/api/carbon/calculate` 응답과 CarbonGauge props 일치
@@ -90,9 +90,9 @@ description: GreenTrip 통합 정합성 검증 스킬. API 응답↔프론트 �
 
 ### H. 문서 3대 정합성 검증
 - [ ] `greentrip_proposal.md` 2장 "기획 서비스 주요 기능" 5개와 실제 구현된 기능이 일치
-- [ ] 제안서 3.1장의 10종 OpenAPI 명세(불변) ↔ v1.6 KorService2 마이그레이션 후 활용 14종(KorService2 13종 + 두루누비) 차이 인지 + 실제 호출 코드 매핑 (위 E 체크리스트의 합집합 통과 여부). 미사용 2종(areaCode2·categoryCode2) 호출 0건.
+- [ ] 제안서 3.1장도 14종으로 갱신됨(commit 8377ac3, v1.2에서 표 14종 완성) — §3.1의 "14종" 선언과 표의 종수 합산이 일치하는지 + v1.6 활용 14종(KorService2 13종 + 두루누비)·실제 호출 코드와 3중 매핑 (위 E 체크리스트의 합집합 통과 여부). 미사용 2종(areaCode2·categoryCode2) 호출 0건.
 - [ ] 제안서 4장 "단계별 발전 로드맵" 3단계와 `STRATEGY.md` 로드맵 v2가 충돌하지 않음
-- [ ] 제안서 1장 "75% 관광교통 탄소", "83% 지속가능 의향" 등 정량 주장이 `_workspace/benchmark/04_evidence_ledger.md`에 출처와 함께 기록됨
+- [ ] 제안서 1장 "국제 관광 운송 탄소 약 75%(UNWTO)", "글로벌 84% 지속가능 의향(Booking.com 2025)", "내국인 여행 2024년 약 2.92억 회" 등 정량 주장(v1.1 정본 표현)이 `_workspace/benchmark/04_evidence_ledger.md`에 출처와 함께 기록됨 — 구표현(4억 회·한국인 83%·관광교통 탄소 75%) 잔존 시 이슈
 - [ ] 제안서 4장 "기대효과" 4개 항목이 `STRATEGY.md`의 KPI로 1:1 매핑됨 (Evidence Ledger 참조)
 - [ ] 제안서 4장 "기술 스택"과 DEVELOPMENT_PLAN.md 2장 기술 스택 불일치 사항이 명시적으로 해소됨 (예: Python 백엔드 vs TS 단일 스택 결정)
 - [ ] **MobileApp 파라미터 = `GreenTrip` 고정** (`src/lib/tourapi/constants.ts` COMMON_PARAMS) — 운영계정 승인요건 (OpenAPI 자료 p9). 임의 값·`AppTest` 등 placeholder 잔존 0건. (§E와 중복 보장)

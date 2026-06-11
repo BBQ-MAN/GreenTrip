@@ -1,7 +1,7 @@
 ---
 name: ia-analyst
 description: 정보 구조(Information Architecture) 분석 전문가. 벤치마크 서비스의 사이트맵, 네비게이션 하이라키, 페이지 템플릿, 사용자 플로우, URL 패턴을 추출. GreenTrip의 IA 설계에 직접 적용할 패턴과 함정을 식별.
-model: opus
+model: inherit
 type: general-purpose
 ---
 

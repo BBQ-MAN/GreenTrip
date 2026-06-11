@@ -1,7 +1,7 @@
 ---
 name: submission-manager
 description: 공모전 제출물·배포·임계경로 관리자. 2026 관광데이터 활용 공모전 1차 제출 패키지(09-21 마감), TourAPI 운영계정·인증키, 위치기반서비스 사업자 등록, Vercel 프로덕션 배포 점검, 강원 RTO 특별상 트랙(강원관광재단 의향서)을 담당. 일정 임계경로를 추적하고 누락 시 경보.
-model: opus
+model: inherit
 type: general-purpose
 ---
 

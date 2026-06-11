@@ -241,7 +241,7 @@ Counter:    1인당 코스 사용률 (여행 완료 OR 인증서 OR 30일 재방
 |-----------|-------------------|---------|
 | **기획력 (30)** | 시장 갭 + "어디→어떻게" + MZ 가치 + Trade-off 명시 | Evidence Ledger E1·E2·E3 보강 |
 | **완성도 (30)** | 시그니처 3개 라이브 데모 + PWA + Lighthouse + WCAG | 모바일 실 디바이스 QA + 시드 코스 캐시 워밍 |
-| **데이터 활용 (20)** | TourAPI 14종 (KorService2 13종 + 두루누비, 19종 중 74%) + 통계 대시보드(P0-11) + `/about/sustainability`(P0-10) | 동기화 목록 API(areaBasedSyncList2) 실제 사용 코드 |
+| **데이터 활용 (20)** | TourAPI 14종 (KorService2 13종 + 두루누비, 19종 중 74%) + 통계 대시보드(P0-11) + `/about/sustainability`(P0-10) | ~~동기화 목록 API(areaBasedSyncList2) 실제 사용 코드~~ 구현 완료(`/api/tour/sync`, Phase 3 W14) |
 | **발전성 (20)** | Phase 4·5·6 로드맵 + 정책 매핑 8개 + B2G LOI | 강원관광재단 협업 LOI 진척 |
 | **가점 (+2~4)** | 강원도 특화 +2 | Start-up NEST 등록 검토 +2 |
 

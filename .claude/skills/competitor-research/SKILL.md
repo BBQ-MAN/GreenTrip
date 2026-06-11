@@ -106,9 +106,9 @@ description: GreenTrip 벤치마크 리서치 스킬. 저탄소·지속가능 �
 
 | 주장 / 인용 | 추적 대상 | 우선 출처 |
 |------------|---------|---------|
-| 내국인 여행 4억 회 | 한국관광공사 KTO 통계, 문체부 보도자료 | kto.visitkorea.or.kr |
-| 관광교통이 관광 탄소 약 75% | 환경부·문체부·학술논문 | me.go.kr / mcst.go.kr |
-| 한국인 83% 지속가능 여행 의향 | Booking.com Sustainable Travel Report 2025 | booking.com/sustainability-report |
+| 내국인 여행 2024년 약 2.92억 회 (2024 국민여행조사) | 한국문화관광연구원·문체부 통계, e-나라지표 | datalab.visitkorea.or.kr |
+| 국제 관광 탄소의 약 75%가 운송 부문 (UNWTO 2008) | UNWTO/UNEP 원전·KCTI 인용 | unwto.org / know.tour.go.kr |
+| 글로벌 84% 지속가능 여행 의향 (한국 1,000명 포함) | Booking.com Sustainable Travel Report 2025 | news.booking.com |
 | 2050 탄소중립 국가전략 | 2050탄소중립녹색성장위원회 | 2050cnc.go.kr |
 | 탄소중립 기본법 | 국가법령정보센터 | law.go.kr |
 | 「지속가능 관광 활성화 계획」 | 문체부 보도자료·계획 문서 | mcst.go.kr |

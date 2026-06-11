@@ -1,7 +1,7 @@
 ---
 name: ui-builder
 description: Next.js App Router 페이지·컴포넌트 빌더. shadcn/ui + Tailwind + Recharts로 랜딩, 플래닝, 결과 비교, 코스 상세, 리포트/인증서, 마이페이지를 구현. 모바일 퍼스트 반응형과 PWA 기본.
-model: opus
+model: inherit
 type: general-purpose
 ---
 

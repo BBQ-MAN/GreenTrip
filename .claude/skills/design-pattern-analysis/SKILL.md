@@ -97,17 +97,19 @@ description: 시각 디자인 패턴 분석 스킬. 벤치마크 서비스의 �
 
 ## GreenTrip 디자인 토큰 제안 템플릿
 
+> **토큰 정본은 `src/styles/tokens.ts`** — 아래 hex는 현행 정본(WCAG AA 보정, 2026-06-10) 기준. 이 스킬에 직접 기재한 값은 tokens.ts 변경 시 동기화 의무.
+
 ```typescript
 // src/styles/tokens.ts (또는 tailwind.config 확장)
 export const tokens = {
   color: {
     brand: {
-      primary: '#10B981',     // 초록 (지속가능)
-      secondary: '#0EA5E9',   // 강원도 청정 sky
-      accent: '#F59E0B',      // 절감량 강조
+      primary: '#097A50',     // 브랜드 그린 (AA 5.37:1 — 구 #10B981·#0B8C5C 폐기)
+      secondary: '#0E7490',   // 강원도 청정 cyan
+      accent: '#F59E0B',      // 절감량 강조 (배경/그래픽 전용 — 전경은 #92400E)
     },
     semantic: {
-      success: '#10B981',
+      success: '#097A50',
       warn: '#F59E0B',
       error: '#EF4444',
     },
@@ -122,10 +124,10 @@ export const tokens = {
       inverse: '#FFFFFF',
     },
     carbon: {
-      low:    '#D1FAE5',  // ≤ 1 kg
-      mid:    '#FEF3C7',  //   1~5 kg
-      high:   '#FED7AA',  //   5~10 kg
-      severe: '#FECACA',  // > 10 kg
+      low:    '#D1FAE5',  // ≤ 2 kg (저탄소)
+      mid:    '#FEF3C7',  //   2~6 kg (균형)
+      high:   '#FED7AA',  //   6~12 kg (주의)
+      severe: '#FECACA',  // > 12 kg (고탄소)
     },
   },
   font: {
